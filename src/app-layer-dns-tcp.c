@@ -266,9 +266,9 @@ insufficient_data:
  *  \brief Parse DNS request packet
  */
 static int DNSTCPRequestParse(Flow *f, void *dstate,
-                          AppLayerParserState *pstate,
-                          uint8_t *input, uint32_t input_len,
-                          void *local_data, AppLayerParserResult *output)
+                              void *pstate,
+                              uint8_t *input, uint32_t input_len,
+                              void *local_data)
 {
 	DNSState *dns_state = (DNSState *)dstate;
     SCLogDebug("starting %u", input_len);
@@ -455,9 +455,9 @@ insufficient_data:
  *
  */
 static int DNSTCPResponseParse(Flow *f, void *dstate,
-                          AppLayerParserState *pstate,
-                          uint8_t *input, uint32_t input_len,
-                          void *local_data, AppLayerParserResult *output)
+                               void *pstate,
+                               uint8_t *input, uint32_t input_len,
+                               void *local_data)
 {
 	DNSState *dns_state = (DNSState *)dstate;
 
@@ -554,7 +554,7 @@ static uint16_t DNSTcpProbingParser(uint8_t *input, uint32_t ilen, uint32_t *off
             return ALPROTO_FAILED;
         } else if (ilen > 512) {
             SCLogDebug("all the parser told us was not enough data, which is expected. Lets assume it's DNS");
-            return ALPROTO_DNS_TCP;
+            return ALPROTO_DNS;
         }
 
         SCLogDebug("not yet enough info %u > %u", ntohs(dns_header->len), ilen);
@@ -565,57 +565,65 @@ static uint16_t DNSTcpProbingParser(uint8_t *input, uint32_t ilen, uint32_t *off
     if (r != 1)
         return ALPROTO_FAILED;
 
-    SCLogDebug("ALPROTO_DNS_TCP");
-    return ALPROTO_DNS_TCP;
+    SCLogDebug("ALPROTO_DNS");
+    return ALPROTO_DNS;
 }
 
 void RegisterDNSTCPParsers(void) {
-    char *proto_name = "dnstcp";
+    char *proto_name = "dns";
 
     /** DNS */
-    if (AppLayerProtoDetectionEnabled(proto_name)) {
-        if (RunmodeIsUnittests()) {
-            AppLayerRegisterProbingParser(&alp_proto_ctx,
-                                          IPPROTO_TCP,
-                                          "53",
-                                          proto_name,
-                                          ALPROTO_DNS,
-                                          0, sizeof(DNSTcpHeader),
-                                          STREAM_TOSERVER,
-                                          DNSTcpProbingParser);
-        } else {
-            AppLayerParseProbingParserPorts(proto_name, ALPROTO_DNS,
-                                            0, sizeof(DNSTcpHeader),
-                                            DNSTcpProbingParser);
+    if (1) {
+        if (AlpdRegisterProtocol(ALPROTO_DNS, proto_name) < 0) {
+            SCLogWarning(SC_ERR_FATAL, "\todo.  we can return if we have tcp "
+                         "and udp registering again and we need to fix this.");
+            //return;
         }
+        AlpdPPRegister(IPPROTO_TCP,
+                       "53",
+                       ALPROTO_DNS,
+                       0, sizeof(DNSTcpHeader),
+                       STREAM_TOSERVER,
+                       DNSTcpProbingParser);
+        //if (RunmodeIsUnittests()) {
+        //    AlpdPPRegister(IPPROTO_TCP,
+        //                   "53",
+        //                   ALPROTO_DNS,
+        //                   0, sizeof(DNSTcpHeader),
+        //                   STREAM_TOSERVER,
+        //                   DNSTcpProbingParser);
+        //} else {
+        //    AlpdPPParseConfPorts(proto_name,
+        //                         ALPROTO_DNS,
+        //                         0, sizeof(DNSTcpHeader),
+        //                         DNSTcpProbingParser);
+        //}
     } else {
         SCLogInfo("Protocol detection and parser disabled for %s protocol.",
                   proto_name);
         return;
     }
 
-    if (AppLayerParserEnabled(proto_name)) {
-        AppLayerRegisterProto(proto_name, ALPROTO_DNS_TCP, STREAM_TOSERVER,
+    if (1) {
+        AlpRegisterParser(IPPROTO_TCP, ALPROTO_DNS, STREAM_TOSERVER,
                               DNSTCPRequestParse);
-        AppLayerRegisterProto(proto_name, ALPROTO_DNS_TCP, STREAM_TOCLIENT,
+        AlpRegisterParser(IPPROTO_TCP , ALPROTO_DNS, STREAM_TOCLIENT,
                               DNSTCPResponseParse);
-        AppLayerRegisterStateFuncs(ALPROTO_DNS_TCP, DNSStateAlloc,
+        AlpRegisterStateFuncs(IPPROTO_TCP, ALPROTO_DNS, DNSStateAlloc,
                                    DNSStateFree);
-        AppLayerRegisterTxFreeFunc(ALPROTO_DNS_TCP,
+        AlpRegisterTxFreeFunc(IPPROTO_TCP, ALPROTO_DNS,
                                    DNSStateTransactionFree);
 
-        AppLayerRegisterGetEventsFunc(ALPROTO_DNS_TCP, DNSGetEvents);
-        AppLayerRegisterHasEventsFunc(ALPROTO_DNS_TCP, DNSHasEvents);
+        AlpRegisterGetEventsFunc(IPPROTO_TCP, ALPROTO_DNS, DNSGetEvents);
+        AlpRegisterHasEventsFunc(IPPROTO_TCP, ALPROTO_DNS, DNSHasEvents);
 
-        AppLayerRegisterGetTx(ALPROTO_DNS_TCP,
-                              DNSGetTx);
-        AppLayerRegisterGetTxCnt(ALPROTO_DNS_TCP,
-                                 DNSGetTxCnt);
-        AppLayerRegisterGetAlstateProgressFunc(ALPROTO_DNS_TCP,
-                                               DNSGetAlstateProgress);
-        AppLayerRegisterGetAlstateProgressCompletionStatus(ALPROTO_DNS_TCP,
-                                                           DNSGetAlstateProgressCompletionStatus);
-        DNSAppLayerRegisterGetEventInfo(ALPROTO_DNS_TCP);
+        AlpRegisterGetTx(IPPROTO_TCP, ALPROTO_DNS, DNSGetTx);
+        AlpRegisterGetTxCnt(IPPROTO_TCP, ALPROTO_DNS, DNSGetTxCnt);
+        AlpRegisterGetStateProgressFunc(IPPROTO_TCP, ALPROTO_DNS,
+                                          DNSGetAlstateProgress);
+        AlpRegisterGetStateProgressCompletionStatus(IPPROTO_TCP, ALPROTO_DNS,
+                                                    DNSGetAlstateProgressCompletionStatus);
+        DNSAppLayerRegisterGetEventInfo(IPPROTO_TCP, ALPROTO_DNS);
     } else {
         SCLogInfo("Parsed disabled for %s protocol. Protocol detection"
                   "still on.", proto_name);

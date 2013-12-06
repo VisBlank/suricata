@@ -68,9 +68,11 @@ int DNSStateGetEventInfo(const char *event_name,
     return 0;
 }
 
-void DNSAppLayerRegisterGetEventInfo(uint16_t alproto)
+void DNSAppLayerRegisterGetEventInfo(uint16_t ipproto, uint16_t alproto)
 {
-    return AppLayerRegisterGetEventInfo(alproto, DNSStateGetEventInfo);
+    AlpRegisterGetEventInfo(ipproto, alproto, DNSStateGetEventInfo);
+
+    return;
 }
 
 AppLayerDecoderEvents *DNSGetEvents(void *state, uint64_t id) {

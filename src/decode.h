@@ -559,7 +559,7 @@ typedef struct AlpProtoDetectThreadCtx_ {
     AlpProtoDetectDirectionThread toserver;
     AlpProtoDetectDirectionThread toclient;
 
-    void *alproto_local_storage[ALPROTO_MAX];
+    void *app_tctx;
 
 #ifdef PROFILING
     uint64_t ticks_start;
@@ -576,7 +576,7 @@ typedef struct AlpProtoDetectThreadCtx_ {
 typedef struct DecodeThreadVars_
 {
     /** Specific context for udp protocol detection (here atm) */
-    AlpProtoDetectThreadCtx udp_dp_ctx;
+    void *app_tctx;
 
     int vlan_disabled;
 

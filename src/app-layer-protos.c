@@ -72,17 +72,8 @@ const char *AppProtoToString(AppProto alproto)
         case ALPROTO_DCERPC:
             proto_name = "dcerpc";
             break;
-        case ALPROTO_DCERPC_UDP:
-            proto_name = "dcerpcudp";
-            break;
         case ALPROTO_IRC:
             proto_name = "irc";
-            break;
-        case ALPROTO_DNS_TCP:
-            proto_name = "dnstcp";
-            break;
-        case ALPROTO_DNS_UDP:
-            proto_name = "dnsudp";
             break;
         case ALPROTO_DNS:
             proto_name = "dns";

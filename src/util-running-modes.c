@@ -36,8 +36,8 @@ int ListKeywords(const char *keyword_info)
 int ListAppLayerProtocols()
 {
     MpmTableSetup();
-    AppLayerDetectProtoThreadInit();
-    AppLayerListSupportedProtocols();
+    //AppLayerDetectProtoThreadInit();
+    //AppLayerListSupportedProtocols();
     exit(EXIT_SUCCESS);
 }
 

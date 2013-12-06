@@ -46,7 +46,7 @@ int DetectEngineAptEventInspect(ThreadVars *tv,
     DetectAppLayerEventData *aled = NULL;
 
     alproto = f->alproto;
-    decoder_events = AppLayerGetEventsFromFlowByTx(f, tx_id);
+    decoder_events = AlpGetEventsByTx(f->proto, alproto, alstate, tx_id);
     if (decoder_events == NULL)
         goto end;
 
@@ -69,8 +69,8 @@ int DetectEngineAptEventInspect(ThreadVars *tv,
         return DETECT_ENGINE_INSPECT_SIG_MATCH;
     } else {
         direction = (flags & STREAM_TOSERVER) ? 0 : 1;
-        if (AppLayerGetAlstateProgress(alproto, tx, direction) ==
-            AppLayerGetAlstateProgressCompletionStatus(alproto, direction))
+        if (AlpGetStateProgress(f->proto, alproto, tx, direction) ==
+            AlpGetStateProgressCompletionStatus(f->proto, alproto, direction))
         {
             return DETECT_ENGINE_INSPECT_SIG_CANT_MATCH;
         } else {

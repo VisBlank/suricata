@@ -527,6 +527,28 @@ Flow *FlowGetFlowFromHash(const Packet *p)
     /* ok, we have a flow in the bucket. Let's find out if it is our flow */
     f = fb->head;
 
+    int x = 0;
+    int r[8];
+    memset(r, 0 , sizeof(r));
+    r[0] = CMP_ADDR(&(f)->src, &(p)->src);
+    r[1] = CMP_ADDR(&(f)->dst, &(p)->dst);
+    r[2] = CMP_PORT((f)->sp, (p)->sp);
+    r[3] = CMP_PORT((f)->dp, (p)->dp);
+
+    r[4] = CMP_ADDR(&(f)->src, &(p)->dst);
+    r[5] = CMP_ADDR(&(f)->dst, &(p)->src);
+    r[6] = CMP_PORT((f)->sp, (p)->dp);
+    r[7] = CMP_PORT((f)->dp, (p)->sp);
+
+    if (((r[0] && r[1] && r[2] && r[3]) || (r[4] && r[5] && r[6] && r[7])) &&
+        (f)->proto == (p)->proto &&
+        (f)->recursion_level == (p)->recursion_level &&
+        (f)->vlan_id[0] == (p)->vlan_id[0] &&
+        (f)->vlan_id[1] == (p)->vlan_id[1])
+        {
+            x = 1;
+        }
+
     /* see if this is the flow we are looking for */
     if (FlowCompare(f, p) == 0) {
         Flow *pf = NULL; /* previous flow */
