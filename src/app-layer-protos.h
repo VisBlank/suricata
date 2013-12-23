@@ -43,6 +43,7 @@ enum AppProto {
     ALPROTO_DNS,
     ALPROTO_DNS_UDP,
     ALPROTO_DNS_TCP,
+    ALPROTO_MYSQL,
 
     /* used by the probing parser when alproto detection fails
      * permanently for that particular stream */

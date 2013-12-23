@@ -61,7 +61,8 @@ host-mode: auto
 # The default logging directory.  Any log or output file will be
 # placed here if its not specified with a full path name.  This can be
 # overridden with the -l command line parameter.
-default-log-dir: /usr/local/var/log/suricata/
+#default-log-dir: /usr/local/var/log/suricata/
+default-log-dir: log/suricata/
 
 # Unix command socket can be used to pass commands to suricata.
 # An external tool can then connect to get information from suricata
@@ -851,9 +852,11 @@ ipfw:
 
 # Set the default rule path here to search for the files.
 # if not set, it will look at the current working dir
-default-rule-path: /usr/local/etc/suricata/rules
+#default-rule-path: /usr/local/etc/suricata/rules
+default-rule-path: ./rules
 rule-files:
  - botcc.rules
+ - test.rules
  - ciarmy.rules
  - compromised.rules
  - drop.rules
@@ -903,8 +906,10 @@ rule-files:
  - smtp-events.rules    # available in suricata sources under rules dir
  - dns-events.rules     # available in suricata sources under rules dir
 
-classification-file: /usr/local/etc/suricata/classification.config
-reference-config-file: /usr/local/etc/suricata/reference.config
+#classification-file: /usr/local/etc/suricata/classification.config
+classification-file: classification.config
+#reference-config-file: /usr/local/etc/suricata/reference.config
+reference-config-file: reference.config
 
 # Holds variables that would be used by the engine.
 vars:

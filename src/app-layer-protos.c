@@ -85,6 +85,9 @@ const char *TmModuleAlprotoToString(enum AppProto proto)
         case ALPROTO_DNS:
             proto_name = "dns";
             break;
+        case ALPROTO_MYSQL:
+            proto_name = "mysql";
+            break;
         case ALPROTO_FAILED:
 #ifdef UNITTESTS
         case ALPROTO_TEST:
