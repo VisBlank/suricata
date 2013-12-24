@@ -56,6 +56,7 @@
 #include "app-layer-smtp.h"
 #include "app-layer-dns-udp.h"
 #include "app-layer-dns-tcp.h"
+#include "app-layer-mysql.h"
 
 #include "conf.h"
 #include "util-spm.h"
@@ -1457,11 +1458,12 @@ void RegisterAppLayerParsers(void)
     RegisterSMTPParsers();
     RegisterDNSUDPParsers();
     RegisterDNSTCPParsers();
+    RegisterMySqlParsers();
 
     /** IMAP */
     if (AppLayerProtoDetectionEnabled("imap")) {
         //AlpProtoAdd(&alp_proto_ctx, IPPROTO_TCP, ALPROTO_IMAP, "|2A 20|OK|20|", 5, 0, STREAM_TOCLIENT);
-        AlpProtoAdd(&alp_proto_ctx, "imap", IPPROTO_TCP, ALPROTO_IMAP, "1|20|capability", 12, 0, STREAM_TOSERVER);
+        AlpProtoAdd(&alp_proto_ctx, "imap", IPPROTO_TCP, ALPROTO_IMAP, "2|20|capability", 12, 0, STREAM_TOSERVER);
     } else {
         SCLogInfo("Protocol detection and parser disabled for %s protocol.",
                   "imap");

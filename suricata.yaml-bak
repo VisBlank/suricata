@@ -855,51 +855,51 @@ ipfw:
 #default-rule-path: /usr/local/etc/suricata/rules
 default-rule-path: ./rules
 rule-files:
- #- botcc.rules
- #- test.rules
- #- ciarmy.rules
- #- compromised.rules
- #- drop.rules
- #- dshield.rules
- #- emerging-activex.rules
- #- emerging-attack_response.rules
- #- emerging-chat.rules
- #- emerging-current_events.rules
- #- emerging-dns.rules
- #- emerging-dos.rules
- #- emerging-exploit.rules
- #- emerging-ftp.rules
- #- emerging-games.rules
- #- emerging-icmp_info.rules
- #- emerging-icmp.rules
- #- emerging-imap.rules
- #- emerging-inappropriate.rules
- #- emerging-malware.rules
- #- emerging-misc.rules
- #- emerging-mobile_malware.rules
- #- emerging-netbios.rules
- #- emerging-p2p.rules
- #- emerging-policy.rules
- #- emerging-pop3.rules
- #- emerging-rpc.rules
- #- emerging-scada.rules
- #- emerging-scan.rules
- #- emerging-shellcode.rules
- #- emerging-smtp.rules
- #- emerging-snmp.rules
- #- emerging-sql.rules
- #- emerging-telnet.rules
- #- emerging-tftp.rules
- #- emerging-trojan.rules
- #- emerging-user_agents.rules
- #- emerging-voip.rules
- #- emerging-web_client.rules
- #- emerging-web_server.rules
- #- emerging-web_specific_apps.rules
- #- emerging-worm.rules
- #- rbn-malvertisers.rules
- #- rbn.rules
- #- tor.rules
+ - botcc.rules
+ - test.rules
+ - ciarmy.rules
+ - compromised.rules
+ - drop.rules
+ - dshield.rules
+ - emerging-activex.rules
+ - emerging-attack_response.rules
+ - emerging-chat.rules
+ - emerging-current_events.rules
+ - emerging-dns.rules
+ - emerging-dos.rules
+ - emerging-exploit.rules
+ - emerging-ftp.rules
+ - emerging-games.rules
+ - emerging-icmp_info.rules
+ - emerging-icmp.rules
+ - emerging-imap.rules
+ - emerging-inappropriate.rules
+ - emerging-malware.rules
+ - emerging-misc.rules
+ - emerging-mobile_malware.rules
+ - emerging-netbios.rules
+ - emerging-p2p.rules
+ - emerging-policy.rules
+ - emerging-pop3.rules
+ - emerging-rpc.rules
+ - emerging-scada.rules
+ - emerging-scan.rules
+ - emerging-shellcode.rules
+ - emerging-smtp.rules
+ - emerging-snmp.rules
+ - emerging-sql.rules
+ - emerging-telnet.rules
+ - emerging-tftp.rules
+ - emerging-trojan.rules
+ - emerging-user_agents.rules
+ - emerging-voip.rules
+ - emerging-web_client.rules
+ - emerging-web_server.rules
+ - emerging-web_specific_apps.rules
+ - emerging-worm.rules
+ - rbn-malvertisers.rules
+ - rbn.rules
+ - tor.rules
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
@@ -1030,28 +1030,28 @@ app-layer:
         tcp:
           toserver: 3306
     tls:
-      enabled: yes
+      enabled: no
       detection-ports:
         tcp:
           toserver: 443
 
       #no-reassemble: yes
     dcerpc:
-      enabled: yes
+      enabled: no
     ftp:
-      enabled: yes
+      enabled: no
     ssh:
       enabled: yes
     smtp:
-      enabled: yes
+      enabled: no
     imap:
       #enabled: detection-only
-      enabled: yes
+      enabled: no
     msn:
       #enabled: detection-only
-      enabled: yes
+      enabled: no
     smb:
-      enabled: yes
+      enabled: no
       detection-ports:
         tcp:
           toserver: 139
@@ -1059,17 +1059,17 @@ app-layer:
     #smb2:
     #  enabled: yes
     dnstcp:
-       enabled: yes
+       enabled: no
        detection-ports:
          tcp:
            toserver: 53
     dnsudp:
-       enabled: yes
+       enabled: no
        detection-ports:
          udp:
            toserver: 53
     http:
-      enabled: yes
+      enabled: no
 
       ###########################################################################
       # Configure libhtp.

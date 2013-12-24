@@ -13,28 +13,88 @@
 #include "app-layer-mysql.h"
 
 static int MySqlDecode(Flow *f, uint8_t direction, void *alstate, AppLayerParserState *pstate,
-        uint8_t *input, uint32_t ilen) {
+        uint8_t *input, uint32_t ilen)
+{
     return 0; /* TODO */
+}
+
+static int MySqlParseClientVersion(Flow *f, void *mysql_state, AppLayerParserState *pstate,
+        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output)
+{
+    /* TODO: */
+    return 0;
 }
 
 static int MySqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
         uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output) {
-    return MySqlDecode(f, 0 /* to server */, alstate, pstate, input, input_len);
+#if 0
+    MySqlState *state = (MySqlState *)mysql_state;
+    SCEnter();
+
+    int ret = 0;
+
+    SCLogDebug("mysql_state %p, pstate %p, input %p, input_len %" PRIu32 "",
+            mysql_state, pstate, input, input_len);
+    if (pstate == NULL)
+        SCReturnInt(-1);
+
+    state->direction = MYSQL_DIRECTION_TO_CLIENT;
+
+    if (!(state->flags & MYSQL_FLAGS_CLIENT_VERSION_PARSED)) {
+        ret = MySqlParseClientVersion(f, ssh_state, pstate, input, input_len, output);
+        if (ret < 0) {
+            SCLogDebug("Invalid MySql client version string");
+            SCReturnInt(-1);
+        } else if (state->flags & MYSQL_FLAGS_CLIENT_VERSION_PARSED) {
+            SCLogDebug("MySql client version string parsed");
+            input += input_len - ret;
+            input_len -= (input_len - ret);
+            pstate->parse_field = 1;
+            ret = 1;
+            if (input_len == 0)
+                SCReturnInt(ret);
+        } else  {
+            SCLogDebug("MySql client version not parsed yet");
+            pstate->parse_field = 0;
+            SCReturnInt(ret);
+        }
+    } else {
+        SCLogDebug("MySql client version already parsed");
+    }
+#endif
+    /* TODO */
+    return 0;
 }
 
-static int MySqlParseServerRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
-        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output) {
-    return MySqlDecode(f, 1 /* to client */, alstate, pstate, input, input_len);
+static int MySqlParseServerRecord(Flow *f, void *mysql_state, AppLayerParserState *pstate,
+        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output)
+{
+    MySqlState *state = (MySqlState *)mysql_state;
+    SCEnter();
+
+    int ret = 0;
+
+    SCLogDebug("mysql_state %p, pstate %p, input %p, input_len %" PRIu32 "",
+            mysql_state, pstate, input, input_len);
+    if (pstate == NULL)
+        SCReturnInt(-1);
+    
+    state->direction = MYSQL_DIRECTION_TO_SERVER;
+
+    /* TODO */
+    return 0;
 }
 
 void RegisterMySqlParsers(void) {
     char *proto_name = "mysql";
 
     if (AppLayerProtoDetectionEnabled(proto_name)) {
-        /* TODO: */
-        AlpProtoAddCI(&alp_proto_ctx, proto_name, IPPROTO_TCP, ALPROTO_MYSQL, "||", 1, 0, STREAM_TOSERVER);
+        /* TODO:
+         * MySql protocol got no prefix in the protocol, so we capture every packages pass by 
+         */
+        //AlpProtoAddCI(&alp_proto_ctx, proto_name, IPPROTO_TCP, ALPROTO_MYSQL, "||", 1, 0, STREAM_TOSERVER);
 
-        AppLayerRegisterParserAcceptableDataDirection(ALPROTO_MYSQL, STREAM_TOSERVER);
+        AppLayerRegisterParserAcceptableDataDirection(ALPROTO_MYSQL, STREAM_TOSERVER | STREAM_TOCLIENT);
     } else {
         SCLogInfo("Protocol detection and parser disabled for %s protocol", proto_name);
         return;

@@ -1,5 +1,4 @@
-./configure --enable-debug-validation \
-	--enable-debug \
+./configure --enable-debug \
 	--enable-nfqueue \
 	--enable-non-bundled-htp \
 	--with-libhtp-includes=/usr/local/include/htp \

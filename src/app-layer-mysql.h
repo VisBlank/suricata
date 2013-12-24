@@ -42,12 +42,22 @@ typedef enum {
 	MYSQL_COMMAND_RESET_CONNECTION    = 0x1f,
 } MySqlRequestCommand;
 
+#define MYSQL_FLAGS_CLIENT_VERSION_PARSED 0x01
+//#define MYSQL_FLAGS_SERVER_VERSION_PARSED 0x02
+//
+
+#define MYSQL_DIRECTION_TO_SERVER 0x00
+#define MYSQL_DIRECTION_TO_CLIENT 0x01
+
 typedef struct MySqlState_ {
+    uint8_t flags;
     uint8_t *input;
     uint32_t input_len;
     uint8_t direction;
 
     /* TODO: add more */
 } MySqlState;
+
+void RegisterMySqlParsers(void);
 
 #endif /* __APP_LAYER_MYSQL_H__ */
