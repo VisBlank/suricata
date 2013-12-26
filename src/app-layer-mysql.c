@@ -12,6 +12,7 @@
 #include "app-layer-detect-proto.h"
 #include "app-layer-mysql.h"
 
+#if 0
 static int MySqlDecode(Flow *f, uint8_t direction, void *alstate, AppLayerParserState *pstate,
         uint8_t *input, uint32_t ilen)
 {
@@ -24,6 +25,7 @@ static int MySqlParseClientVersion(Flow *f, void *mysql_state, AppLayerParserSta
     /* TODO: */
     return 0;
 }
+#endif
 
 static int MySqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
         uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output) {

@@ -691,7 +691,8 @@ logging:
   # compiled with the --enable-debug configure option.
   #
   # This value is overriden by the SC_LOG_LEVEL env var.
-  default-log-level: notice
+  #default-log-level: notice
+  default-log-level: debug
 
   # The default output format.  Optional parameter, should default to
   # something reasonable if not provided.  Can be overriden in an
@@ -709,15 +710,17 @@ logging:
   # Define your logging outputs.  If none are defined, or they are all
   # disabled you will get the default - console output.
   outputs:
-  - console:
-      enabled: yes
+  #- console:
+  #    #enabled: yes
+  #    #enabled: no
   - file:
-      enabled: no
-      filename: /var/log/suricata.log
-  - syslog:
-      enabled: no
-      facility: local5
-      format: "[%i] <%d> -- "
+      enabled: yes
+      #filename: /var/log/suricata.log
+      filename: ./log/suricata/suricata.log
+  #- syslog:
+  #    enabled: no
+  #    facility: local5
+  #    format: "[%i] <%d> -- "
 
 # Tilera mpipe configuration. for use on Tilera TILE-Gx.
 mpipe:
@@ -855,51 +858,51 @@ ipfw:
 #default-rule-path: /usr/local/etc/suricata/rules
 default-rule-path: ./rules
 rule-files:
- - botcc.rules
- - test.rules
- - ciarmy.rules
- - compromised.rules
- - drop.rules
- - dshield.rules
- - emerging-activex.rules
- - emerging-attack_response.rules
- - emerging-chat.rules
- - emerging-current_events.rules
- - emerging-dns.rules
- - emerging-dos.rules
- - emerging-exploit.rules
- - emerging-ftp.rules
- - emerging-games.rules
- - emerging-icmp_info.rules
- - emerging-icmp.rules
- - emerging-imap.rules
- - emerging-inappropriate.rules
- - emerging-malware.rules
- - emerging-misc.rules
- - emerging-mobile_malware.rules
- - emerging-netbios.rules
- - emerging-p2p.rules
- - emerging-policy.rules
- - emerging-pop3.rules
- - emerging-rpc.rules
- - emerging-scada.rules
- - emerging-scan.rules
- - emerging-shellcode.rules
- - emerging-smtp.rules
- - emerging-snmp.rules
- - emerging-sql.rules
- - emerging-telnet.rules
- - emerging-tftp.rules
- - emerging-trojan.rules
- - emerging-user_agents.rules
- - emerging-voip.rules
- - emerging-web_client.rules
- - emerging-web_server.rules
- - emerging-web_specific_apps.rules
- - emerging-worm.rules
- - rbn-malvertisers.rules
- - rbn.rules
- - tor.rules
+ #- botcc.rules
+ #- test.rules
+ #- ciarmy.rules
+ #- compromised.rules
+ #- drop.rules
+ #- dshield.rules
+ #- emerging-activex.rules
+ #- emerging-attack_response.rules
+ #- emerging-chat.rules
+ #- emerging-current_events.rules
+ #- emerging-dns.rules
+ #- emerging-dos.rules
+ #- emerging-exploit.rules
+ #- emerging-ftp.rules
+ #- emerging-games.rules
+ #- emerging-icmp_info.rules
+ #- emerging-icmp.rules
+ #- emerging-imap.rules
+ #- emerging-inappropriate.rules
+ #- emerging-malware.rules
+ #- emerging-misc.rules
+ #- emerging-mobile_malware.rules
+ #- emerging-netbios.rules
+ #- emerging-p2p.rules
+ #- emerging-policy.rules
+ #- emerging-pop3.rules
+ #- emerging-rpc.rules
+ #- emerging-scada.rules
+ #- emerging-scan.rules
+ #- emerging-shellcode.rules
+ #- emerging-smtp.rules
+ #- emerging-snmp.rules
+ #- emerging-sql.rules
+ #- emerging-telnet.rules
+ #- emerging-tftp.rules
+ #- emerging-trojan.rules
+ #- emerging-user_agents.rules
+ #- emerging-voip.rules
+ #- emerging-web_client.rules
+ #- emerging-web_server.rules
+ #- emerging-web_specific_apps.rules
+ #- emerging-worm.rules
+ #- rbn-malvertisers.rules
+ #- rbn.rules
+ #- tor.rules
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
@@ -1041,7 +1044,7 @@ app-layer:
     ftp:
       enabled: no
     ssh:
-      enabled: yes
+      enabled: no
     smtp:
       enabled: no
     imap:

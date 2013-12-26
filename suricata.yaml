@@ -691,7 +691,8 @@ logging:
   # compiled with the --enable-debug configure option.
   #
   # This value is overriden by the SC_LOG_LEVEL env var.
-  default-log-level: notice
+  #default-log-level: notice
+  default-log-level: debug
 
   # The default output format.  Optional parameter, should default to
   # something reasonable if not provided.  Can be overriden in an
@@ -709,15 +710,17 @@ logging:
   # Define your logging outputs.  If none are defined, or they are all
   # disabled you will get the default - console output.
   outputs:
-  - console:
-      enabled: yes
+  #- console:
+  #    #enabled: yes
+  #    #enabled: no
   - file:
-      enabled: no
-      filename: /var/log/suricata.log
-  - syslog:
-      enabled: no
-      facility: local5
-      format: "[%i] <%d> -- "
+      enabled: yes
+      #filename: /var/log/suricata.log
+      filename: ./log/suricata/suricata.log
+  #- syslog:
+  #    enabled: no
+  #    facility: local5
+  #    format: "[%i] <%d> -- "
 
 # Tilera mpipe configuration. for use on Tilera TILE-Gx.
 mpipe:
