@@ -49,6 +49,46 @@ typedef enum {
 #define MYSQL_DIRECTION_TO_SERVER 0x00
 #define MYSQL_DIRECTION_TO_CLIENT 0x01
 
+typedef struct MySqlServerHandshake_{
+    int payload_len:3;
+    int sequence_id:1;
+    char protocol;
+    char charset;
+    char reserved_0;
+    char reserved_1;
+    char reserved_10[10]; /* reserved 10 bytes */
+    char crypt_part2[12];
+    int conn_id;
+    char crypt_part1[8];
+    short server_attr_l; /* low 2 bytes */
+    short server_attr_h; /* high 2 bytes */
+    short server_state;
+    char *client_version; /* dynamic length */
+} MySqlServerHandshake;
+
+typedef struct MySqlClientAuth_ {
+    int payload_len:3;
+    int sequence_id:1;
+    int client_available_attr;
+    int max_pkt_len;
+    char charset;
+    char reserved[23];
+    char *username;
+    char password_len;
+    char *password;
+    char *initial_db_name;
+} MySqlClientAuth_;
+
+typedef struct MySqlResponse_ {
+    int payload_len:3;
+    int sequence_id:1;
+    char state;
+    char affected_rows[9]; /* lenenc_int, maybe 1,3,4,9 bytes */
+    char last_insert_id[9]; /* lenenc_int, maybe 1,3,4,9 bytes */
+    short warnings;
+    char *msg;
+} MySqlResponse;
+
 typedef struct MySqlState_ {
     uint8_t flags;
     uint8_t *input;

@@ -29,19 +29,18 @@ static int MySqlParseClientVersion(Flow *f, void *mysql_state, AppLayerParserSta
 
 static int MySqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
         uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output) {
-#if 0
-    MySqlState *state = (MySqlState *)mysql_state;
+    MySqlState *state = (MySqlState *)alstate;
     SCEnter();
 
     int ret = 0;
 
     SCLogDebug("mysql_state %p, pstate %p, input %p, input_len %" PRIu32 "",
-            mysql_state, pstate, input, input_len);
+            alstate, pstate, input, input_len);
     if (pstate == NULL)
         SCReturnInt(-1);
 
     state->direction = MYSQL_DIRECTION_TO_CLIENT;
-
+#if 0
     if (!(state->flags & MYSQL_FLAGS_CLIENT_VERSION_PARSED)) {
         ret = MySqlParseClientVersion(f, ssh_state, pstate, input, input_len, output);
         if (ret < 0) {

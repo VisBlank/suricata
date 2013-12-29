@@ -1,3 +1,4 @@
+*.nccout
 *.o
 *.lo
 *.in

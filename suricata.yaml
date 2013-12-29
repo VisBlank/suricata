@@ -116,7 +116,7 @@ outputs:
       enabled: yes
       filename: http.log
       append: yes
-      #extended: yes     # enable this for extended logging information
+      extended: yes     # enable this for extended logging information
       #custom: yes       # enabled the custom logging format (defined by customformat)
       #customformat: "%{%D-%H:%M:%S}t.%z %{X-Forwarded-For}i %H %m %h %u %s %B %a:%p -> %A:%P"
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
@@ -691,8 +691,8 @@ logging:
   # compiled with the --enable-debug configure option.
   #
   # This value is overriden by the SC_LOG_LEVEL env var.
-  #default-log-level: notice
-  default-log-level: debug
+  default-log-level: notice
+  #default-log-level: debug
 
   # The default output format.  Optional parameter, should default to
   # something reasonable if not provided.  Can be overriden in an
@@ -710,17 +710,17 @@ logging:
   # Define your logging outputs.  If none are defined, or they are all
   # disabled you will get the default - console output.
   outputs:
-  #- console:
-  #    #enabled: yes
-  #    #enabled: no
+  - console:
+      #enabled: yes
+      enabled: no
   - file:
-      enabled: yes
+      enabled: no
       #filename: /var/log/suricata.log
-      filename: ./log/suricata/suricata.log
-  #- syslog:
-  #    enabled: no
-  #    facility: local5
-  #    format: "[%i] <%d> -- "
+      #filename: ./log/suricata/suricata.log
+  - syslog:
+      enabled: no
+      facility: local5
+      format: "[%i] <%d> -- "
 
 # Tilera mpipe configuration. for use on Tilera TILE-Gx.
 mpipe:
@@ -1033,28 +1033,28 @@ app-layer:
         tcp:
           toserver: 3306
     tls:
-      enabled: yes
+      enabled: no
       detection-ports:
         tcp:
           toserver: 443
 
       #no-reassemble: yes
     dcerpc:
-      enabled: yes
+      enabled: no
     ftp:
-      enabled: yes
+      enabled: no
     ssh:
-      enabled: yes
+      enabled: no
     smtp:
-      enabled: yes
+      enabled: no
     imap:
       #enabled: detection-only
-      enabled: yes
+      enabled: no
     msn:
       #enabled: detection-only
-      enabled: yes
+      enabled: no
     smb:
-      enabled: yes
+      enabled: no
       detection-ports:
         tcp:
           toserver: 139
@@ -1062,12 +1062,12 @@ app-layer:
     #smb2:
     #  enabled: yes
     dnstcp:
-       enabled: yes
+       enabled: no
        detection-ports:
          tcp:
            toserver: 53
     dnsudp:
-       enabled: yes
+       enabled: no
        detection-ports:
          udp:
            toserver: 53
