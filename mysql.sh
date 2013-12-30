@@ -3,4 +3,4 @@
 #sudo mysqld &
 
 # connect to mysql server
-mysql -u coanor --host=192.168.37.148 --port 3306
+mysql -u coanor --host=192.168.37.106 --port 3306

@@ -1458,7 +1458,7 @@ void RegisterAppLayerParsers(void)
     RegisterSMTPParsers();
     RegisterDNSUDPParsers();
     RegisterDNSTCPParsers();
-    RegisterMySqlParsers();
+    RegisterMysqlParsers();
 
     /** IMAP */
     if (AppLayerProtoDetectionEnabled("imap")) {

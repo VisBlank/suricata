@@ -1,5 +1,5 @@
 file ./src/suricata
-b main
+#b main
 
 #--------------------
 #b RegisterMySqlParsers
@@ -22,16 +22,16 @@ b main
 #b TmModuleDetectRegister
 #b DetectThreadInit
 
-# ----2013年 12月 28日 星期六 15:39:23 CST  ----------------
+# ---- main break point  ----------------
 #b TmThreadsSlotVarRun
 #b TmThreadsSlotProcessPkt
 #b TmThreadsSlotPktAcqLoop
 #-- various callback
 #b ReceivePcapFileLoop
-#b DecodePcap
+#b DecodePcap if p->src->family==2
 #b PcapCallbackLoop
-#b StreamTcp
-b StreamTcpReassembleHandleSegment
+#b StreamTcp if p->src->family==2
+#b StreamTcpReassembleHandleSegment
 #b Detect
 #b RespondRejectFunc
 #b AlertFastLog
@@ -60,6 +60,22 @@ b HTPHandleResponseData
 #---------------------- debug mysql data -----------------------
 b MySqlParseServerRecord
 b MySqlParseClientRecord
+b RegisterMysqlParsers
+b RegisterAppLayerParsers
+ 
+#---------------------- debug mysql log -----------------------
+#b TmModuleLogMysqlRegister
+#b RunModeInitializeOutputs
+#b LogMysqlLogThreadInit
+#b LogMysqlLog
 
-r -c suricata.yaml -i wlan0
+# --------------------- all log debug -----------------------
+#b AlertFastLog
+#b AlertDebugLog
+#b AlertPrelude
+#b AlertSyslog
+#b Unified2Alert
+
+#r -c suricata.yaml -i wlan0
+r -c suricata.yaml -i eth0
 set print pretty

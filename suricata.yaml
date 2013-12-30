@@ -76,6 +76,12 @@ unix-command:
 # Configure the type of alert (and other) logging you would like.
 outputs:
 
+  # mysql log
+  - mysql-log:
+      enabled: yes
+      filename: mysql.log
+      append: yes
+
   # a line based alerts log similar to Snort's fast.log
   - fast:
       enabled: yes
@@ -116,7 +122,7 @@ outputs:
       enabled: yes
       filename: http.log
       append: yes
-      extended: yes     # enable this for extended logging information
+      #extended: yes     # enable this for extended logging information
       #custom: yes       # enabled the custom logging format (defined by customformat)
       #customformat: "%{%D-%H:%M:%S}t.%z %{X-Forwarded-For}i %H %m %h %u %s %B %a:%p -> %A:%P"
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
@@ -710,17 +716,17 @@ logging:
   # Define your logging outputs.  If none are defined, or they are all
   # disabled you will get the default - console output.
   outputs:
-  - console:
-      #enabled: yes
-      enabled: no
+  #- console:
+  #    #enabled: yes
+  #    #enabled: no
   - file:
-      enabled: no
+      enabled: yes
       #filename: /var/log/suricata.log
-      #filename: ./log/suricata/suricata.log
-  - syslog:
-      enabled: no
-      facility: local5
-      format: "[%i] <%d> -- "
+      filename: ./log/suricata/suricata.log
+  #- syslog:
+  #    enabled: no
+  #    facility: local5
+  #    format: "[%i] <%d> -- "
 
 # Tilera mpipe configuration. for use on Tilera TILE-Gx.
 mpipe:

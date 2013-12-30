@@ -86,6 +86,7 @@
 #include "log-pcap.h"
 #include "log-file.h"
 #include "log-filestore.h"
+#include "log-mysqllog.h"
 
 #include "stream-tcp.h"
 
@@ -766,6 +767,9 @@ void RegisterAllModules()
     /* respond-reject */
     TmModuleRespondRejectRegister();
 
+    /* mysql log */
+    TmModuleLogMysqlRegister();
+#if 1
     /* fast log */
     TmModuleAlertFastLogRegister();
     TmModuleAlertFastLogIPv4Register();
@@ -800,7 +804,7 @@ void RegisterAllModules()
     TmModuleLogDnsLogRegister();
     /* cuda */
     TmModuleDebugList();
-
+#endif
 }
 
 TmEcode LoadYamlConfig(char *conf_filename) {
