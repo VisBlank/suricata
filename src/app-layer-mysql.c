@@ -339,6 +339,24 @@ static void MysqlStateFree(void *state) {
     SCFree(s);
 }
 
+static int MysqlRequestParse(Flow *f, void *dstate, AppLayerParserState *pstate,
+        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output) {
+    /* TODO */
+    SCReturnInt(1);
+}
+
+static uint16_t MysqlProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset) {
+    if (ilen == 0 || ilen < sizeof(MysqlPktHeader)) {
+        return ALPROTO_UNKNOWN; 
+    }
+
+    if (MysqlRequestParse(NULL, NULL, NULL, input, ilen, NULL, NULL) == -1) {
+        return ALPROTO_FAILED;
+    }
+
+    return ALPROTO_MYSQL;
+}
+
 void RegisterMysqlParsers(void) {
     char *proto_name = "mysql";
 
@@ -346,8 +364,8 @@ void RegisterMysqlParsers(void) {
         /* TODO:
          * Mysql protocol got no prefix in the protocol, so we capture every packages pass by 
          */
-        AlpProtoAddCI(&alp_proto_ctx, proto_name, IPPROTO_TCP, ALPROTO_MYSQL, "||", 1, 0, STREAM_TOSERVER);
-        AlpProtoAddCI(&alp_proto_ctx, proto_name, IPPROTO_TCP, ALPROTO_MYSQL, "||", 1, 0, STREAM_TOCLIENT);
+        AppLayerParseProbingParserPorts(proto_name, ALPROTO_MYSQL, 0,
+                sizeof(MysqlPktHeader), MysqlProbingParser);
 
         AppLayerRegisterParserAcceptableDataDirection(ALPROTO_MYSQL, STREAM_TOSERVER | STREAM_TOCLIENT);
     } else {

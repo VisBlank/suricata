@@ -54,14 +54,16 @@ file ./src/suricata
 #b LogDnsLog
 #r -c suricata.yaml -i eth0
 #---------------------- debug http data -----------------------
-b HTPHandleRequestData
-b HTPHandleResponseData
+#b HTPHandleRequestData
+#b HTPHandleResponseData
 
 #---------------------- debug mysql data -----------------------
 b MySqlParseServerRecord
 b MySqlParseClientRecord
-b RegisterMysqlParsers
-b RegisterAppLayerParsers
+b MysqlProbingParser
+b AppLayerDetectGetProto
+#b RegisterMysqlParsers
+#b RegisterAppLayerParsers
  
 #---------------------- debug mysql log -----------------------
 #b TmModuleLogMysqlRegister
@@ -76,6 +78,6 @@ b RegisterAppLayerParsers
 #b AlertSyslog
 #b Unified2Alert
 
-#r -c suricata.yaml -i wlan0
-r -c suricata.yaml -i eth0
+r -c suricata.yaml -i wlan0
+#r -c suricata.yaml -i eth0
 set print pretty

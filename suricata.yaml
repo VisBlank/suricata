@@ -911,7 +911,7 @@ rule-files:
  #- tor.rules
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
- - http-events.rules    # available in suricata sources under rules dir
+ #- http-events.rules    # available in suricata sources under rules dir
  - smtp-events.rules    # available in suricata sources under rules dir
  - dns-events.rules     # available in suricata sources under rules dir
 
@@ -1050,7 +1050,7 @@ app-layer:
     ftp:
       enabled: no
     ssh:
-      enabled: no
+      enabled: yes
     smtp:
       enabled: no
     imap:
@@ -1078,7 +1078,7 @@ app-layer:
          udp:
            toserver: 53
     http:
-      enabled: yes
+      enabled: no
 
       ###########################################################################
       # Configure libhtp.
