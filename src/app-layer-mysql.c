@@ -13,6 +13,10 @@
 #include "app-layer-mysql.h"
 #include "util-byte.h"
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 typedef enum {
 	MYSQL_COMMAND_SLEEP               = 0x00,
 	MYSQL_COMMAND_QUIT                = 0x01,
@@ -46,21 +50,27 @@ typedef enum {
 	MYSQL_COMMAND_DAEMON              = 0x1d,
 	MYSQL_COMMAND_BINLOG_DUMP_GTID    = 0x1e,
 	MYSQL_COMMAND_RESET_CONNECTION    = 0x1f,
+
+    /* commands not from Mysql, just append them */
+    MYSQL_ACTION_LOGIN                = 0x20,
+    MYSQL_ACTION_LOGIN_RESP           = 0x21,
 } MysqlRequestCommand;
 
 typedef struct MysqlClient_ {
     char *username;
-    int address;
+    FlowAddress addr; /* TODO: only support IPv4 */
+    uint16_t port;
+    char *db_name;
+    char *password; /* crypted, in hex bytes */
     /* more to add */
 } MysqlClient;
 
 typedef struct MysqlState_ {
     uint8_t flags;
+    uint8_t cur_cmd;
     MysqlClient cli;
-
     /* TODO: add more */
 } MysqlState;
-
 
 /* directions */
 #define MYSQL_DIRECTION_TO_SERVER 0x00
@@ -75,8 +85,8 @@ typedef struct MysqlState_ {
 #define MYSQL_STATE_SERVER_RESPONSE  0x10
 
 typedef struct MysqlPktHeader_ {
-    int payload_len:3;
-    int sequence_id:1;
+    int payload_len:24;
+    int sequence_id:8;
 } MysqlPktHeader;
 
 typedef struct MysqlServerHandshake_{
@@ -127,12 +137,25 @@ typedef struct MysqlResponse_ {
 } MysqlResponse;
 
 /* ================================================================== */
+static char log_name[] = "mysql.log";
+static FILE *g_f;
+
+static int initLog(void) {
+    g_f = fopen(log_name, "a");
+    if (g_f == NULL)
+        return -1;
+    return 0;
+} 
+
+void flushLog(char *msg) {
+    fwrite(msg, 1, strlen(msg), g_f);
+}
 
 int parseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input) {
     int ret;
     uint32_t res;
 
-    if ((ret = ByteExtractUint32(&res, BYTE_BIG_ENDIAN, 3, input)) != 0) {
+    if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, 3, input)) <= 0) {
         return -1;
     }
     
@@ -142,7 +165,18 @@ int parseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input) {
 }
 
 void logUserLoginHist(MysqlState *s, MysqlClientAuth *ca) {
-    /* TODO */
+    char buf[256] = {0};
+
+    snprintf(buf, 256, "{time:%ld,src_addr:'%s:%d',"
+            "action:{cmd:%d,user:'%s',password:'%s', database: '%s'}},",
+            (long)time(NULL),
+            (char *)inet_ntoa(*(struct in_addr *)&s->cli.addr.address.address_un_data32[0]),
+            s->cli.port,
+            s->cur_cmd, s->cli.username,
+            (s->cli.password ? s->cli.password : "null"),
+            (s->cli.db_name ? s->cli.db_name: "null"));
+
+    flushLog(buf);
 }
 
 void logLoginResp(MysqlState *s, MysqlServerAuthResponse *ar) {
@@ -150,7 +184,12 @@ void logLoginResp(MysqlState *s, MysqlServerAuthResponse *ar) {
 }
 
 void logQueryHist(MysqlState *s, MysqlClientCommand *cmd) {
-    /* TODO */
+    char buf[256] = {0};
+    struct in_addr *ia = (struct in_addr *)&s->cli.addr.address.address_un_data32[0];
+    snprintf(buf, 256, 
+            "{time:%ld,src_addr:'%s:%d',action:{cmd:%d, sql:'%s'}},",
+            (long)time(0), (char *)inet_ntoa(*ia),
+            s->cli.port, cmd->cmd, cmd->sql);
 }
 
 static int parseServerHs(MysqlState *s, uint8_t *input, uint32_t input_len) {
@@ -182,13 +221,13 @@ static int parseClientAuth(MysqlState *state, uint8_t *input, uint32_t input_len
     parseMysqlPktHdr(&ca.hdr, input);
     p += 4; /* skip header */
 
-    if ((ret = ByteExtractUint32(&res, BYTE_BIG_ENDIAN, 4, p)) != 0) {
+    if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, 4, p)) <= 0) {
         return -1;
     }
     ca.client_available_attr = (int32_t)res;
     p += 4; /* skip client attr */
 
-    if ((ret = ByteExtractUint32(&res, BYTE_BIG_ENDIAN, 4, p)) != 0) {
+    if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, 4, p)) <= 0) {
         return -1;
     }
     ca.max_pkt_len = res;
@@ -204,11 +243,14 @@ static int parseClientAuth(MysqlState *state, uint8_t *input, uint32_t input_len
     p += strlen(ca.username); /* skip user name */
 
     ca.password_len = *p;
-    ca.password = SCMalloc(ca.password_len);
-    memcpy(ca.password, p, ca.password_len);
-    p += ca.password_len;
+    if (ca.password_len > 0) {
+        ca.password = SCMalloc(ca.password_len);
+        memcpy(ca.password, p, ca.password_len);
+        p += ca.password_len;
+    }
 
-    ca.initial_db_name = SCStrdup((char *)p);
+    if (*p != '\0')
+        ca.initial_db_name = SCStrdup((char *)p);
 
     logUserLoginHist(state, &ca);
     return 0;
@@ -248,7 +290,7 @@ static int parseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)
 
     cmd.cmd = *p;
     ++p;
-    cmd.sql = strdup((char *)p);
+    cmd.sql = SCStrdup((char *)p);
 
     logQueryHist(state, &cmd);
     return 0;
@@ -261,7 +303,6 @@ static int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *p
 
     int ret = -1;
 
-
     SCLogDebug("mysql_state %p, pstate %p, input %p, input_len %" PRIu32 "",
             alstate, pstate, input, input_len);
 
@@ -270,17 +311,19 @@ static int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *p
 
     switch (state->flags) {
         case MYSQL_STATE_SERVER_HANDSHAKE:
-            if ((ret = parseClientAuth(state, input, input_len)) == 0)
-                state->flags |= MYSQL_STATE_CLIENT_AUTH;
+            memcpy(&state->cli.addr, &f->src, sizeof(f->src));
+            if ((ret = parseClientAuth(state, input, input_len)) == 0) {
+                state->flags = MYSQL_STATE_CLIENT_AUTH;
+                state->cli.port = f->sp;
+            }
             break;
-        case MYSQL_STATE_SERVER_RESPONSE:
+        case MYSQL_STATE_SERVER_RESPONSE | MYSQL_STATE_SERVER_HANDSHAKE:
         case MYSQL_STATE_SERVER_AUTH_RESP:
             if ((ret = parseClientCmd(state, input, input_len)) == 0)
-                state->flags |= MYSQL_STATE_CLIENT_COMMAND;
+                state->flags = MYSQL_STATE_CLIENT_COMMAND;
             break;
         default:
             break;
-            
     }
 
     /* TODO */
@@ -303,11 +346,11 @@ static int MysqlParseServerRecord(Flow *f, void *mysql_state,
     switch (state->flags) {
         case MYSQL_STATE_INITIAL:
             if ((ret = parseServerHs(state, input, input_len)) == 0)
-                state->flags |= MYSQL_STATE_SERVER_HANDSHAKE;
+                state->flags = MYSQL_STATE_SERVER_HANDSHAKE;
             break;
         case MYSQL_STATE_CLIENT_AUTH: /* connection */
             if ((ret = parseServerAuthResp(state, input, input_len)) == 0)
-                state->flags |= MYSQL_STATE_SERVER_AUTH_RESP;
+                state->flags = MYSQL_STATE_SERVER_AUTH_RESP;
             break;
         case MYSQL_STATE_CLIENT_COMMAND:
             /* need parse response? */
@@ -336,6 +379,12 @@ static void MysqlStateFree(void *state) {
     MysqlState *s = (MysqlState *)state;
     if (s->cli.username != NULL)
         SCFree(s->cli.username);
+
+    if (s->cli.db_name!= NULL)
+        SCFree(s->cli.db_name);
+
+    if (s->cli.password!= NULL)
+        SCFree(s->cli.password);
     SCFree(s);
 }
 
@@ -359,6 +408,11 @@ static uint16_t MysqlProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offs
 
 void RegisterMysqlParsers(void) {
     char *proto_name = "mysql";
+
+    /* FIXME: remove log please */
+    if (initLog() != 0) {
+        return;
+    }
 
     if (AppLayerProtoDetectionEnabled(proto_name)) {
         /* TODO:

@@ -1,5 +1,5 @@
 file ./src/suricata
-#b main
+b main
 
 #--------------------
 #b RegisterMySqlParsers
@@ -16,14 +16,18 @@ file ./src/suricata
 #b AppLayerHandleTCPData 
 #--------------------
 #b   TmqhInputPacketpool
-#b StreamTcpReassembleHandleSegment
-#
-#
 #b TmModuleDetectRegister
 #b DetectThreadInit
 
 # ---- main break point  ----------------
 #b TmThreadsSlotVarRun
+
+#b src/tm-threads.c:556
+#   commands
+#   silent
+#   print SlotFunc
+#   cont
+#   end
 #b TmThreadsSlotProcessPkt
 #b TmThreadsSlotPktAcqLoop
 #-- various callback
@@ -32,6 +36,14 @@ file ./src/suricata
 #b PcapCallbackLoop
 #b StreamTcp if p->src->family==2
 #b StreamTcpReassembleHandleSegment
+#b StreamTcpPacket
+#b src/stream-tcp.c:4210
+#    commands
+#    silent
+#    print ssn
+#    cont
+#    end
+#b StreamTcpPacketStateNone
 #b Detect
 #b RespondRejectFunc
 #b AlertFastLog
@@ -58,11 +70,19 @@ file ./src/suricata
 #b HTPHandleResponseData
 
 #---------------------- debug mysql data -----------------------
-b MySqlParseServerRecord
-b MySqlParseClientRecord
+#b src/app-layer-detect-proto.c:567
+#   commands
+#   silent
+#   printf "ipproto: %d", ipproto
+#   print pp_port
+#   cont
+#   end
+
+b MysqlParseServerRecord
+b MysqlParseClientRecord
 b MysqlProbingParser
-b AppLayerDetectGetProto
-#b RegisterMysqlParsers
+#b AppLayerDetectGetProto
+b RegisterMysqlParsers
 #b RegisterAppLayerParsers
  
 #---------------------- debug mysql log -----------------------
@@ -78,6 +98,8 @@ b AppLayerDetectGetProto
 #b AlertSyslog
 #b Unified2Alert
 
-r -c suricata.yaml -i wlan0
-#r -c suricata.yaml -i eth0
+#r -c suricata.yaml -i wlan0
+r -c suricata.yaml -i eth0
 set print pretty
+#set print thread-events off
+#set scheduler-locking on

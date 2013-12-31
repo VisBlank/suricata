@@ -911,7 +911,7 @@ rule-files:
  #- tor.rules
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
- #- http-events.rules    # available in suricata sources under rules dir
+ - http-events.rules    # available in suricata sources under rules dir
  - smtp-events.rules    # available in suricata sources under rules dir
  - dns-events.rules     # available in suricata sources under rules dir
 
