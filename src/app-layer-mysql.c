@@ -12,48 +12,42 @@
 #include "app-layer-detect-proto.h"
 #include "app-layer-mysql.h"
 #include "util-byte.h"
+#include "conf.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+/* status */
+#define MYSQL_STATE_INITIAL          0x00
+#define MYSQL_STATE_SERVER_HANDSHAKE 0x01
+#define MYSQL_STATE_CLIENT_AUTH      0x02
+#define MYSQL_STATE_SERVER_AUTH_RESP 0x04
+#define MYSQL_STATE_CLIENT_COMMAND   0x08
+#define MYSQL_STATE_SERVER_RESPONSE  0x10
+#define MYSQL_STATE_CLIENT_QUIT      0x20
+#define MYSQL_STATE_INVALID          0x40
+
 typedef enum {
-	MYSQL_COMMAND_SLEEP               = 0x00,
-	MYSQL_COMMAND_QUIT                = 0x01,
-	MYSQL_COMMAND_INIT_DB             = 0x02,
-	MYSQL_COMMAND_QUERY               = 0x03,
-	MYSQL_COMMAND_FIELD_LIST          = 0x04,
-	MYSQL_COMMAND_CREATE_DB           = 0x05,
-	MYSQL_COMMAND_DROP_DB             = 0x06,
-	MYSQL_COMMAND_REFRESH             = 0x07,
-	MYSQL_COMMAND_SHUTDOWN            = 0x08,
-	MYSQL_COMMAND_STATISTICS          = 0x09,
-	MYSQL_COMMAND_PROCESS_INFO        = 0x0a,
-	MYSQL_COMMAND_CONNECT             = 0x0b,
-	MYSQL_COMMAND_PROCESS_KILL        = 0x0c,
-	MYSQL_COMMAND_DEBUG               = 0x0d,
-	MYSQL_COMMAND_PING                = 0x0e,
-	MYSQL_COMMAND_TIME                = 0x0f,
-	MYSQL_COMMAND_DELAYED_INSERT      = 0x10,
-	MYSQL_COMMAND_CHANGE_USER         = 0x11,
-	MYSQL_COMMAND_BINLOG_DUMP         = 0x12,
-	MYSQL_COMMAND_TABLE_DUMP          = 0x13,
-	MYSQL_COMMAND_CONNECT_OUT         = 0x14,
-	MYSQL_COMMAND_REGISTER_SLAVE      = 0x15,
-	MYSQL_COMMAND_STMT_PREPARE        = 0x16,
-	MYSQL_COMMAND_STMT_EXECUTE        = 0x17,
-	MYSQL_COMMAND_STMT_SEND_LONG_DATA = 0x18,
-	MYSQL_COMMAND_STMT_CLOSE          = 0x19,
-	MYSQL_COMMAND_STMT_RESET          = 0x1a,
-	MYSQL_COMMAND_SET_OPTION          = 0x1b,
-	MYSQL_COMMAND_STMT_FETCH          = 0x1c,
-	MYSQL_COMMAND_DAEMON              = 0x1d,
-	MYSQL_COMMAND_BINLOG_DUMP_GTID    = 0x1e,
-	MYSQL_COMMAND_RESET_CONNECTION    = 0x1f,
+	MYSQL_COMMAND_SLEEP               = 0x00, MYSQL_COMMAND_QUIT             = 0x01,
+	MYSQL_COMMAND_INIT_DB             = 0x02, MYSQL_COMMAND_QUERY            = 0x03,
+	MYSQL_COMMAND_FIELD_LIST          = 0x04, MYSQL_COMMAND_CREATE_DB        = 0x05,
+	MYSQL_COMMAND_DROP_DB             = 0x06, MYSQL_COMMAND_REFRESH          = 0x07,
+	MYSQL_COMMAND_SHUTDOWN            = 0x08, MYSQL_COMMAND_STATISTICS       = 0x09,
+	MYSQL_COMMAND_PROCESS_INFO        = 0x0a, MYSQL_COMMAND_CONNECT          = 0x0b,
+	MYSQL_COMMAND_PROCESS_KILL        = 0x0c, MYSQL_COMMAND_DEBUG            = 0x0d,
+	MYSQL_COMMAND_PING                = 0x0e, MYSQL_COMMAND_TIME             = 0x0f,
+	MYSQL_COMMAND_DELAYED_INSERT      = 0x10, MYSQL_COMMAND_CHANGE_USER      = 0x11,
+	MYSQL_COMMAND_BINLOG_DUMP         = 0x12, MYSQL_COMMAND_TABLE_DUMP       = 0x13,
+	MYSQL_COMMAND_CONNECT_OUT         = 0x14, MYSQL_COMMAND_REGISTER_SLAVE   = 0x15,
+	MYSQL_COMMAND_STMT_PREPARE        = 0x16, MYSQL_COMMAND_STMT_EXECUTE     = 0x17,
+	MYSQL_COMMAND_STMT_SEND_LONG_DATA = 0x18, MYSQL_COMMAND_STMT_CLOSE       = 0x19,
+	MYSQL_COMMAND_STMT_RESET          = 0x1a, MYSQL_COMMAND_SET_OPTION       = 0x1b,
+	MYSQL_COMMAND_STMT_FETCH          = 0x1c, MYSQL_COMMAND_DAEMON           = 0x1d,
+	MYSQL_COMMAND_BINLOG_DUMP_GTID    = 0x1e, MYSQL_COMMAND_RESET_CONNECTION = 0x1f,
 
     /* commands not from Mysql, just append them */
-    MYSQL_ACTION_LOGIN                = 0x20,
-    MYSQL_ACTION_LOGIN_RESP           = 0x21,
+    MYSQL_COMMAND_LOGIN               = 0x20,
 } MysqlRequestCommand;
 
 /* comes from include/mysql_com.h */
@@ -97,15 +91,6 @@ typedef struct MysqlState_ {
     MysqlClient cli;
     /* TODO: add more */
 } MysqlState;
-
-/* status */
-#define MYSQL_STATE_INITIAL          0x00
-#define MYSQL_STATE_SERVER_HANDSHAKE 0x01
-#define MYSQL_STATE_CLIENT_AUTH      0x02
-#define MYSQL_STATE_SERVER_AUTH_RESP 0x04
-#define MYSQL_STATE_CLIENT_COMMAND   0x08
-#define MYSQL_STATE_SERVER_RESPONSE  0x10
-#define MYSQL_STATE_INVALID          0x20
 
 typedef struct MysqlPktHeader_ {
     int payload_len:24;
@@ -151,6 +136,7 @@ typedef struct MysqlServerAuthResponse_ {
 typedef struct MysqlClientCommand_ {
     MysqlPktHeader hdr;
     char cmd;
+    int sql_size;
     char *sql;
 } MysqlClientCommand;
 
@@ -161,19 +147,86 @@ typedef struct MysqlResponse_ {
 } MysqlResponse;
 
 /* ================================================================== */
-static char log_name[] = "mysql.log";
-static FILE *g_f;
+#define FMT_JSON 0
+#define FMT_TXT  1
+
+static int g_fd = -1;
+static int g_fmt = FMT_JSON;
+static int g_log_enabled = 0;
+
+static char *loadLogConf(void) {
+    char *file_name = NULL;;
+    ConfNode *node = NULL;
+    //ConfNode *decnf = ConfGetNode("outputs.mysql-log");
+    ConfNode *decnf = ConfGetNode("app-layer.protocols.mysql.mysql-log");
+
+    if (decnf != NULL) {
+        TAILQ_FOREACH(node, &decnf->head, next) {
+            if (strcmp(node->name, "enabled") == 0) {
+               if (strcmp(node->val, "no") == 0) {
+                   g_log_enabled = 0;
+                   return NULL;
+               } else if (strcmp(node->val, "yes") == 0) {
+                   g_log_enabled = 1;
+               } else {
+                   /* default on */
+                   g_log_enabled = 1;
+               }
+            }
+
+            if (strcmp(node->name, "filename") == 0) {
+                file_name = node->val;;
+            }
+
+            if (strcmp(node->name, "format") == 0) {
+                if (strcmp(node->val, "json") == 0)
+                    g_fmt = FMT_JSON;
+                else if (strcmp(node->val, "txt") == 0)
+                    g_fmt = FMT_TXT;
+                else
+                    g_fmt = FMT_JSON;
+            }
+        }
+    }
+
+    return file_name;
+}
 
 static int initLog(void) {
-    g_f = fopen(log_name, "a");
-    if (g_f == NULL)
-        return -1;
+    char *log_file = loadLogConf();
+    if (log_file == NULL) {
+        /* default log */
+        log_file = "mysql.json";
+    }
+
+    g_fd = open(log_file, O_RDWR);
+    if (g_fd == -1) {
+        /* create the file */
+        g_fd = open(log_file, O_CREAT|O_RDWR, 0644);
+        if (g_fd == -1)
+            return -1;
+        if (g_fmt == FMT_JSON)
+            write(g_fd, "[\n]", 3);
+        return 0;
+    }
+
+#if 0
+    char buf[3] = {0};
+
+    read(g_fd, buf, 3);
+    if (strncmp(buf, "[\n]", 3) != 0)
+        write(g_fd, "[\n]", 3);
+#endif
+
     return 0;
 }
 
-void flushLog(char *msg) {
-    fwrite(msg, 1, strlen(msg), g_f);
-    fflush(g_f);
+void flushLog(char *msg, size_t cnt) {
+    if (g_fd == -1)
+        return;
+    lseek(g_fd, -1, SEEK_END); /* to overwirte the last `]' */
+    write(g_fd, msg, cnt);
+    //fsync(g_fd);
 }
 
 int parseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input) {
@@ -189,18 +242,20 @@ int parseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input) {
     return 0;
 }
 
-void logUserLoginHist(MysqlClient *cli) {
+void logUserLoginHist(MysqlState *s) {
     char buf[256] = {0};
+    struct in_addr *ia = (struct in_addr *)&s->cli.addr.address.address_un_data32[0];
 
-    snprintf(buf, 256, "{time:%ld,src_addr:'%s:%d',"
-            "action:{cmd:null,user:'%s',password:'%s', database: '%s'}},\n",
-            (long)time(NULL),
-            (char *)inet_ntoa(*(struct in_addr *)&cli->addr.address.address_un_data32[0]),
-            cli->port, cli->username,
-            (cli->password ? "crypted in 20 bytes" : "null"),
-            (cli->db_name ? cli->db_name: "null"));
+    if (!g_log_enabled)
+        return;
 
-    flushLog(buf);
+    snprintf(buf, 256,
+            "{time:%ld,cmd:%d,src_addr:'%s:%d',action:{user:'%s',password:'%s', database: '%s'}},\n]",
+            (long)time(NULL), s->cur_cmd, (char *)inet_ntoa(*ia), s->cli.port,
+            s->cli.username, (s->cli.password ? "crypted in 20 bytes" : "null"),
+            (s->cli.db_name ?  s->cli.db_name: "null"));
+
+    flushLog(buf, strlen(buf));
 }
 
 void logLoginResp(MysqlState *s, MysqlServerAuthResponse *ar) {
@@ -210,11 +265,25 @@ void logLoginResp(MysqlState *s, MysqlServerAuthResponse *ar) {
 void logQueryHist(MysqlState *s, MysqlClientCommand *cmd) {
     char buf[256] = {0};
     struct in_addr *ia = (struct in_addr *)&s->cli.addr.address.address_un_data32[0];
-    snprintf(buf, 256,
-            "{time:%ld,src_addr:'%s:%d',action:{cmd:%d, sql:'%s'}},\n",
-            (long)time(0), (char *)inet_ntoa(*ia),
-            s->cli.port, cmd->cmd, cmd->sql);
-    flushLog(buf);
+    char *p = buf;
+    int len = 256;
+
+    if (!g_log_enabled)
+        return;
+
+    if (cmd->sql_size > 100) {
+        p = SCCalloc(cmd->sql_size + 256, 1);
+        len = cmd->sql_size + 256;
+    }
+
+    snprintf(p, len,
+            "{time:%ld,cmd:%d,src_addr:'%s:%d',action:{sql:'%s'}},\n]",
+            (long)time(0), cmd->cmd, (char *)inet_ntoa(*ia),
+            s->cli.port, cmd->sql);
+    flushLog(p, strlen(p));
+
+    if (len > 256)
+        SCFree(p);
 }
 
 static int parseServerHs(MysqlState *s, uint8_t *input, uint32_t input_len) {
@@ -283,7 +352,9 @@ static int parseClientAuth(MysqlState *state, uint8_t *input, uint32_t input_len
         }
     }
 
-    logUserLoginHist(&state->cli);
+    state->cur_cmd = MYSQL_COMMAND_LOGIN;
+
+    logUserLoginHist(state);
     return 0;
 }
 
@@ -321,9 +392,14 @@ static int parseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)
 
     cmd.cmd = *p;
     ++p;
-    cmd.sql = SCMalloc(cmd.hdr.payload_len);
-    memcpy(cmd.sql, p, cmd.hdr.payload_len);
-    cmd.sql[cmd.hdr.payload_len - 1] = 0;
+    state->cur_cmd = cmd.cmd;
+
+    if (cmd.hdr.payload_len > 1) { /* at least have a command */
+        cmd.sql = SCMalloc(cmd.hdr.payload_len);
+        memcpy(cmd.sql, p, cmd.hdr.payload_len);
+        cmd.sql[cmd.hdr.payload_len - 1] = 0;
+        cmd.sql_size = cmd.hdr.payload_len;
+    }
 
     logQueryHist(state, &cmd);
     SCFree(cmd.sql);
@@ -349,13 +425,15 @@ static int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *p
             state->cli.port = f->sp;
             if ((ret = parseClientAuth(state, input, input_len)) == 0) {
                 state->flags = MYSQL_STATE_CLIENT_AUTH;
-                state->cur_cmd = MYSQL_ACTION_LOGIN;
             }
             break;
         case MYSQL_STATE_SERVER_RESPONSE:
         case MYSQL_STATE_SERVER_AUTH_RESP:
             if ((ret = parseClientCmd(state, input, input_len)) == 0)
-                state->flags = MYSQL_STATE_CLIENT_COMMAND;
+                if (state->cur_cmd == MYSQL_COMMAND_QUIT)
+                    state->flags = MYSQL_STATE_CLIENT_QUIT;
+                else
+                    state->flags = MYSQL_STATE_CLIENT_COMMAND;
             break;
         default:
             state->flags = MYSQL_STATE_INITIAL;

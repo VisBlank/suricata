@@ -83,6 +83,7 @@ b MysqlParseClientRecord
 b MysqlProbingParser
 #b AppLayerDetectGetProto
 b RegisterMysqlParsers
+b loadLogConf
 #b RegisterAppLayerParsers
  
 #---------------------- debug mysql log -----------------------
@@ -98,8 +99,8 @@ b RegisterMysqlParsers
 #b AlertSyslog
 #b Unified2Alert
 
-r -c suricata.yaml -i wlan0
-#r -c suricata.yaml -i eth0
+#r -c suricata.yaml -i wlan0
+r -c suricata.yaml -i eth0
 set print pretty
 #set print thread-events off
 #set scheduler-locking on

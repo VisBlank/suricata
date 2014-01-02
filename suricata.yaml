@@ -1038,6 +1038,12 @@ app-layer:
       detection-ports:
         tcp:
           toserver: 3306
+      # FIXME
+      mysql-log:
+        enabled: yes
+        filename: mysql.json
+        format: json
+
     tls:
       enabled: no
       detection-ports:
