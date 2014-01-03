@@ -1084,7 +1084,7 @@ app-layer:
          udp:
            toserver: 53
     http:
-      enabled: no
+      enabled: yes
 
       ###########################################################################
       # Configure libhtp.

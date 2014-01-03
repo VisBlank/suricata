@@ -80,10 +80,12 @@ b main
 
 b MysqlParseServerRecord
 b MysqlParseClientRecord
-b MysqlProbingParser
+#b MysqlProbingParser
 #b AppLayerDetectGetProto
-b RegisterMysqlParsers
-b loadLogConf
+#b RegisterMysqlParsers
+#b loadLogConf
+#b MysqlGetEventInfo
+#b DetectAppLayerEventParseApp
 #b RegisterAppLayerParsers
  
 #---------------------- debug mysql log -----------------------
