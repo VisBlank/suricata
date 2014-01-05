@@ -77,10 +77,9 @@ b main
 #   print pp_port
 #   cont
 #   end
-
 b MysqlParseServerRecord
 b MysqlParseClientRecord
-#b MysqlProbingParser
+b MysqlProbingParser
 #b AppLayerDetectGetProto
 #b RegisterMysqlParsers
 #b loadLogConf
@@ -101,8 +100,8 @@ b MysqlParseClientRecord
 #b AlertSyslog
 #b Unified2Alert
 
-#r -c suricata.yaml -i wlan0
-r -c suricata.yaml -i eth0
+r -c suricata.yaml -i wlan0
+#r -c suricata.yaml -i eth0
 set print pretty
 #set print thread-events off
 #set scheduler-locking on

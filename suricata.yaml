@@ -79,6 +79,7 @@ outputs:
   # mysql log
   - mysql-log:
       enabled: yes
+      format: json
       filename: mysql.log
       append: yes
 
@@ -1038,12 +1039,6 @@ app-layer:
       detection-ports:
         tcp:
           toserver: 3306
-      # FIXME
-      mysql-log:
-        enabled: yes
-        filename: mysql.json
-        format: json
-
     tls:
       enabled: no
       detection-ports:
@@ -1084,7 +1079,7 @@ app-layer:
          udp:
            toserver: 53
     http:
-      enabled: yes
+      enabled: no
 
       ###########################################################################
       # Configure libhtp.

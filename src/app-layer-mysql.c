@@ -48,7 +48,27 @@ typedef enum {
 
     /* commands not from Mysql, just append them */
     MYSQL_COMMAND_LOGIN               = 0x20,
+    MYSQL_COMMAND_DO_NOT_EXIST /* do not declare command after me */
 } MysqlRequestCommand;
+
+static char *cmd_str[MYSQL_COMMAND_DO_NOT_EXIST] = {
+	"SLEEP","QUIT",
+	"INIT_DB","QUERY",
+	"FIELD_LIST","CREATE_DB",
+	"DROP_DB","REFRESH",
+	"SHUTDOWN","STATISTICS",
+	"PROCESS_INFO","CONNECT",
+	"PROCESS_KILL","DEBUG",
+	"PING","TIME",
+	"DELAYED_INSERT","CHANGE_USER",
+	"BINLOG_DUMP","TABLE_DUMP",
+	"CONNECT_OUT","REGISTER_SLAVE",
+	"STMT_PREPARE","STMT_EXECUTE",
+	"STMT_SEND_LONG_DATA","STMT_CLOSE",
+	"STMT_RESET","SET_OPTION",
+	"STMT_FETCH","DAEMON",
+	"BINLOG_DUMP_GTID","RESET_CONNECTION",
+};
 
 /* comes from include/mysql_com.h */
 enum client_flags {
@@ -76,8 +96,10 @@ typedef struct MysqlClient_ {
     char *username;
     int client_attr; /* attributes the client support */
     int max_pkt_len;
-    FlowAddress addr; /* TODO: only support IPv4 */
-    uint16_t port;
+    char *src_ip; /* TODO: only support IPv4 */
+    char *dst_ip; /* TODO: only support IPv4 */
+    uint16_t src_port;
+    uint16_t dst_port;
     char *db_name;
     char *password; /* crypted, in hex bytes */
     char charset;
@@ -139,64 +161,90 @@ typedef struct MysqlResponse_ {
 #define FMT_TXT  1
 
 static int g_fd = -1;
-static int g_fmt = FMT_JSON;
+static int g_log_fmt = FMT_JSON;
 static int g_log_enabled = 0;
+static int g_log_append = 0;
+static char g_log_file_name[256];
+static int LoadLogConf(void) {
+    ConfNode *output = NULL, *output_config = NULL;
+    ConfNode *outputs = ConfGetNode("outputs");
+    ConfNode *default_dir = ConfGetNode("default-log-dir");
+    size_t val_len;
 
-static char *LoadLogConf(void) {
-    char *file_name = NULL;;
-    ConfNode *node = NULL;
-    ConfNode *decnf = ConfGetNode("app-layer.protocols.mysql.mysql-log");
+    if (outputs == NULL)
+        return -1;
 
-    if (decnf != NULL) {
-        TAILQ_FOREACH(node, &decnf->head, next) {
-            if (strcmp(node->name, "enabled") == 0) {
-               if (strcmp(node->val, "no") == 0) {
-                   g_log_enabled = 0;
-                   return NULL;
-               } else if (strcmp(node->val, "yes") == 0) {
-                   g_log_enabled = 1;
-               } else {
-                   /* default on */
-                   g_log_enabled = 1;
-               }
+    if (default_dir == NULL) {
+        sprintf(g_log_file_name, "./");
+    } else {
+        val_len = strlen(default_dir->val);
+        if (val_len >= 256) {
+            return -1;
+        }
+        snprintf(g_log_file_name, val_len, "%s", default_dir->val);
+        if (g_log_file_name[val_len] != '/')
+            strcat(g_log_file_name, "/");
+    }
+
+    const char *val;
+    TAILQ_FOREACH(output, &outputs->head, next) {
+        if (strcmp(output->val, "mysql-log") == 0) {
+            output_config = ConfNodeLookupChild(output, output->val);
+            if (output_config == NULL) {
+                return -1;
             }
+            val = ConfNodeLookupChildValue(output_config, "enabled");
+            if (val == NULL || !ConfValIsTrue(val))
+                continue;
+            else
+                g_log_enabled = 1;
 
-            if (strcmp(node->name, "filename") == 0) {
-                file_name = node->val;;
-            }
+            val = ConfNodeLookupChildValue(output_config, "format");
+            if (val == NULL)
+                continue;
+            else if (strcasecmp(val, "json") == 0)
+                g_log_fmt = FMT_JSON;
 
-            if (strcmp(node->name, "format") == 0) {
-                if (strcmp(node->val, "json") == 0)
-                    g_fmt = FMT_JSON;
-                else if (strcmp(node->val, "txt") == 0)
-                    g_fmt = FMT_TXT;
-                else
-                    g_fmt = FMT_JSON;
-            }
+            val = ConfNodeLookupChildValue(output_config, "filename");
+            if (val == NULL)
+                return -1;
+            val_len += strlen(val);
+            if (val_len > 256)
+                return -1;
+            strcat(g_log_file_name, val);
+
+            val = ConfNodeLookupChildValue(output_config, "append");
+            if (val == NULL || !ConfValIsTrue(val))
+                continue;
+            else
+                g_log_append = 1;
+
+            break;
         }
     }
 
-    return file_name;
+    return 0;
 }
 
 static int InitLog(void) {
-    char *log_file = LoadLogConf();
-    if (log_file == NULL) {
-        /* default log */
-        log_file = "mysql.json";
+    int ret = LoadLogConf();
+    if (ret == -1) {
+        SCReturnInt(-1);
     }
 
-    g_fd = open(log_file, O_RDWR);
+    g_fd = open(g_log_file_name, O_RDWR);
+
     if (g_fd == -1) {
         /* create the file */
-        g_fd = open(log_file, O_CREAT|O_RDWR, 0644);
+        g_fd = open(g_log_file_name, O_CREAT|O_RDWR, 0644);
         if (g_fd == -1)
             return -1;
-        if (g_fmt == FMT_JSON)
+        if (g_log_fmt == FMT_JSON)
             write(g_fd, "[\n]", 3);
-        return 0;
     }
 
+    if (g_log_append)
+        fcntl(g_fd, F_SETFD, g_log_append);
     return 0;
 }
 
@@ -222,16 +270,21 @@ int ParseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input) {
 
 void LogUserLoginHist(MysqlState *s) {
     char buf[256] = {0};
-    struct in_addr *ia = (struct in_addr *)&s->cli.addr.address.address_un_data32[0];
 
     if (!g_log_enabled)
         return;
 
     snprintf(buf, 256,
-            "{time:%ld,cmd:%d,src_addr:'%s:%d',action:{user:'%s',password:'%s', database: '%s'}},\n]",
-            (long)time(NULL), s->cur_cmd, (char *)inet_ntoa(*ia), s->cli.port,
-            s->cli.username, (s->cli.password ? "crypted in 20 bytes" : "null"),
-            (s->cli.db_name ?  s->cli.db_name: "null"));
+            "{time:%ld,src_ip:'%s',src_port:%d,dst_ip:'%s',dst_port:%d,"
+            "db_type:'%s',user:'%s',db_name:'%s',operation:'%s', action:'%s',"
+            "meta_info:{cmd:'%s',sql:'%s',}},\n]",
+            (long)time(NULL),
+            s->cli.src_ip, s->cli.src_port,
+            s->cli.dst_ip, s->cli.dst_port,
+            "mysql", s->cli.username,
+            (s->cli.db_name ? s->cli.db_name: "null"),
+            "LOGIN", "PASS", /* FIXME: default pass */
+            "null", "null"); /* no sql during login */
 
     FlushLog(buf, strlen(buf));
 }
@@ -242,7 +295,6 @@ void LogLoginResp(MysqlState *s, MysqlServerAuthResponse *ar) {
 
 void LogQueryHist(MysqlState *s, MysqlClientCommand *cmd) {
     char buf[256] = {0};
-    struct in_addr *ia = (struct in_addr *)&s->cli.addr.address.address_un_data32[0];
     char *p = buf;
     int len = 256;
 
@@ -255,9 +307,17 @@ void LogQueryHist(MysqlState *s, MysqlClientCommand *cmd) {
     }
 
     snprintf(p, len,
-            "{time:%ld,cmd:%d,src_addr:'%s:%d',action:{sql:'%s'}},\n]",
-            (long)time(0), cmd->cmd, (char *)inet_ntoa(*ia),
-            s->cli.port, cmd->sql);
+            "{time:%ld,src_ip:'%s',src_port:%d,dst_ip:'%s',dst_port:%d,"
+            "db_type:'%s',user:'%s',db_name:'%s',operation:'%s', action:'%s',"
+            "meta_info:{cmd:'%s',sql:'%s',}},\n]",
+            (long)time(NULL),
+            s->cli.src_ip, s->cli.src_port,
+            s->cli.dst_ip, s->cli.dst_port,
+            "mysql", s->cli.username,
+            (s->cli.db_name ? s->cli.db_name: "null"),
+            "DB_COMMAND", "PASS", /* FIXME: default pass */
+            (cmd->cmd < MYSQL_COMMAND_DO_NOT_EXIST) ? cmd_str[(int)cmd->cmd] : "null",
+            cmd->sql ? cmd->sql : "null");
     FlushLog(p, strlen(p));
 
     if (len > 256)
@@ -380,7 +440,9 @@ static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)
     }
 
     LogQueryHist(state, &cmd);
-    SCFree(cmd.sql);
+
+    if (cmd.sql != NULL)
+        SCFree(cmd.sql);
     return 0;
 }
 
@@ -398,12 +460,21 @@ static int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *p
         SCReturnInt(-1);
 
     switch (state->flags) {
-        case MYSQL_STATE_SERVER_HANDSHAKE:
-            memcpy(&state->cli.addr, &f->src, sizeof(f->src));
-            state->cli.port = f->sp;
+        case MYSQL_STATE_SERVER_HANDSHAKE:{
+            struct in_addr *ia = (struct in_addr *)&f->src.address.address_un_data32[0];
+            char *ip = inet_ntoa(*ia);
+            state->cli.src_ip = SCStrdup(ip);
+            state->cli.src_port = f->sp;
+
+            ia = (struct in_addr *)&f->dst.address.address_un_data32[0];
+            ip = inet_ntoa(*ia);
+            state->cli.dst_ip = SCStrdup(ip);
+            state->cli.dst_port = f->dp;
+
             if ((ret = ParseClientAuth(state, input, input_len)) == 0) {
                 state->flags = MYSQL_STATE_CLIENT_AUTH;
             }
+                                          }
             break;
         case MYSQL_STATE_SERVER_RESPONSE:
         case MYSQL_STATE_SERVER_AUTH_RESP:
@@ -474,6 +545,12 @@ static void MysqlStateFree(void *state) {
 
     if (s->cli.password!= NULL)
         SCFree(s->cli.password);
+
+    if (s->cli.src_ip != NULL)
+        SCFree(s->cli.src_ip);
+
+    if (s->cli.dst_ip != NULL)
+        SCFree(s->cli.dst_ip);
 
     SCFree(s);
 }
