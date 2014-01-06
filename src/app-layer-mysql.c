@@ -92,6 +92,19 @@ enum client_flags {
     CLIENT_MULTI_RESULTS       = 131072 , /* Enable/disable multi-results */
 };
 
+enum pkt_flags {
+    PKT_COMPLETE,
+    PKT_INCOMPLETE_WITH_HEAD,
+    PKT_INCOMPLETE_CAN_APPEND,
+    PKT_INVALID,
+};
+
+typedef struct MysqlPkt_ {
+    uint8_t *pkt;
+    uint32_t len;
+    int flags;
+} MysqlPkt;
+
 typedef struct MysqlClient_ {
     char *username;
     int client_attr; /* attributes the client support */
@@ -103,13 +116,20 @@ typedef struct MysqlClient_ {
     char *db_name;
     char *password; /* crypted, in hex bytes */
     char charset;
-    char password_len; /* crypted, in hex bytes */
+    char password_len;
     /* more to add */
 } MysqlClient;
+
+typedef struct PendingPkt_ {
+    uint32_t pkt_len;
+    uint32_t cur_len;
+    uint8_t *pkt;
+} PendingPkt;
 
 typedef struct MysqlState_ {
     uint8_t flags;
     uint8_t cur_cmd;
+    PendingPkt pending_pkt;
     MysqlClient cli;
     /* TODO: add more */
 } MysqlState;
@@ -255,12 +275,19 @@ void FlushLog(char *msg, size_t cnt) {
     write(g_fd, msg, cnt);
 }
 
-int ParseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input) {
+int ParseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input, uint32_t input_len) {
     int ret;
     uint32_t res;
 
+    if (input_len < 3) /* not a header */
+        return -1;
+
     if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, 3, input)) <= 0) {
         return -1;
+    }
+
+    if (hdr->payload_len + 4 < input_len) {
+        return -1; /* we suppose input_len should not larger than payload_len */
     }
 
     hdr->payload_len = res;
@@ -332,7 +359,7 @@ static int ParseServerHs(MysqlState *s, uint8_t *input, uint32_t input_len) {
     }
 
     memset(&hs, 0, sizeof(hs));
-    ParseMysqlPktHdr(&hs.hdr, input);
+    ParseMysqlPktHdr(&hs.hdr, input, input_len);
 
     /* TODO: handshake message useless for now */
 
@@ -350,7 +377,7 @@ static int ParseClientAuth(MysqlState *state, uint8_t *input, uint32_t input_len
         return -1;
     }
 
-    ParseMysqlPktHdr(&hdr, input);
+    ParseMysqlPktHdr(&hdr, input, input_len);
     p += 4; /* skip header */
 
     if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, 4, p)) <= 0) {
@@ -405,7 +432,7 @@ static int ParseServerAuthResp(MysqlState *state, uint8_t *input, uint32_t input
 
     memset(&ar, 0, sizeof(ar));
 
-    ParseMysqlPktHdr(&ar.hdr, input);
+    ParseMysqlPktHdr(&ar.hdr, input, input_len);
     p += 4; /* skip header */
 
     ar.status = *p;
@@ -417,7 +444,47 @@ static int ParseServerAuthResp(MysqlState *state, uint8_t *input, uint32_t input
     return 0;
 }
 
-static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)  {
+static int IsCompleteMysqlPacket(uint8_t *input, uint32_t input_len) {
+    MysqlPktHeader hdr;
+    if (ParseMysqlPktHdr(&hdr, input, input_len) == -1)
+        return FALSE;
+    if (input_len == (hdr.payload_len + 4))
+        return TRUE;
+    return FALSE;
+}
+
+static void CleanPendingPkt(PendingPkt *ppkt) {
+    SCFree(ppkt->pkt);
+    ppkt->pkt_len = 0;
+    ppkt->cur_len = 0;
+}
+
+static void LogDroppedPendingPkt(MysqlState *s) {
+    /* TODO */
+}
+
+static void LogDroppedPkt(MysqlState *state, uint8_t *input, uint32_t input_len) {
+
+}
+
+static int AppendPendingPkt(MysqlState *state, uint8_t *input, uint32_t input_len) {
+    PendingPkt *ppkt = &state->pending_pkt;
+    if (ppkt == NULL)
+        return -1;
+    if (ppkt->cur_len + input_len > ppkt->pkt_len) {
+        /* lenght error, we suppose that the @input is not part of the @ppkt */
+        LogDroppedPkt(state, input, input_len);
+        return -1;
+    } else {
+        memcpy(ppkt->pkt + ppkt->cur_len, input, input_len);
+        ppkt->cur_len += input_len;
+        return 0;
+    }
+    return 0;
+}
+
+
+static int ParseCompleteMysqlClientPkt(MysqlState *state, uint8_t *input, uint32_t input_len)  {
     MysqlClientCommand cmd;
     uint8_t *p = input;
 
@@ -425,7 +492,7 @@ static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)
         return -1;
 
     memset(&cmd, 0, sizeof(cmd));
-    ParseMysqlPktHdr(&cmd.hdr, input);
+    ParseMysqlPktHdr(&cmd.hdr, input, input_len);
     p += 4;
 
     cmd.cmd = *p;
@@ -444,6 +511,97 @@ static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)
     if (cmd.sql != NULL)
         SCFree(cmd.sql);
     return 0;
+}
+
+static int NoPending(MysqlState *state) {
+    return (state->pending_pkt.pkt == NULL);
+}
+
+static void PreparsePkt(MysqlState *state, MysqlPkt *pkt, uint8_t *input, uint32_t input_len) {
+    int ret = 0;
+    MysqlPktHeader hdr;
+
+    (void)state;
+
+    pkt->flags = PKT_INVALID;
+    pkt->pkt = input;
+    pkt->len = input_len;
+    ret = ParseMysqlPktHdr(&hdr, input, input_len);
+    if (ret == -1) {
+        /* we supporse this package can append to existing pending packets */
+        pkt->flags = PKT_INCOMPLETE_CAN_APPEND;
+        return;
+    }
+
+    if (hdr.payload_len + 4 == input_len) {
+        pkt->flags = PKT_COMPLETE;
+    } else if (hdr.payload_len + 4 < input_len) {
+        pkt->flags = PKT_INVALID; /* FIXME */
+    } else if (hdr.payload_len + 4 > input_len) {
+        pkt->flags = PKT_INCOMPLETE_WITH_HEAD;
+    }
+        
+    return;
+}
+
+static void InitPendingPkt(MysqlState *state, uint8_t *input, uint32_t input_len) {
+    MysqlPktHeader hdr;
+
+    if (ParseMysqlPktHdr(&hdr, input, input_len) == -1) { 
+        LogDroppedPkt(state, input, input_len);
+        return -1;
+    }
+
+    if ((hdr.payload_len + 4) < input_len) {
+        LogDroppedPkt(state, input, input_len);
+        return -1; /* input longer than MySQL packet ? */
+    }
+
+    state->pending_pkt.pkt_len = hdr.payload_len + 4;
+    state->pending_pkt.pkt = SCMalloc(state->pending_pkt.pkt_len);
+    memcpy(state->pending_pkt.pkt, input, input_len);
+    state->pending_pkt.cur_len = input_len;
+}
+
+static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)  {
+    MysqlPkt pkt;
+
+    PreparsePkt(state, &pkt, input, input_len);
+
+    switch (pkt.flags) {
+        case PKT_COMPLETE:
+            return ParseCompleteMysqlClientPkt(state, pkt.pkt, pkt.len);
+        case PKT_INCOMPLETE_WITH_HEAD:
+            if (NoPending(state)) {
+                InitPendingPkt(state, pkt.pkt, pkt.len);
+                return 0;
+            } else {
+                /* drop and release existing pending packages */
+                CleanPendingPkt(&state->pending_pkt);
+                InitPendingPkt(state, pkt.pkt, pkt.len);
+            }
+            break;
+        case PKT_INCOMPLETE_CAN_APPEND:
+            if (AppendPendingPkt(state, pkt.pkt, pkt.len) == -1) {
+                /* append fail */
+                SCReturnInt(0);
+            }
+
+            if (IsCompleteMysqlPacket(state->pending_pkt.pkt, state->pending_pkt.cur_len)) {
+                int ret = ParseCompleteMysqlClientPkt(state, state->pending_pkt.pkt,
+                        state->pending_pkt.cur_len);
+                CleanPendingPkt(&state->pending_pkt);
+                return ret;
+            }
+            break;
+        default:
+            SCReturnInt(-1);
+    }
+    SCReturnInt(-1);
+}
+
+void DumpPkt(MysqlState *state, uint8_t *input, uint32_t input_len, uint8_t **dump) {
+    /* TODO */
 }
 
 static int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
@@ -477,12 +635,18 @@ static int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *p
                                           }
             break;
         case MYSQL_STATE_SERVER_RESPONSE:
-        case MYSQL_STATE_SERVER_AUTH_RESP:
-            if ((ret = ParseClientCmd(state, input, input_len)) == 0)
+        case MYSQL_STATE_SERVER_AUTH_RESP: {
+            if ((ret = ParseClientCmd(state, input, input_len)) == 0) {
                 (state->cur_cmd == MYSQL_COMMAND_QUIT) ?
                     (state->flags = MYSQL_STATE_CLIENT_QUIT):
                     (state->flags = MYSQL_STATE_CLIENT_COMMAND);
+            } else {
+                uint8_t *dump = NULL;
+                DumpPkt(state, input, input_len, &dump);
+                SCLogError(SC_ERR_INVALID_PACKET, "%s", dump);
+            }
             break;
+                                           }
         default:
             state->flags = MYSQL_STATE_INVALID;
             return ret;;
@@ -557,13 +721,16 @@ static void MysqlStateFree(void *state) {
 
 static int MysqlRequestParse(uint8_t *input, uint32_t input_len) {
     MysqlPktHeader hdr;
-    ParseMysqlPktHdr(&hdr, input);
+    ParseMysqlPktHdr(&hdr, input, input_len);
 
     /* meet the basic requirement for a MySQL packet */
+#if 0
     if (hdr.payload_len == input_len - 4) {
             SCReturnInt(1);
     }
     SCReturnInt(-1);
+#endif
+    SCReturnInt(1);
 }
 
 static uint16_t MysqlProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset) {
