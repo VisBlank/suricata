@@ -61,7 +61,8 @@ host-mode: auto
 # The default logging directory.  Any log or output file will be
 # placed here if its not specified with a full path name.  This can be
 # overridden with the -l command line parameter.
-default-log-dir: /usr/local/var/log/suricata/
+#default-log-dir: /usr/local/var/log/suricata/
+default-log-dir: log/suricata/
 
 # Unix command socket can be used to pass commands to suricata.
 # An external tool can then connect to get information from suricata
@@ -74,6 +75,13 @@ unix-command:
 
 # Configure the type of alert (and other) logging you would like.
 outputs:
+
+  # a line based alerts log similar to Snort's fast.log
+  - mysql-log:
+      enabled: yes
+      format: json
+      filename: mysql.json
+      append: yes
 
   # a line based alerts log similar to Snort's fast.log
   - fast:
@@ -690,7 +698,8 @@ logging:
   # compiled with the --enable-debug configure option.
   #
   # This value is overriden by the SC_LOG_LEVEL env var.
-  default-log-level: notice
+  #default-log-level: notice
+  default-log-level: debug
 
   # The default output format.  Optional parameter, should default to
   # something reasonable if not provided.  Can be overriden in an
@@ -708,15 +717,17 @@ logging:
   # Define your logging outputs.  If none are defined, or they are all
   # disabled you will get the default - console output.
   outputs:
-  - console:
-      enabled: yes
+  #- console:
+  #    #enabled: yes
+  #    #enabled: no
   - file:
-      enabled: no
-      filename: /var/log/suricata.log
-  - syslog:
-      enabled: no
-      facility: local5
-      format: "[%i] <%d> -- "
+      enabled: yes
+      #filename: /var/log/suricata.log
+      filename: ./log/suricata/suricata.log
+  #- syslog:
+  #    enabled: no
+  #    facility: local5
+  #    format: "[%i] <%d> -- "
 
 # Tilera mpipe configuration. for use on Tilera TILE-Gx.
 mpipe:
@@ -851,60 +862,64 @@ ipfw:
 
 # Set the default rule path here to search for the files.
 # if not set, it will look at the current working dir
-default-rule-path: /usr/local/etc/suricata/rules
+#default-rule-path: /usr/local/etc/suricata/rules
+default-rule-path: ./rules
 rule-files:
- - botcc.rules
- - ciarmy.rules
- - compromised.rules
- - drop.rules
- - dshield.rules
- - emerging-activex.rules
- - emerging-attack_response.rules
- - emerging-chat.rules
- - emerging-current_events.rules
- - emerging-dns.rules
- - emerging-dos.rules
- - emerging-exploit.rules
- - emerging-ftp.rules
- - emerging-games.rules
- - emerging-icmp_info.rules
- - emerging-icmp.rules
- - emerging-imap.rules
- - emerging-inappropriate.rules
- - emerging-malware.rules
- - emerging-misc.rules
- - emerging-mobile_malware.rules
- - emerging-netbios.rules
- - emerging-p2p.rules
- - emerging-policy.rules
- - emerging-pop3.rules
- - emerging-rpc.rules
- - emerging-scada.rules
- - emerging-scan.rules
- - emerging-shellcode.rules
- - emerging-smtp.rules
- - emerging-snmp.rules
- - emerging-sql.rules
- - emerging-telnet.rules
- - emerging-tftp.rules
- - emerging-trojan.rules
- - emerging-user_agents.rules
- - emerging-voip.rules
- - emerging-web_client.rules
- - emerging-web_server.rules
- - emerging-web_specific_apps.rules
- - emerging-worm.rules
- - rbn-malvertisers.rules
- - rbn.rules
- - tor.rules
+ #- botcc.rules
+ #- test.rules
+ #- ciarmy.rules
+ #- compromised.rules
+ #- drop.rules
+ #- dshield.rules
+ #- emerging-activex.rules
+ #- emerging-attack_response.rules
+ #- emerging-chat.rules
+ #- emerging-current_events.rules
+ #- emerging-dns.rules
+ #- emerging-dos.rules
+ #- emerging-exploit.rules
+ #- emerging-ftp.rules
+ #- emerging-games.rules
+ #- emerging-icmp_info.rules
+ #- emerging-icmp.rules
+ #- emerging-imap.rules
+ #- emerging-inappropriate.rules
+ #- emerging-malware.rules
+ #- emerging-misc.rules
+ #- emerging-mobile_malware.rules
+ #- emerging-netbios.rules
+ #- emerging-p2p.rules
+ #- emerging-policy.rules
+ #- emerging-pop3.rules
+ #- emerging-rpc.rules
+ #- emerging-scada.rules
+ #- emerging-scan.rules
+ #- emerging-shellcode.rules
+ #- emerging-smtp.rules
+ #- emerging-snmp.rules
+ #- emerging-sql.rules
+ #- emerging-telnet.rules
+ #- emerging-tftp.rules
+ #- emerging-trojan.rules
+ #- emerging-user_agents.rules
+ #- emerging-voip.rules
+ #- emerging-web_client.rules
+ #- emerging-web_server.rules
+ #- emerging-web_specific_apps.rules
+ #- emerging-worm.rules
+ #- rbn-malvertisers.rules
+ #- rbn.rules
+ #- tor.rules
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
  - smtp-events.rules    # available in suricata sources under rules dir
  - dns-events.rules     # available in suricata sources under rules dir
 
-classification-file: /usr/local/etc/suricata/classification.config
-reference-config-file: /usr/local/etc/suricata/reference.config
+#classification-file: /usr/local/etc/suricata/classification.config
+classification-file: classification.config
+#reference-config-file: /usr/local/etc/suricata/reference.config
+reference-config-file: reference.config
 
 # Holds variables that would be used by the engine.
 vars:
@@ -1019,27 +1034,34 @@ pcre:
 # "detection-only" enables detection only(parser disabled).
 app-layer:
   protocols:
-    tls:
+    mysql:
       enabled: yes
+      detection-ports:
+        tcp:
+          toserver: 3306
+    tls:
+      enabled: no
       detection-ports:
         tcp:
           toserver: 443
 
       #no-reassemble: yes
     dcerpc:
-      enabled: yes
+      enabled: no
     ftp:
-      enabled: yes
+      enabled: no
     ssh:
-      enabled: yes
+      enabled: no
     smtp:
-      enabled: yes
+      enabled: no
     imap:
-      enabled: detection-only
+      #enabled: detection-only
+      enabled: no
     msn:
-      enabled: detection-only
+      #enabled: detection-only
+      enabled: no
     smb:
-      enabled: yes
+      enabled: no
       detection-ports:
         tcp:
           toserver: 139
@@ -1047,17 +1069,17 @@ app-layer:
     #smb2:
     #  enabled: yes
     dnstcp:
-       enabled: yes
+       enabled: no
        detection-ports:
          tcp:
            toserver: 53
     dnsudp:
-       enabled: yes
+       enabled: no
        detection-ports:
          udp:
            toserver: 53
     http:
-      enabled: yes
+      enabled: no
 
       ###########################################################################
       # Configure libhtp.

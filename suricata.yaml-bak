@@ -77,6 +77,13 @@ unix-command:
 outputs:
 
   # a line based alerts log similar to Snort's fast.log
+  - mysql-log:
+      enabled: yes
+      format: json
+      filename: mysql.json
+      append: yes
+
+  # a line based alerts log similar to Snort's fast.log
   - fast:
       enabled: yes
       filename: fast.log
