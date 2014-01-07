@@ -1,5 +1,5 @@
 file ./src/suricata
-b main
+#b main
 
 #--------------------
 #b RegisterMySqlParsers
@@ -12,7 +12,7 @@ b main
 #b DecodeEnthernet
 #b DecodeIPV4
 #b DecodeTCP
-#b AppLayerParse
+b AppLayerParse
 #b AppLayerHandleTCPData 
 #--------------------
 #b   TmqhInputPacketpool
@@ -22,7 +22,8 @@ b main
 # ---- main break point  ----------------
 #b TmThreadsSlotVarRun
 
-#b src/tm-threads.c:556
+#b ./src/tm-threads.c:556
+#b tm-threads.c:556
 #   commands
 #   silent
 #   print SlotFunc
@@ -33,15 +34,43 @@ b main
 #-- various callback
 #b ReceivePcapFileLoop
 #b DecodePcap if p->src->family==2
+#b DecodePcap
 #b PcapCallbackLoop
 #b StreamTcp if p->src->family==2
 #b StreamTcpReassembleHandleSegment
 #b StreamTcpPacket
-#b src/stream-tcp.c:4210
+#b ./src/stream-tcp.c:4210
+#b decode.c:214
 #    commands
 #    silent
-#    print ssn
-#    cont
+#
+#    if p->ext_pkt != 0
+#        x/80xb p->ext_pkt
+#    else
+#        cont
+#    end
+#    end
+
+#b stream-tcp.c:4210
+#    commands
+#    silent
+#    #set $src_addr = (char *)inet_ntoa(p->src.address.address_un_data32[0])
+#    #set $dst_addr = (char *)inet_ntoa(p->dst.address.address_un_data32[0])
+#    #printf "ssn:0x%x, family:%d,src_addr: %s:%d, dst_addr: %s:%d\n", ssn, p->src.family, $src_addr, p->sp , $dst_addr, p->dp
+#    if ssn != 0
+#        if p->dp == 3306
+#            set $src_addr = (p->src.address.address_un_data32[0])
+#            set $dst_addr = (p->dst.address.address_un_data32[0])
+#            printf "ssn->state:%d, family:%d,src_addr: %d:%d, dst_addr: %d:%d\n", ssn->state, p->src.family, $src_addr, p->sp , $dst_addr, p->dp
+#
+#            if p->ext_pkt != 0
+#                x/80xb p->ext_pkt
+#            end
+#        end
+#        #cont
+#    else
+#        cont
+#    end
 #    end
 #b StreamTcpPacketStateNone
 #b Detect
@@ -81,7 +110,7 @@ b MysqlParseServerRecord
 b MysqlParseClientRecord
 b MysqlProbingParser
 #b AppLayerDetectGetProto
-#b RegisterMysqlParsers
+b RegisterMysqlParsers
 #b loadLogConf
 #b MysqlGetEventInfo
 #b DetectAppLayerEventParseApp
@@ -99,9 +128,14 @@ b MysqlProbingParser
 #b AlertPrelude
 #b AlertSyslog
 #b Unified2Alert
+#
+#--------------------- unitest ----------------------------
+#b MysqlParserRegisterTests
+#b AppLayerRegisterProbingParser
 
-r -c suricata.yaml -i wlan0
+#r -c suricata.yaml -i wlan0
 #r -c suricata.yaml -i eth0
+r -u -U mysql --fatal-unittests 
 set print pretty
 #set print thread-events off
 #set scheduler-locking on

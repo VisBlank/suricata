@@ -76,11 +76,11 @@ unix-command:
 # Configure the type of alert (and other) logging you would like.
 outputs:
 
-  # mysql log
+  # a line based alerts log similar to Snort's fast.log
   - mysql-log:
       enabled: yes
       format: json
-      filename: mysql.log
+      filename: mysql.json
       append: yes
 
   # a line based alerts log similar to Snort's fast.log
@@ -698,8 +698,8 @@ logging:
   # compiled with the --enable-debug configure option.
   #
   # This value is overriden by the SC_LOG_LEVEL env var.
-  default-log-level: notice
-  #default-log-level: debug
+  #default-log-level: notice
+  default-log-level: debug
 
   # The default output format.  Optional parameter, should default to
   # something reasonable if not provided.  Can be overriden in an
@@ -1051,7 +1051,7 @@ app-layer:
     ftp:
       enabled: no
     ssh:
-      enabled: yes
+      enabled: no
     smtp:
       enabled: no
     imap:
