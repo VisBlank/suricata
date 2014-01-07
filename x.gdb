@@ -12,7 +12,7 @@ file ./src/suricata
 #b DecodeEnthernet
 #b DecodeIPV4
 #b DecodeTCP
-b AppLayerParse
+#b AppLayerParse
 #b AppLayerHandleTCPData 
 #--------------------
 #b   TmqhInputPacketpool
@@ -108,10 +108,10 @@ b AppLayerParse
 #   end
 b MysqlParseServerRecord
 b MysqlParseClientRecord
-b MysqlProbingParser
+#b MysqlProbingParser
 #b AppLayerDetectGetProto
-b RegisterMysqlParsers
-b ParseMysqlPktHdr
+#b RegisterMysqlParsers
+#b ParseMysqlPktHdr
 #b loadLogConf
 #b MysqlGetEventInfo
 #b DetectAppLayerEventParseApp
@@ -133,6 +133,7 @@ b ParseMysqlPktHdr
 #--------------------- unitest ----------------------------
 #b MysqlParserRegisterTests
 #b AppLayerRegisterProbingParser
+b InitPendingPkt
 
 #r -c suricata.yaml -i wlan0
 #r -c suricata.yaml -i eth0
