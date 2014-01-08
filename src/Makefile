@@ -96,7 +96,8 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	decode-udp.$(OBJEXT) decode-vlan.$(OBJEXT) \
 	defrag-config.$(OBJEXT) defrag.$(OBJEXT) defrag-hash.$(OBJEXT) \
 	defrag-queue.$(OBJEXT) defrag-timeout.$(OBJEXT) \
-	detect-ack.$(OBJEXT) detect-app-layer-event.$(OBJEXT) \
+	detect-mysql-keywords.$(OBJEXT) detect-ack.$(OBJEXT) \
+	detect-app-layer-event.$(OBJEXT) \
 	detect-app-layer-protocol.$(OBJEXT) detect-asn1.$(OBJEXT) \
 	detect-byte-extract.$(OBJEXT) detect-bytejump.$(OBJEXT) \
 	detect-bytetest.$(OBJEXT) detect.$(OBJEXT) \
@@ -277,7 +278,7 @@ AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing --run automake-1.11
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O0 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="13a432b"
+CFLAGS = -g -O2 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="13a432b"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo
@@ -492,6 +493,7 @@ defrag.c defrag.h \
 defrag-hash.c defrag-hash.h \
 defrag-queue.c defrag-queue.h \
 defrag-timeout.c defrag-timeout.h \
+detect-mysql-keywords.c detect-mysql-keywords.h \
 detect-ack.c detect-ack.h \
 detect-app-layer-event.c detect-app-layer-event.h \
 detect-app-layer-protocol.c detect-app-layer-protocol.h \
@@ -1064,6 +1066,7 @@ include ./$(DEPDIR)/detect-luajit.Po
 include ./$(DEPDIR)/detect-mark.Po
 include ./$(DEPDIR)/detect-metadata.Po
 include ./$(DEPDIR)/detect-msg.Po
+include ./$(DEPDIR)/detect-mysql-keywords.Po
 include ./$(DEPDIR)/detect-noalert.Po
 include ./$(DEPDIR)/detect-nocase.Po
 include ./$(DEPDIR)/detect-offset.Po

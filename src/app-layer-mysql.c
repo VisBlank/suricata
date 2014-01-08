@@ -903,8 +903,6 @@ end:
     FLOW_DESTROY(&f);
     return result;
 }
-<<<<<<< HEAD
-=======
 
 /** \test Send a query request in one chunk */
 int MysqlParserTest03(void) {

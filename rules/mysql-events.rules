@@ -1,0 +1,9 @@
+# rules for mysql
+
+# alert on CREATE
+alert mysql any any -> any any (msg:"mysql CREATE detected"; flow:to_server,established; content:"create"; nocase; isdataat:512;sid:2240000; rev:1;)
+alert tcp any any -> any any (msg:"tcp CREATE detected"; flow:to_server,established; content:"create"; nocase; isdataat:512;sid:2240001; rev:1;)
+alert http any any -> any any (msg:"http CREATE detected"; flow:to_server,established; content:"create"; nocase; isdataat:512;sid:2240002; rev:1;)
+#alert tcp any any -> any any (msg:"CREATE detected"; flow:to_server,established; content:"create"; nocase; isdataat:512;sid:2240000; rev:1;)
+
+# next sid is 2240001

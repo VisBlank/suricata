@@ -133,11 +133,20 @@ b MysqlParseClientRecord
 #--------------------- unitest ----------------------------
 #b MysqlParserRegisterTests
 #b AppLayerRegisterProbingParser
-b InitPendingPkt
+#b InitPendingPkt
+#-------------------- signature --------------------------
+#b LoadSignatures
+#b SigLoadSignatures
+#b DetectLoadSigFile
+#b SigParse 
+#b DetectAppLayerEventSetup
+#b DetectHttpUriRegister
+#b SigTableSetup
 
 #r -c suricata.yaml -i wlan0
-#r -c suricata.yaml -i eth0
-r -u -U mysql --fatal-unittests 
+r -c suricata.yaml -i eth0
+#r -c suricata.yaml -q 2
+#r -u -U mysql --fatal-unittests 
 set print pretty
 #set print thread-events off
 #set scheduler-locking on

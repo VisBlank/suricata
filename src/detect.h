@@ -121,6 +121,8 @@ enum DetectSigmatchListEnum {
 
     DETECT_SM_LIST_DNSQUERY_MATCH,
 
+    DETECT_SM_LIST_MYSQL_LOGIN_MATCH,
+
     /* list for post match actions: flowbit set, flowint increment, etc */
     DETECT_SM_LIST_POSTMATCH,
 
@@ -1117,6 +1119,9 @@ enum {
     DETECT_PKT_DATA,
     DETECT_AL_APP_LAYER_EVENT,
     DETECT_AL_APP_LAYER_PROTOCOL,
+
+    DETECT_AL_MYSQL_LOGIN,
+    DETECT_AL_MYSQL_COMMAND,
 
     DETECT_DCE_IFACE,
     DETECT_DCE_OPNUM,

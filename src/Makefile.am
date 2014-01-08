@@ -61,6 +61,7 @@ defrag.c defrag.h \
 defrag-hash.c defrag-hash.h \
 defrag-queue.c defrag-queue.h \
 defrag-timeout.c defrag-timeout.h \
+detect-mysql-keywords.c detect-mysql-keywords.h \
 detect-ack.c detect-ack.h \
 detect-app-layer-event.c detect-app-layer-event.h \
 detect-app-layer-protocol.c detect-app-layer-protocol.h \
