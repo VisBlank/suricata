@@ -12,7 +12,7 @@ file ./src/suricata
 #b DecodeEnthernet
 #b DecodeIPV4
 #b DecodeTCP
-b AppLayerParse
+#b AppLayerParse
 #b AppLayerHandleTCPData 
 #--------------------
 #b   TmqhInputPacketpool
@@ -142,6 +142,50 @@ b MysqlParseClientRecord
 #b DetectAppLayerEventSetup
 #b DetectHttpUriRegister
 #b SigTableSetup
+#
+#b DetectCsumRegister
+#b DetectTCPV4CsumMatch
+#b DetectTCPV4CsumSetup
+#
+#b DetectIPV4CsumMatch
+#b DetectIPV4CsumSetup
+b DetectMysqlKeywordsRegister
+b DetectMysqlUserALMatch
+b DetectMysqlUserSetup
+b DetectMysqlUserNameFree
+#b SigMatchSignatures
+b DeStateDetectStartDetection
+b DeStateDetectContinueDetection
+#b detect-engin-state.c:378
+#b detect-engin-state.c:623
+
+#b SigParse 
+#b LoadSignatures 
+#b SigInitHelper
+#b SigInit
+#b DetectEngineAppendSig
+#b DetectLoadSigFile
+#b SigLoadSignaturesa
+#b SigParseOptions
+#b detect-parse.c:547
+#    commands
+#    silent
+#    print optvalue
+#    cont
+#    end
+
+#b detect-parse.c:521
+    #commands
+    #silent
+    #print optname
+    #if optname == "tcpv4-csum"
+    #    print "got it!" 
+    #else
+    #    cont
+    #end
+    #end
+
+#b DetectHttpClientBodySetup
 
 #r -c suricata.yaml -i wlan0
 r -c suricata.yaml -i eth0

@@ -4758,7 +4758,7 @@ void SigTableSetup(void) {
     DetectIPRepRegister();
     DetectDnsQueryRegister();
     DetectAppLayerProtocolRegister();
-    DetectMysqlLoginRegister();
+    DetectMysqlKeywordsRegister();
 }
 
 void SigTableRegisterTests(void)

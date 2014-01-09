@@ -266,11 +266,11 @@ magic-file: /usr/share/file/magic
 # accept the packet if suricata is not able to keep pace.
 nfq:
   mode: accept
-  repeat-mark: 1
-  repeat-mask: 1
-  route-queue: 2
-  batchcount: 20
-  fail-open: yes
+  #repeat-mark: 1
+  #repeat-mask: 1
+  #route-queue: 2
+  #batchcount: 20
+  #fail-open: yes
 
 # af-packet support
 # Set threads to > 1 to use PACKET_FANOUT support
@@ -910,12 +910,12 @@ rule-files:
  #- rbn-malvertisers.rules
  #- rbn.rules
  #- tor.rules
- - decoder-events.rules # available in suricata sources under rules dir
- - stream-events.rules  # available in suricata sources under rules dir
- - http-events.rules    # available in suricata sources under rules dir
- - mysql-events.rules    # available in suricata sources under rules dir
- - smtp-events.rules    # available in suricata sources under rules dir
- - dns-events.rules     # available in suricata sources under rules dir
+ #- decoder-events.rules # available in suricata sources under rules dir
+ #- stream-events.rules  # available in suricata sources under rules dir
+ #- http-events.rules    # available in suricata sources under rules dir
+ #- smtp-events.rules    # available in suricata sources under rules dir
+ #- dns-events.rules     # available in suricata sources under rules dir
+ - mysql-events.rules   # available in suricata sources under rules dir
 
 #classification-file: /usr/local/etc/suricata/classification.config
 classification-file: classification.config
@@ -1039,8 +1039,8 @@ app-layer:
       enabled: yes
       detection-ports:
         tcp:
-          #toserver: 3306
-          toserver: 8000
+          toserver: 3306
+          #toserver: 8000
     tls:
       enabled: no
       detection-ports:
@@ -1081,7 +1081,7 @@ app-layer:
          udp:
            toserver: 53
     http:
-      enabled: yes
+      enabled: no
 
       ###########################################################################
       # Configure libhtp.
