@@ -266,11 +266,11 @@ magic-file: /usr/share/file/magic
 # accept the packet if suricata is not able to keep pace.
 nfq:
   mode: accept
-  #repeat-mark: 1
-  #repeat-mask: 1
-  #route-queue: 2
-  #batchcount: 20
-  #fail-open: yes
+  repeat-mark: 1
+  repeat-mask: 1
+  route-queue: 2
+  batchcount: 20
+  fail-open: yes
 
 # af-packet support
 # Set threads to > 1 to use PACKET_FANOUT support
@@ -1039,8 +1039,8 @@ app-layer:
       enabled: yes
       detection-ports:
         tcp:
-          toserver: 3306
-          #toserver: 8000
+          #toserver: 3306
+          toserver: 8000
     tls:
       enabled: no
       detection-ports:

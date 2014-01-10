@@ -144,7 +144,6 @@ static int DetectMysqlUserALMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,
         SCReturnInt(0);
     }
 
-    //FLOWLOCK_RDLOCK(f); /* should we lock it? */
     DetectMysqlUser *mu = (DetectMysqlUser *)sm->ctx;
     
     if (strcmp(mu->username, s->cli.username) == 0)

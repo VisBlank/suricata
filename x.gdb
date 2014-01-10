@@ -106,8 +106,8 @@ file ./src/suricata
 #   print pp_port
 #   cont
 #   end
-b MysqlParseServerRecord
-b MysqlParseClientRecord
+#b MysqlParseServerRecord
+#b MysqlParseClientRecord
 #b MysqlProbingParser
 #b AppLayerDetectGetProto
 #b RegisterMysqlParsers
@@ -149,13 +149,13 @@ b MysqlParseClientRecord
 #
 #b DetectIPV4CsumMatch
 #b DetectIPV4CsumSetup
-b DetectMysqlKeywordsRegister
-b DetectMysqlUserALMatch
-b DetectMysqlUserSetup
-b DetectMysqlUserNameFree
+#b DetectMysqlKeywordsRegister
+#b DetectMysqlUserALMatch
+#b DetectMysqlUserSetup
+#b DetectMysqlUserNameFree
 #b SigMatchSignatures
-b DeStateDetectStartDetection
-b DeStateDetectContinueDetection
+#b DeStateDetectStartDetection
+#b DeStateDetectContinueDetection
 #b detect-engin-state.c:378
 #b detect-engin-state.c:623
 
@@ -188,9 +188,10 @@ b DeStateDetectContinueDetection
 #b DetectHttpClientBodySetup
 
 #r -c suricata.yaml -i wlan0
-r -c suricata.yaml -i eth0
-#r -c suricata.yaml -q 2
+#r -c suricata.yaml -i eth0
+r -c suricata.yaml -q 0
 #r -u -U mysql --fatal-unittests 
 set print pretty
+#set pagination no
 #set print thread-events off
 #set scheduler-locking on
