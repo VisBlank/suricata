@@ -13,7 +13,7 @@
  *  ...
  */
 #include "suricata-common.h"
-#include "app-layer-mysql.h"
+#include "app-layer-mysql-common.h"
 #include "detect.h"
 #include "detect-parse.h"
 
@@ -146,7 +146,7 @@ static int DetectMysqlUserALMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,
 
     DetectMysqlUser *mu = (DetectMysqlUser *)sm->ctx;
     
-    if (strcmp(mu->username, s->cli.username) == 0)
+    if (strcmp(mu->username, s->cur_tx->cli.username) == 0)
         return 1;
     else
         return 0;

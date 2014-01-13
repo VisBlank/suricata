@@ -14,6 +14,7 @@ alert-prelude.c alert-prelude.h \
 alert-syslog.c alert-syslog.h \
 alert-unified2-alert.c alert-unified2-alert.h \
 app-layer.c app-layer.h \
+app-layer-mysql-common.c app-layer-mysql-common.h \
 app-layer-mysql.c app-layer-mysql.h \
 log-mysqllog.c log-mysqllog.h \
 app-layer-dcerpc.c app-layer-dcerpc.h \

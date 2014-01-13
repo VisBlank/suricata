@@ -72,9 +72,9 @@ PROGRAMS = $(bin_PROGRAMS)
 am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	alert-pcapinfo.$(OBJEXT) alert-prelude.$(OBJEXT) \
 	alert-syslog.$(OBJEXT) alert-unified2-alert.$(OBJEXT) \
-	app-layer.$(OBJEXT) app-layer-mysql.$(OBJEXT) \
-	log-mysqllog.$(OBJEXT) app-layer-dcerpc.$(OBJEXT) \
-	app-layer-dcerpc-udp.$(OBJEXT) \
+	app-layer.$(OBJEXT) app-layer-mysql-common.$(OBJEXT) \
+	app-layer-mysql.$(OBJEXT) log-mysqllog.$(OBJEXT) \
+	app-layer-dcerpc.$(OBJEXT) app-layer-dcerpc-udp.$(OBJEXT) \
 	app-layer-detect-proto.$(OBJEXT) \
 	app-layer-dns-common.$(OBJEXT) app-layer-dns-tcp.$(OBJEXT) \
 	app-layer-dns-udp.$(OBJEXT) app-layer-ftp.$(OBJEXT) \
@@ -278,7 +278,7 @@ AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing --run automake-1.11
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O0 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="13a432b"
+CFLAGS = -g -O2 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="13a432b"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo
@@ -446,6 +446,7 @@ alert-prelude.c alert-prelude.h \
 alert-syslog.c alert-syslog.h \
 alert-unified2-alert.c alert-unified2-alert.h \
 app-layer.c app-layer.h \
+app-layer-mysql-common.c app-layer-mysql-common.h \
 app-layer-mysql.c app-layer-mysql.h \
 log-mysqllog.c log-mysqllog.h \
 app-layer-dcerpc.c app-layer-dcerpc.h \
@@ -931,6 +932,7 @@ include ./$(DEPDIR)/app-layer-htp-body.Po
 include ./$(DEPDIR)/app-layer-htp-file.Po
 include ./$(DEPDIR)/app-layer-htp-libhtp.Po
 include ./$(DEPDIR)/app-layer-htp.Po
+include ./$(DEPDIR)/app-layer-mysql-common.Po
 include ./$(DEPDIR)/app-layer-mysql.Po
 include ./$(DEPDIR)/app-layer-parser.Po
 include ./$(DEPDIR)/app-layer-protos.Po
