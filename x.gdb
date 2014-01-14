@@ -121,7 +121,14 @@ file ./src/suricata
 #b TmModuleLogMysqlRegister
 #b RunModeInitializeOutputs
 #b LogMysqlLogThreadInit
-#b LogMysqlLog
+#b log-mysqllog.c:166
+#    commands
+#    silent
+#    print s
+#    cont
+#    end
+#b MysqlTransactionFree
+#b MysqlStateFree
 
 # --------------------- all log debug -----------------------
 #b AlertFastLog
@@ -134,11 +141,15 @@ file ./src/suricata
 #b MysqlParserRegisterTests
 #b AppLayerRegisterProbingParser
 #b InitPendingPkt
+#b ParseClientCmd
+#b MysqlStateFree
+#b MysqlTransactionFree
+#b MysqlParserTest04
 #-------------------- signature --------------------------
 #b LoadSignatures
 #b SigLoadSignatures
 #b DetectLoadSigFile
-#b SigParse 
+b SigParse 
 #b DetectAppLayerEventSetup
 #b DetectHttpUriRegister
 #b SigTableSetup
@@ -158,6 +169,34 @@ file ./src/suricata
 #b DeStateDetectContinueDetection
 #b detect-engin-state.c:378
 #b detect-engin-state.c:623
+b detect.c:1485
+    commands
+    silent
+    print *sm
+    p sigmatch_table[sm->type]
+    cont
+    end
+b detect.c:615
+    commands
+    silent
+    print *sm
+    p sigmatch_table[sm->type]
+    cont
+    end
+b detect-engine-iponly.c:929
+    commands
+    silent
+    print *sm
+    p sigmatch_table[sm->type]
+    cont
+    end
+b detect-engine-iponly.c:1073
+    commands
+    silent
+    print *sm
+    p sigmatch_table[sm->type]
+    cont
+    end
 
 #b SigParse 
 #b LoadSignatures 
@@ -167,23 +206,23 @@ file ./src/suricata
 #b DetectLoadSigFile
 #b SigLoadSignaturesa
 #b SigParseOptions
-#b detect-parse.c:547
-#    commands
-#    silent
-#    print optvalue
-#    cont
-#    end
+b detect-parse.c:547
+    commands
+    silent
+    print optvalue
+    cont
+    end
 
-#b detect-parse.c:521
-    #commands
-    #silent
-    #print optname
-    #if optname == "tcpv4-csum"
-    #    print "got it!" 
-    #else
-    #    cont
-    #end
-    #end
+b detect-parse.c:521
+    commands
+    silent
+    print optname
+    if optname == "tcpv4-csum"
+        print "got it!" 
+    else
+        cont
+    end
+    end
 
 #b DetectHttpClientBodySetup
 

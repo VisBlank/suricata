@@ -146,7 +146,7 @@ static int DetectMysqlUserALMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,
 
     DetectMysqlUser *mu = (DetectMysqlUser *)sm->ctx;
     
-    if (strcmp(mu->username, s->cur_tx->cli.username) == 0)
+    if (strcmp((const char *)mu->username, (const char *)s->cur_tx->cli.username) == 0)
         return 1;
     else
         return 0;

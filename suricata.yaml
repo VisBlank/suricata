@@ -1039,8 +1039,8 @@ app-layer:
       enabled: yes
       detection-ports:
         tcp:
-          #toserver: 3306
-          toserver: 8000
+          toserver: 3306
+          #toserver: 8000
     tls:
       enabled: no
       detection-ports:

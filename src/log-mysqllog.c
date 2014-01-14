@@ -97,7 +97,6 @@ TmEcode LogMysqlLog(ThreadVars *tv, Packet *p, void *data, PacketQueue *pq, Pack
     SCReturnInt(TM_ECODE_OK);
 }
 
-
 TmEcode LogMysqlLogThreadDeinit(ThreadVars *t, void *data) {
     LogMysqlLogThread *mlt = (LogMysqlLogThread *)data;
     if (mlt == NULL)
@@ -158,7 +157,6 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
     if (p->flow == NULL)
         SCReturnInt(TM_ECODE_OK);
 
-
     FLOWLOCK_WRLOCK(p->flow); /* write lock before update flow log id */
     uint16_t proto = AppLayerGetProtoFromPacket(p);
     if (proto != ALPROTO_MYSQL)
@@ -204,6 +202,25 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
     }
 
     MemBufferReset(mlt->buffer);
+    MemBufferWriteString(mlt->buffer,
+            "{time:%s,src_ip:'%s',src_port:%d,dst_ip:'%s',dst_port:%d,"
+            "db_type:'%s',user:'%s',db_name:'%s',operation:'%s', action:'%s',"
+            "meta_info:{cmd:'%s',sql:'%s',}},\n]",
+            timebuf, srcip, sp, dstip, dp,
+            s->protocol_name, STATE_USER(s),
+            STATE_USE_DB(s) ? STATE_USE_DB(s) : "null",
+            "null", /* no operation info(login and query info deleted) */
+            "PASS", /* how do I konw it was passed (in detect module) */
+            CmdStr(STATE_USE_CMD(s)),
+            STATE_SQL_CMD(s) ? STATE_SQL_CMD(s) : "null");
+    SCMutexLock(&mlt->file_ctx->fp_mutex);
+    (void)MemBufferPrintToFPAsString(mlt->buffer, mlt->file_ctx->fp);
+    fflush(mlt->file_ctx->fp);
+    SCMutexUnlock(&mlt->file_ctx->fp_mutex);
+    AppLayerTransactionUpdateLogId(p->flow);
+
+    /* TODO : add pending packages */
+
 end:
     FLOWLOCK_UNLOCK(p->flow);
     SCReturnInt(TM_ECODE_OK);

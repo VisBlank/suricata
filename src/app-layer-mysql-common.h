@@ -154,16 +154,14 @@ typedef struct PendingPkt_ {
  * \brief MySQL transaction, request/reply with same TX id
  */
 typedef struct MysqlTransaction_ {
-#if 0
     /* both not in use */
     uint16_t tx_num;
     uint16_t tx_id;
-#endif
 
-    uint8_t hs; /* server handshake */
-    /* client auth */
-    uint8_t try_auth;
-    uint8_t auth_ok; 
+    /* flags */
+    uint8_t hs;     /* server handshake */
+    uint8_t try_auth; /* client auth */
+    uint8_t auth_ok;  /* auth passed */
 
     uint8_t replied; /* bool indicating request is replied to. */
     uint8_t reply_lost;
@@ -180,12 +178,18 @@ typedef struct MysqlTransaction_ {
     TAILQ_ENTRY(MysqlTransaction_) next;
 } MysqlTransaction;
 
+#define STATE_USER(s) (s)->cur_tx->cli.username
+#define STATE_USE_DB(s) (s)->cur_tx->cli.db_name
+#define STATE_USE_CMD(s) (s)->cur_tx->cmd.cmd
+#define STATE_SQL_CMD(s) (s)->cur_tx->cmd.sql
+
 typedef struct MysqlState_ {
     TAILQ_HEAD(, MysqlTransaction_) tx_list;
     MysqlTransaction *cur_tx;
 
     uint8_t *input;
     uint32_t input_len;
+    uint8_t *protocol_name;
 } MysqlState;
 
 int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
@@ -199,5 +203,6 @@ void *MysqlStateAlloc(void);
 void MysqlStateFree(void *state);
 int MysqlRequestParse(uint8_t *input, uint32_t input_len);
 void MysqlStateClean(MysqlState *s);
-
+void *MysqlTransactionAlloc(void);
+const char *CmdStr(MysqlCommand cmd);
 #endif

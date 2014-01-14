@@ -9,8 +9,6 @@
 
 #define MYSQL_HDR_LEN 4
 
-void *MysqlTransactionAlloc(const uint16_t tx_id);
-
 int ParseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input, uint32_t input_len) {
     int ret;
     uint32_t res;
@@ -51,13 +49,19 @@ static int ParseServerHs(MysqlState *s, uint8_t *input, uint32_t input_len) {
     int conn_id = res; 
     MysqlTransaction *tx = NULL;
     if (s->cur_tx == NULL) {
-        tx = MysqlTransactionAlloc(conn_id);
+        tx = MysqlTransactionAlloc();
+        if (!tx)
+            return -1;
         s->cur_tx = tx;
         TAILQ_INSERT_HEAD(&s->tx_list, tx, next);
     }
 
+    s->cur_tx->tx_id = conn_id;
+    s->cur_tx->tx_num++;
+
     /* TODO: handshake message useless for now */
 
+    s->cur_tx->hs = 1;
     return 0;
 }
 
@@ -224,8 +228,10 @@ static int CheckPkt(uint8_t *input, uint32_t input_len) {
 
 static int InitPendingPkt(PendingPkt *ppkt, uint8_t *input, uint32_t input_len) {
     MysqlPktHeader hdr;
+    if (!ppkt)
+        return -1;
 
-    if (ParseMysqlPktHdr(&hdr, input, input_len) == -1) { 
+    if (ParseMysqlPktHdr(&hdr, input, input_len) == -1) {
         return -1;
     }
 
@@ -249,29 +255,33 @@ static int ParseServerCmdResp(MysqlState *state, uint8_t *input, uint32_t input_
 static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)  {
     int ret = 0;
     int res = CheckPkt(input, input_len);
-    PendingPkt *ppkt, *cur_ppkt = state->cur_tx->cur_ppkt;
+    PendingPkt *ppkt = NULL, *cur_ppkt = state->cur_tx->cur_ppkt;
 
     switch (res) {
         case PKT_COMPLETE:
             return ParseCompleteMysqlClientPkt(state, input, input_len);
         case PKT_INCOMPLETE_WITH_HEAD:
-            if (cur_ppkt) {
-                /* drop old one */
-                cur_ppkt->flags = PPKT_DROP;
-                ppkt = SCMalloc(sizeof(*ppkt));
-                if (unlikely(ppkt == NULL)) {
-                    /* we should set some info to the transaction */
-                    return -1;
-                }
-                TAILQ_INSERT_HEAD(&state->cur_tx->ppkt_list, ppkt, next);
-                state->cur_tx->cur_ppkt = ppkt;
-                SCLogDebug("new ppkt %p", ppkt);
+            if (cur_ppkt ) {
+                /* incoming pkt is another new message, the old append
+                 * pkt supposed to be dropped */
+                if (cur_ppkt->flags == PPKT_APPENDING)
+                    cur_ppkt->flags = PPKT_DROP;
+            }
+
+            /* add new ppkt */
+            ppkt = SCMalloc(sizeof(*ppkt));
+            if (unlikely(ppkt == NULL)) {
+                /* TODO: we should set some hint to the transaction */
+                return -1;
             }
 
             if (InitPendingPkt(ppkt, input, input_len) == -1) {
-                /* TODO: drop */
                 return -1;
             }
+
+            TAILQ_INSERT_HEAD(&state->cur_tx->ppkt_list, ppkt, next);
+            state->cur_tx->cur_ppkt = ppkt;
+
             return 0;
         case PKT_INCOMPLETE_CAN_APPEND:
             if (TryAppendPkt(cur_ppkt, input, input_len) == -1) {
@@ -324,6 +334,15 @@ int MysqlParseServerRecord(Flow *f, void *mysql_state,
     if (pstate == NULL)
         SCReturnInt(-1);
 
+    if (state->cur_tx == NULL) {
+        MysqlTransaction *tx = MysqlTransactionAlloc();
+        if (!tx) {
+            return -1;
+        }
+        TAILQ_INSERT_HEAD(&state->tx_list, tx, next);
+        state->cur_tx = tx;
+    }
+
     if (!state->cur_tx->hs) {
         return ParseServerHs(state, input, input_len);
     } else if (!state->cur_tx->auth_ok) {
@@ -336,26 +355,41 @@ int MysqlParseServerRecord(Flow *f, void *mysql_state,
 }
 
 void *MysqlStateAlloc(void) {
-    void *s = SCMalloc(sizeof(MysqlState));
+    static uint8_t proto[] = "mysql";
+    MysqlState *s = SCMalloc(sizeof(MysqlState));
     if (s == NULL)
         return NULL;
     memset(s, 0, sizeof(MysqlState));
+    s->protocol_name = proto;
 
-    MysqlState *mysql_state = (MysqlState *)s;
-    TAILQ_INIT(&mysql_state->tx_list);
+    TAILQ_INIT(&s->tx_list);
     return s;
 }
 
 void MysqlStateClean(MysqlState *ms) {
     /* TODO */
+    MysqlClient *c = &ms->cur_tx->cli;
+    if (c->username != NULL)
+        SCFree(c->username);
+    if (c->db_name != NULL)
+        SCFree(c->db_name);
+
+    if (c->password != NULL)
+        SCFree(c->password);
+
+    if (c->src_ip != NULL)
+        SCFree(c->src_ip);
+
+    if (c->dst_ip != NULL)
+        SCFree(c->dst_ip);
 }
 
-void *MysqlTransactionAlloc(const uint16_t tx_id) {
-    (void) tx_id;
+void *MysqlTransactionAlloc() {
     MysqlTransaction *tx = SCMalloc(sizeof(MysqlTransaction));
     if (unlikely(tx == NULL))
         return NULL;
     memset(tx, 0, sizeof(*tx));
+    TAILQ_INIT(&tx->ppkt_list);
     return tx;
 }
 
@@ -420,4 +454,32 @@ int MysqlRequestParse(uint8_t *input, uint32_t input_len) {
     
     /* do nothing here */
     SCReturnInt(1);
+}
+
+const char *CmdStr(MysqlCommand cmd) {
+    static char *cmd_str[] = {
+        "SLEEP","QUIT",
+        "INIT_DB","QUERY",
+        "FIELD_LIST","CREATE_DB",
+        "DROP_DB","REFRESH",
+        "SHUTDOWN","STATISTICS",
+        "PROCESS_INFO","CONNECT",
+        "PROCESS_KILL","DEBUG",
+        "PING","TIME",
+        "DELAYED_INSERT","CHANGE_USER",
+        "BINLOG_DUMP","TABLE_DUMP",
+        "CONNECT_OUT","REGISTER_SLAVE",
+        "STMT_PREPARE","STMT_EXECUTE",
+        "STMT_SEND_LONG_DATA","STMT_CLOSE",
+        "STMT_RESET","SET_OPTION",
+        "STMT_FETCH","DAEMON",
+        "BINLOG_DUMP_GTID","RESET_CONNECTION",
+        "LOGIN",
+        "PENDING",
+        "DO_NOT_EXIST",
+    };
+
+    if (cmd >= sizeof(cmd_str)/sizeof(char*))
+        return cmd_str[sizeof(cmd_str)/sizeof(char*) - 1]; 
+    return cmd_str[cmd];
 }

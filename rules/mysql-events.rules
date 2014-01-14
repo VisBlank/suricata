@@ -2,15 +2,16 @@
 
 # alert on root login from anywhere
 #alert mysql any any -> any any (msg:"mysql user(root) detected"; flow:to_server,established; mysql-user:root; sid:2240000; rev:1;)
-reject mysql any any -> any any (msg:"mysql user(root) detected"; flow:to_server,established; mysql-user:root; sid:2240000; rev:1;)
+#reject mysql any any -> any any (msg:"mysql user(root) detected"; flow:to_server,established; mysql-user:root; sid:2240000; rev:1;)
 
 # alert 192.168.37.106 login to MySQL server on user tanb
 #alert mysql 192.168.37.106 any -> any any (msg:"mysql client (tanb@192.168.37.106) detected"; mysql-user:tanb; flow:to_server,established; sid:2240001; rev:1;)
-reject mysql 192.168.37.106 any -> any any (msg:"mysql client (tanb@192.168.37.106) detected"; mysql-user:tanb; flow:to_server,established; sid:2240001; rev:1;)
+#reject mysql 192.168.37.106 any -> any any (msg:"mysql client (tanb@192.168.37.106) detected"; mysql-user:tanb; flow:to_server,established; sid:2240001; rev:1;)
 
 # enable 192.168.37.106 login to MySQL server on user jhon 
 #pass mysql 192.168.37.106 any -> any any (msg:"mysql client (root@192.168.37.106) detected"; mysql-user:tanb; flow:to_server,established; sid:2240002; rev:1;)
 
-reject tcp any any -> any any (msg:TBD) detected"; content:"root"; flow:to_server,established; sid:2240002; rev:1;)
+# disable any tcp flow
+#reject tcp any any -> any any (msg:"all tcp stream disabled"; content:"root"; flow:to_server,established; sid:2240002; rev:1;)
 
 # next sid is 2240003

@@ -1,1 +1,2 @@
-alert tcp $EXTERNAL_NET any -> $HOME_NET 8888 (msg: "meow"; content: "meow"; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 8888 (msg: "meow"; content: "meow"; )
+alert tcp any any -> any any (msg: "meow"; content: "root";)
