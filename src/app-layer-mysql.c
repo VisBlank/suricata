@@ -8,6 +8,7 @@
 
 #include "suricata-common.h"
 #include "app-layer-mysql-common.h"
+#include "app-layer-mysql.h"
 
 static uint16_t MysqlProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset) {
     if (ilen == 0 || ilen < sizeof(MysqlPktHeader)) {

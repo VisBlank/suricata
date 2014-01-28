@@ -57,6 +57,7 @@
 #include "app-layer-dns-udp.h"
 #include "app-layer-dns-tcp.h"
 #include "app-layer-mysql.h"
+#include "app-layer-tds.h"
 
 #include "conf.h"
 #include "util-spm.h"
@@ -1459,6 +1460,7 @@ void RegisterAppLayerParsers(void)
     RegisterDNSUDPParsers();
     RegisterDNSTCPParsers();
     RegisterMysqlParsers();
+    RegisterTDSParsers();
 
     /** IMAP */
     if (AppLayerProtoDetectionEnabled("imap")) {

@@ -149,7 +149,7 @@ file ./src/suricata
 #b LoadSignatures
 #b SigLoadSignatures
 #b DetectLoadSigFile
-b SigParse 
+#b SigParse 
 #b DetectAppLayerEventSetup
 #b DetectHttpUriRegister
 #b SigTableSetup
@@ -169,34 +169,34 @@ b SigParse
 #b DeStateDetectContinueDetection
 #b detect-engin-state.c:378
 #b detect-engin-state.c:623
-b detect.c:1485
-    commands
-    silent
-    print *sm
-    p sigmatch_table[sm->type]
-    cont
-    end
-b detect.c:615
-    commands
-    silent
-    print *sm
-    p sigmatch_table[sm->type]
-    cont
-    end
-b detect-engine-iponly.c:929
-    commands
-    silent
-    print *sm
-    p sigmatch_table[sm->type]
-    cont
-    end
-b detect-engine-iponly.c:1073
-    commands
-    silent
-    print *sm
-    p sigmatch_table[sm->type]
-    cont
-    end
+#b detect.c:1485
+#    commands
+#    silent
+#    print *sm
+#    p sigmatch_table[sm->type]
+#    cont
+#    end
+#b detect.c:615
+#    commands
+#    silent
+#    print *sm
+#    p sigmatch_table[sm->type]
+#    cont
+#    end
+#b detect-engine-iponly.c:929
+#    commands
+#    silent
+#    print *sm
+#    p sigmatch_table[sm->type]
+#    cont
+#    end
+#b detect-engine-iponly.c:1073
+#    commands
+#    silent
+#    print *sm
+#    p sigmatch_table[sm->type]
+#    cont
+#    end
 
 #b SigParse 
 #b LoadSignatures 
@@ -206,25 +206,53 @@ b detect-engine-iponly.c:1073
 #b DetectLoadSigFile
 #b SigLoadSignaturesa
 #b SigParseOptions
-b detect-parse.c:547
-    commands
-    silent
-    print optvalue
-    cont
-    end
+#b detect-parse.c:547
+#    commands
+#    silent
+#    print optvalue
+#    cont
+#    end
+#
+#b detect-parse.c:521
+#    commands
+#    silent
+#    print optname
+#    if optname == "tcpv4-csum"
+#        print "got it!" 
+#    else
+#        cont
+#    end
+#    end
+#
 
-b detect-parse.c:521
-    commands
-    silent
-    print optname
-    if optname == "tcpv4-csum"
-        print "got it!" 
-    else
-        cont
-    end
-    end
+#-------------------- date keyword ----------------------
+#b DetectTimeRegister
+#b DetectDateMatch
+#b DetectDateSetup
+#b DetectDateFree
 
-#b DetectHttpClientBodySetup
+#b DetectTimeMatch
+#b DetectTimeSetup
+#b DetectTimeFree
+
+#b DetectWeekdaysMatch
+#b DetectWeekdaysSetup
+#b DetectWeekdaysFree
+
+#b DetectMonthdaysMatch
+#b DetectMonthdaysSetup
+#b DetectMonthdaysFree
+#b DetectMonthdaysParse
+#
+#
+#-----------------------  DTS -------------------------
+#b TmModuleLogTDSRegister
+#b RunModeInitializeOutputs
+#b LogTDSLogThreadInit
+#b TDSParseClientRecord
+#b TDSParseServerRecord
+b log-tdslog.c:226
+#b app-layer-tds-common.c:61
 
 #r -c suricata.yaml -i wlan0
 #r -c suricata.yaml -i eth0

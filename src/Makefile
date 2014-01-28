@@ -74,7 +74,8 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	alert-syslog.$(OBJEXT) alert-unified2-alert.$(OBJEXT) \
 	app-layer.$(OBJEXT) app-layer-mysql-common.$(OBJEXT) \
 	app-layer-mysql.$(OBJEXT) log-mysqllog.$(OBJEXT) \
-	app-layer-dcerpc.$(OBJEXT) app-layer-dcerpc-udp.$(OBJEXT) \
+	log-tdslog.$(OBJEXT) app-layer-dcerpc.$(OBJEXT) \
+	app-layer-dcerpc-udp.$(OBJEXT) \
 	app-layer-detect-proto.$(OBJEXT) \
 	app-layer-dns-common.$(OBJEXT) app-layer-dns-tcp.$(OBJEXT) \
 	app-layer-dns-udp.$(OBJEXT) app-layer-ftp.$(OBJEXT) \
@@ -84,6 +85,7 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	app-layer-smb2.$(OBJEXT) app-layer-smb.$(OBJEXT) \
 	app-layer-smtp.$(OBJEXT) app-layer-ssh.$(OBJEXT) \
 	app-layer-ssl.$(OBJEXT) app-layer-tls-handshake.$(OBJEXT) \
+	app-layer-tds-common.$(OBJEXT) app-layer-tds.$(OBJEXT) \
 	conf.$(OBJEXT) conf-yaml-loader.$(OBJEXT) counters.$(OBJEXT) \
 	data-queue.$(OBJEXT) decode.$(OBJEXT) \
 	decode-ethernet.$(OBJEXT) decode-events.$(OBJEXT) \
@@ -96,8 +98,8 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	decode-udp.$(OBJEXT) decode-vlan.$(OBJEXT) \
 	defrag-config.$(OBJEXT) defrag.$(OBJEXT) defrag-hash.$(OBJEXT) \
 	defrag-queue.$(OBJEXT) defrag-timeout.$(OBJEXT) \
-	detect-mysql-keywords.$(OBJEXT) detect-ack.$(OBJEXT) \
-	detect-app-layer-event.$(OBJEXT) \
+	detect-time.$(OBJEXT) detect-mysql-keywords.$(OBJEXT) \
+	detect-ack.$(OBJEXT) detect-app-layer-event.$(OBJEXT) \
 	detect-app-layer-protocol.$(OBJEXT) detect-asn1.$(OBJEXT) \
 	detect-byte-extract.$(OBJEXT) detect-bytejump.$(OBJEXT) \
 	detect-bytetest.$(OBJEXT) detect.$(OBJEXT) \
@@ -237,7 +239,7 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	util-syslog.$(OBJEXT) util-threshold-config.$(OBJEXT) \
 	util-time.$(OBJEXT) util-unittest.$(OBJEXT) \
 	util-unittest-helper.$(OBJEXT) util-affinity.$(OBJEXT) \
-	util-var.$(OBJEXT) util-var-name.$(OBJEXT) \
+	util-var.$(OBJEXT) util-var-name.$(OBJEXT) util-json.$(OBJEXT) \
 	win32-misc.$(OBJEXT) win32-service.$(OBJEXT)
 suricata_OBJECTS = $(am_suricata_OBJECTS)
 am__DEPENDENCIES_1 =
@@ -278,7 +280,7 @@ AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing --run automake-1.11
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O0 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="13a432b"
+CFLAGS = -O0 -ggdb -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="afa5a30"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo
@@ -449,6 +451,7 @@ app-layer.c app-layer.h \
 app-layer-mysql-common.c app-layer-mysql-common.h \
 app-layer-mysql.c app-layer-mysql.h \
 log-mysqllog.c log-mysqllog.h \
+log-tdslog.c log-tdslog.h \
 app-layer-dcerpc.c app-layer-dcerpc.h \
 app-layer-dcerpc-udp.c app-layer-dcerpc-udp.h \
 app-layer-detect-proto.c app-layer-detect-proto.h \
@@ -468,6 +471,8 @@ app-layer-smtp.c app-layer-smtp.h \
 app-layer-ssh.c app-layer-ssh.h \
 app-layer-ssl.c app-layer-ssl.h \
 app-layer-tls-handshake.c app-layer-tls-handshake.h \
+app-layer-tds-common.c app-layer-tds-common.h \
+app-layer-tds.c app-layer-tds.h \
 conf.c conf.h \
 conf-yaml-loader.c conf-yaml-loader.h \
 counters.c counters.h \
@@ -494,6 +499,7 @@ defrag.c defrag.h \
 defrag-hash.c defrag-hash.h \
 defrag-queue.c defrag-queue.h \
 defrag-timeout.c defrag-timeout.h \
+detect-time.c detect-time.h \
 detect-mysql-keywords.c detect-mysql-keywords.h \
 detect-ack.c detect-ack.h \
 detect-app-layer-event.c detect-app-layer-event.h \
@@ -783,6 +789,7 @@ util-validate.h util-affinity.h util-affinity.c \
 util-var.c util-var.h \
 util-var-name.c util-var-name.h \
 util-vector.h \
+util-json.h util-json.c \
 win32-misc.c win32-misc.h \
 win32-service.c win32-service.h \
 win32-syslog.h
@@ -941,6 +948,8 @@ include ./$(DEPDIR)/app-layer-smb2.Po
 include ./$(DEPDIR)/app-layer-smtp.Po
 include ./$(DEPDIR)/app-layer-ssh.Po
 include ./$(DEPDIR)/app-layer-ssl.Po
+include ./$(DEPDIR)/app-layer-tds-common.Po
+include ./$(DEPDIR)/app-layer-tds.Po
 include ./$(DEPDIR)/app-layer-tls-handshake.Po
 include ./$(DEPDIR)/app-layer.Po
 include ./$(DEPDIR)/conf-yaml-loader.Po
@@ -1093,6 +1102,7 @@ include ./$(DEPDIR)/detect-ssl-version.Po
 include ./$(DEPDIR)/detect-stream_size.Po
 include ./$(DEPDIR)/detect-tag.Po
 include ./$(DEPDIR)/detect-threshold.Po
+include ./$(DEPDIR)/detect-time.Po
 include ./$(DEPDIR)/detect-tls-version.Po
 include ./$(DEPDIR)/detect-tls.Po
 include ./$(DEPDIR)/detect-tos.Po
@@ -1122,6 +1132,7 @@ include ./$(DEPDIR)/log-filestore.Po
 include ./$(DEPDIR)/log-httplog.Po
 include ./$(DEPDIR)/log-mysqllog.Po
 include ./$(DEPDIR)/log-pcap.Po
+include ./$(DEPDIR)/log-tdslog.Po
 include ./$(DEPDIR)/log-tlslog.Po
 include ./$(DEPDIR)/output.Po
 include ./$(DEPDIR)/packet-queue.Po
@@ -1206,6 +1217,7 @@ include ./$(DEPDIR)/util-hashlist.Po
 include ./$(DEPDIR)/util-host-os-info.Po
 include ./$(DEPDIR)/util-ioctl.Po
 include ./$(DEPDIR)/util-ip.Po
+include ./$(DEPDIR)/util-json.Po
 include ./$(DEPDIR)/util-logopenfile.Po
 include ./$(DEPDIR)/util-magic.Po
 include ./$(DEPDIR)/util-memcmp.Po

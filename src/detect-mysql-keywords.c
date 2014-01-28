@@ -44,7 +44,7 @@ void DetectMysqlKeywordsRegister(void) {
     sigmatch_table[DETECT_AL_MYSQL_USER].url = "mysql TBD";
     sigmatch_table[DETECT_AL_MYSQL_USER].Match = NULL;
     sigmatch_table[DETECT_AL_MYSQL_USER].AppLayerMatch = DetectMysqlUserALMatch;
-    sigmatch_table[DETECT_AL_MYSQL_USER].alproto = ALPROTO_MYSQL; 
+    sigmatch_table[DETECT_AL_MYSQL_USER].alproto = ALPROTO_MYSQL;
     sigmatch_table[DETECT_AL_MYSQL_USER].Setup = DetectMysqlUserSetup;
     sigmatch_table[DETECT_AL_MYSQL_USER].Free = DetectMysqlUserFree;
     sigmatch_table[DETECT_AL_MYSQL_USER].RegisterTests = NULL;
@@ -86,7 +86,7 @@ static int DetectMysqlUserSetup(DetectEngineCtx *de_ctx, Signature *s, char *str
     if (mu == NULL)
         goto error;
     memset(mu, 0, sizeof(*mu));
-    if (DetectMysqlUserParseArg(str, mu) == 0)
+    if (DetectMysqlUserParseArg(str, mu) == -1)
         goto error;
 
     sm->ctx = mu;
@@ -128,11 +128,11 @@ int DetectMysqlUserParseArg(const char *key, DetectMysqlUser *mu) {
     }
 
     mu->username = str;
-    return 1;
+    return 0;
 error:
     if (str != NULL)
         SCFree(str);
-    return 0;
+    return -1;
 }
 
 static int DetectMysqlUserALMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,

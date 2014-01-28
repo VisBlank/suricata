@@ -45,6 +45,9 @@ enum AppProto {
     ALPROTO_DNS_TCP,
     ALPROTO_MYSQL,
 
+    ALPROTO_TDS,
+    ALPROTO_TNS,
+
     /* used by the probing parser when alproto detection fails
      * permanently for that particular stream */
     ALPROTO_FAILED,

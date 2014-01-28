@@ -83,6 +83,12 @@ outputs:
       filename: mysql.json
       append: yes
 
+  - tds-log:
+      enabled: yes
+      format: json
+      filename: tds.json
+      append: yes
+
   # a line based alerts log similar to Snort's fast.log
   - fast:
       enabled: yes
@@ -92,7 +98,7 @@ outputs:
 
   # alert output for use with Barnyard2
   - unified2-alert:
-      enabled: no
+      enabled: yes
       filename: unified2.alert
 
       # File size limit.  Can be specified in kb, mb, gb.  Just a number
@@ -200,13 +206,13 @@ outputs:
   # The interval field (in seconds) tells after how long output will be written
   # on the log file.
   - stats:
-      enabled: no 
+      enabled: yes
       filename: stats.log
       interval: 8
 
   # a line based alerts log similar to fast.log into syslog
   - syslog:
-      enabled: yes
+      enabled: no
       # reported identity to syslog. If ommited the program name (usually
       # suricata) will be used.
       #identity: "suricata"
@@ -265,12 +271,12 @@ magic-file: /usr/share/file/magic
 # On linux >= 3.6, you can set the fail-open option to yes to have the kernel
 # accept the packet if suricata is not able to keep pace.
 nfq:
-  mode: accept
-  repeat-mark: 1
-  repeat-mask: 1
-  route-queue: 2
-  batchcount: 20
-  fail-open: yes
+#  mode: accept
+#  repeat-mark: 1
+#  repeat-mask: 1
+#  route-queue: 2
+#  batchcount: 20
+#  fail-open: yes
 
 # af-packet support
 # Set threads to > 1 to use PACKET_FANOUT support
@@ -698,8 +704,8 @@ logging:
   # compiled with the --enable-debug configure option.
   #
   # This value is overriden by the SC_LOG_LEVEL env var.
-  default-log-level: notice
-  #default-log-level: debug
+  #default-log-level: notice
+  default-log-level: debug
 
   # The default output format.  Optional parameter, should default to
   # something reasonable if not provided.  Can be overriden in an
@@ -910,12 +916,11 @@ rule-files:
  #- rbn-malvertisers.rules
  #- rbn.rules
  #- tor.rules
- #- decoder-events.rules # available in suricata sources under rules dir
- #- stream-events.rules  # available in suricata sources under rules dir
- #- http-events.rules    # available in suricata sources under rules dir
- #- smtp-events.rules    # available in suricata sources under rules dir
- #- dns-events.rules     # available in suricata sources under rules dir
- - mysql-events.rules   # available in suricata sources under rules dir
+ - decoder-events.rules # available in suricata sources under rules dir
+ - stream-events.rules  # available in suricata sources under rules dir
+ - http-events.rules    # available in suricata sources under rules dir
+ - smtp-events.rules    # available in suricata sources under rules dir
+ - dns-events.rules     # available in suricata sources under rules dir
 
 #classification-file: /usr/local/etc/suricata/classification.config
 classification-file: classification.config
@@ -1035,12 +1040,16 @@ pcre:
 # "detection-only" enables detection only(parser disabled).
 app-layer:
   protocols:
-    mysql:
+    tds:
       enabled: yes
       detection-ports:
         tcp:
+          toserver: 1433
+    mysql:
+      enabled: no
+      detection-ports:
+        tcp:
           toserver: 3306
-          #toserver: 8000
     tls:
       enabled: no
       detection-ports:

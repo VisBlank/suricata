@@ -9,10 +9,10 @@
 #include "conf.h"
 #include "util-print.h"
 #include "util-debug.h"
+#include "util-json.h"
 #include "output.h"
 #include "log-mysqllog.h"
 #include "app-layer.h"
-//#include "app-layer-mysql.h"
 #include "app-layer-mysql-common.h"
 #include "util-logopenfile.h"
 #include "util-buffer.h"
@@ -170,7 +170,7 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
     
     CreateTimeString(&p->ts, timebuf, sizeof(timebuf));
     char srcip[46], dstip[46];
-    Port sp, dp;
+    Port sp = 0, dp = 0;
     if ((PKT_IS_TOSERVER(p))) {
         switch (ipproto) {
             case AF_INET:
@@ -187,25 +187,35 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
         sp = p->sp;
         dp = p->dp;
     } else {
+        goto end; /* do not log server resonse */
+#if 0
         switch (ipproto) {
             case AF_INET:
-                PrintInet(AF_INET, (const void *)GET_IPV4_DST_ADDR_PTR(p), srcip, sizeof(srcip));
-                PrintInet(AF_INET, (const void *)GET_IPV4_SRC_ADDR_PTR(p), dstip, sizeof(dstip));
+                PrintInet(AF_INET, (const void *)GET_IPV4_DST_ADDR_PTR(p), dstip, sizeof(dstip));
+                PrintInet(AF_INET, (const void *)GET_IPV4_SRC_ADDR_PTR(p), srcip, sizeof(srcip));
                 break;
             case AF_INET6:
-                PrintInet(AF_INET6, (const void *)GET_IPV6_DST_ADDR(p), srcip, sizeof(srcip));
-                PrintInet(AF_INET6, (const void *)GET_IPV6_SRC_ADDR(p), dstip, sizeof(dstip));
+                PrintInet(AF_INET6, (const void *)GET_IPV6_DST_ADDR(p), dstip, sizeof(dstip));
+                PrintInet(AF_INET6, (const void *)GET_IPV6_SRC_ADDR(p), srcip, sizeof(srcip));
                 break;
             default:
                 goto end;
         }
+#endif
     }
+
+    uint8_t *json_sql;
+    uint8_t *sql = s->cur_tx->cmd.sql;
+    if (sql == NULL)
+        json_sql = NULL;
+    else
+        json_sql = prepare_json_str(sql, s->cur_tx->cmd.sql_size);
 
     MemBufferReset(mlt->buffer);
     MemBufferWriteString(mlt->buffer,
             "{time:%s,src_ip:'%s',src_port:%d,dst_ip:'%s',dst_port:%d,"
             "db_type:'%s',user:'%s',db_name:'%s',operation:'%s', action:'%s',"
-            "meta_info:{cmd:'%s',sql:'%s',}},\n]",
+            "meta_info:{cmd:'%s',sql:'%s',}},\n",
             timebuf, srcip, sp, dstip, dp,
             s->protocol_name, STATE_USER(s),
             STATE_USE_DB(s) ? STATE_USE_DB(s) : "null",
@@ -218,6 +228,9 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
     fflush(mlt->file_ctx->fp);
     SCMutexUnlock(&mlt->file_ctx->fp_mutex);
     AppLayerTransactionUpdateLogId(p->flow);
+
+    if (json_sql)
+        SCFree(json_sql);
 
     /* TODO : add pending packages */
 

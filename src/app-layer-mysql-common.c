@@ -445,7 +445,6 @@ void MysqlStateFree(void *ms) {
         }
         SCFree(s);
     }
-    SCReturn;
 }
 
 int MysqlRequestParse(uint8_t *input, uint32_t input_len) {

@@ -17,6 +17,7 @@ app-layer.c app-layer.h \
 app-layer-mysql-common.c app-layer-mysql-common.h \
 app-layer-mysql.c app-layer-mysql.h \
 log-mysqllog.c log-mysqllog.h \
+log-tdslog.c log-tdslog.h \
 app-layer-dcerpc.c app-layer-dcerpc.h \
 app-layer-dcerpc-udp.c app-layer-dcerpc-udp.h \
 app-layer-detect-proto.c app-layer-detect-proto.h \
@@ -36,6 +37,8 @@ app-layer-smtp.c app-layer-smtp.h \
 app-layer-ssh.c app-layer-ssh.h \
 app-layer-ssl.c app-layer-ssl.h \
 app-layer-tls-handshake.c app-layer-tls-handshake.h \
+app-layer-tds-common.c app-layer-tds-common.h \
+app-layer-tds.c app-layer-tds.h \
 conf.c conf.h \
 conf-yaml-loader.c conf-yaml-loader.h \
 counters.c counters.h \
@@ -62,6 +65,7 @@ defrag.c defrag.h \
 defrag-hash.c defrag-hash.h \
 defrag-queue.c defrag-queue.h \
 defrag-timeout.c defrag-timeout.h \
+detect-time.c detect-time.h \
 detect-mysql-keywords.c detect-mysql-keywords.h \
 detect-ack.c detect-ack.h \
 detect-app-layer-event.c detect-app-layer-event.h \
@@ -351,6 +355,7 @@ util-validate.h util-affinity.h util-affinity.c \
 util-var.c util-var.h \
 util-var-name.c util-var-name.h \
 util-vector.h \
+util-json.h util-json.c \
 win32-misc.c win32-misc.h \
 win32-service.c win32-service.h \
 win32-syslog.h

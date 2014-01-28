@@ -1034,6 +1034,11 @@ pcre:
 # "detection-only" enables detection only(parser disabled).
 app-layer:
   protocols:
+    tds:
+      enabled: yes
+      detection-ports:
+        tcp:
+          toserver: 1433
     mysql:
       enabled: yes
       detection-ports:

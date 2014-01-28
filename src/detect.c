@@ -153,6 +153,7 @@
 #include "detect-dns-query.h"
 #include "detect-app-layer-protocol.h"
 #include "detect-mysql-keywords.h"
+#include "detect-time.h"
 
 #include "util-rule-vars.h"
 
@@ -4759,6 +4760,7 @@ void SigTableSetup(void) {
     DetectDnsQueryRegister();
     DetectAppLayerProtocolRegister();
     DetectMysqlKeywordsRegister();
+    DetectTimeRegister();
 }
 
 void SigTableRegisterTests(void)

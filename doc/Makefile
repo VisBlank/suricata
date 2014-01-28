@@ -111,7 +111,7 @@ AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing --run automake-1.11
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="13a432b"
+CFLAGS = -O0 -ggdb -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="afa5a30"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo

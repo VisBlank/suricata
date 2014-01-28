@@ -5,8 +5,6 @@
 #include "app-layer-protos.h"
 #include "app-layer-parser.h"
 #include "app-layer-detect-proto.h"
-#include "app-layer-mysql.h"
-#include "app-layer-mysql-common.h"
 #include "util-byte.h"
 #include "queue.h"
 
@@ -117,7 +115,7 @@ typedef struct MysqlPktHeader_ {
 typedef struct MysqlClientCommand_ {
     MysqlPktHeader hdr;
     MysqlCommand cmd;
-    int sql_size;
+    uint16_t sql_size;
     char *sql;
 } MysqlClientCommand;
 
@@ -154,7 +152,6 @@ typedef struct PendingPkt_ {
  * \brief MySQL transaction, request/reply with same TX id
  */
 typedef struct MysqlTransaction_ {
-    /* both not in use */
     uint16_t tx_num;
     uint16_t tx_id;
 
