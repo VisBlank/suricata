@@ -87,6 +87,7 @@
 #include "log-file.h"
 #include "log-filestore.h"
 #include "log-mysqllog.h"
+#include "log-tdslog.h"
 
 #include "stream-tcp.h"
 
@@ -769,6 +770,9 @@ void RegisterAllModules()
 
     /* mysql log */
     TmModuleLogMysqlRegister();
+
+    /* TDS log */
+    TmModuleLogTDSRegister();
 #if 1
     /* fast log */
     TmModuleAlertFastLogRegister();

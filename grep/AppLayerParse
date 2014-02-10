@@ -1,0 +1,1629 @@
+./src/app-layer.c:326:                    AppLayerParserCleanupState(f);
+./src/app-layer.c:340:            r = AppLayerParse(dp_ctx->alproto_local_storage[*alproto], f, *alproto, flags, data + data_al_so_far, data_len - data_al_so_far);
+./src/app-layer.c:378:                r = AppLayerParse(dp_ctx->alproto_local_storage[*alproto_otherdir], f, *alproto_otherdir, flags,
+./src/app-layer.c:451:            r = AppLayerParse(dp_ctx->alproto_local_storage[f->alproto], f, f->alproto, flags, data, data_len);
+./src/app-layer.c:588:            r = AppLayerParse(dp_ctx->alproto_local_storage[f->alproto], f, f->alproto, flags,
+./src/app-layer.c:603:            r = AppLayerParse(dp_ctx->alproto_local_storage[f->alproto], f, f->alproto, flags,
+./src/app-layer-dcerpc.c:1893:                       AppLayerParserState *pstate,
+./src/app-layer-dcerpc.c:1895:                       void *local_data, AppLayerParserResult *output, int dir) {
+./src/app-layer-dcerpc.c:1921:                              AppLayerParserState *pstate,
+./src/app-layer-dcerpc.c:1923:                              void *local_data, AppLayerParserResult *output)
+./src/app-layer-dcerpc.c:1930:                               AppLayerParserState *pstate,
+./src/app-layer-dcerpc.c:1932:                               void *local_data, AppLayerParserResult *output)
+./src/app-layer-dcerpc.c:2000:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-dcerpc.c:2012:    AppLayerParserRegisterUnittests(ALPROTO_DCERPC, DCERPCParserRegisterTests);
+./src/app-layer-dcerpc.c:2393:    int r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_START, dcerpcbind, bindlen);
+./src/app-layer-dcerpc.c:2429:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpcbindack, bindacklen);
+./src/app-layer-dcerpc.c:2453:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_EOF, dcerpcrequest, requestlen);
+./src/app-layer-dcerpc.c:2620:    int r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_START, dcerpcrequest, requestlen);
+./src/app-layer-dcerpc.c:2815:    int r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_START, dcerpcrequest, requestlen);
+./src/app-layer-dcerpc.c:3989:    int r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_START,
+./src/app-layer-dcerpc.c:4012:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:4028:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4046:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4064:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4082:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4100:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4115:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4133:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4151:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4169:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4187:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4254:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/app-layer-dcerpc.c:4280:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4424:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_START,
+./src/app-layer-dcerpc.c:4447:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4505:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_START,
+./src/app-layer-dcerpc.c:4528:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4544:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4592:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/app-layer-dcerpc.c:4647:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/app-layer-dcerpc.c:4716:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER|STREAM_START,
+./src/app-layer-dcerpc.c:4734:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4749:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4812:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4835:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4849:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:4906:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:4927:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:4979:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5065:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5122:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:5579:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5597:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:5629:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5649:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:5681:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5701:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:5820:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5838:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:5870:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5890:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/app-layer-dcerpc.c:5960:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:5982:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/app-layer-dcerpc.c:6222:    int r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START, dcerpcbind, bindlen);
+./src/app-layer-dcerpc.c:6242:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpcbindack, bindacklen);
+./src/app-layer-dcerpc-udp.c:48:		AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-dcerpc-udp.c:49:		AppLayerParserResult *output) {
+./src/app-layer-dcerpc-udp.c:122:		AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-dcerpc-udp.c:123:		AppLayerParserResult *output) {
+./src/app-layer-dcerpc-udp.c:704:                          AppLayerParserState *pstate,
+./src/app-layer-dcerpc-udp.c:706:                          void *local_data, AppLayerParserResult *output)
+./src/app-layer-dcerpc-udp.c:816:    if (AppLayerParserEnabled("dcerpc")) {
+./src/app-layer-dcerpc-udp.c:828:    AppLayerParserRegisterUnittests(ALPROTO_DCERPC_UDP, DCERPCUDPParserRegisterTests);
+./src/app-layer-dcerpc-udp.c:1040:	int r = AppLayerParse(NULL, &f, ALPROTO_DCERPC_UDP, STREAM_TOSERVER|STREAM_START, dcerpcrequest, requestlen);
+./src/app-layer-detect-proto.c:403:    RegisterAppLayerParsers();
+./src/app-layer-detect-proto.c:1318:   int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/app-layer-detect-proto.c:1408:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/app-layer-detect-proto.c:1500:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/app-layer-detect-proto.c:1588:    int r = AppLayerParse(NULL, f, ALPROTO_FTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/app-layer-detect-proto.c:1688:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/app-layer-dns-tcp.c:269:                          AppLayerParserState *pstate,
+./src/app-layer-dns-tcp.c:271:                          void *local_data, AppLayerParserResult *output)
+./src/app-layer-dns-tcp.c:458:                          AppLayerParserState *pstate,
+./src/app-layer-dns-tcp.c:460:                          void *local_data, AppLayerParserResult *output)
+./src/app-layer-dns-tcp.c:587:            AppLayerParseProbingParserPorts(proto_name, ALPROTO_DNS,
+./src/app-layer-dns-tcp.c:597:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-dns-udp.c:57:                          AppLayerParserState *pstate,
+./src/app-layer-dns-udp.c:59:                          void *local_data, AppLayerParserResult *output)
+./src/app-layer-dns-udp.c:163:                          AppLayerParserState *pstate,
+./src/app-layer-dns-udp.c:165:                          void *local_data, AppLayerParserResult *output)
+./src/app-layer-dns-udp.c:333:            AppLayerParseProbingParserPorts(proto_name, ALPROTO_DNS,
+./src/app-layer-dns-udp.c:343:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-dns-udp.c:373:    AppLayerParserRegisterUnittests(ALPROTO_DNS_UDP, DNSUDPParserRegisterTests);
+./src/app-layer-ftp.c:210:                           AppLayerParserState *pstate,
+./src/app-layer-ftp.c:212:                           void *local_data, AppLayerParserResult *output)
+./src/app-layer-ftp.c:259:static int FTPParseResponse(Flow *f, void *ftp_state, AppLayerParserState *pstate,
+./src/app-layer-ftp.c:261:                            void *local_data, AppLayerParserResult *output)
+./src/app-layer-ftp.c:312:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-ftp.c:323:    AppLayerParserRegisterUnittests(ALPROTO_FTP, FTPParserRegisterTests);
+./src/app-layer-ftp.c:356:    int r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER|STREAM_EOF, ftpbuf, ftplen);
+./src/app-layer-ftp.c:403:    int r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER|STREAM_START, ftpbuf1, ftplen1);
+./src/app-layer-ftp.c:413:    r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER, ftpbuf2, ftplen2);
+./src/app-layer-ftp.c:423:    r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER|STREAM_EOF, ftpbuf3, ftplen3);
+./src/app-layer-ftp.c:467:    int r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, ftpbuf1, ftplen1);
+./src/app-layer-ftp.c:514:    int r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER|STREAM_START, ftpbuf1, ftplen1);
+./src/app-layer-ftp.c:524:    r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER|STREAM_EOF, ftpbuf2, ftplen2);
+./src/app-layer-ftp.c:579:        r = AppLayerParse(NULL, &f, ALPROTO_FTP, flags, &ftpbuf1[u], 1);
+./src/app-layer-htp.c:615:                                AppLayerParserState *pstate,
+./src/app-layer-htp.c:618:                                AppLayerParserResult *output)
+./src/app-layer-htp.c:751:                                AppLayerParserState *pstate,
+./src/app-layer-htp.c:754:                                AppLayerParserResult *output)
+./src/app-layer-htp.c:1911:    if (!AppLayerProtoDetectionEnabled("http") || !AppLayerParserEnabled("http"))
+./src/app-layer-htp.c:2614:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-htp.c:2639:    AppLayerParserRegisterUnittests(ALPROTO_HTTP, HTPParserRegisterTests);
+./src/app-layer-htp.c:2695:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:2755:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|
+./src/app-layer-htp.c:2818:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:2877:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|
+./src/app-layer-htp.c:2943:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START,
+./src/app-layer-htp.c:2952:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, httpbuf4,
+./src/app-layer-htp.c:2961:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf5, httplen5);
+./src/app-layer-htp.c:2969:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/app-layer-htp.c:2977:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf3,
+./src/app-layer-htp.c:2986:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, httpbuf6,
+./src/app-layer-htp.c:3091:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START,
+./src/app-layer-htp.c:3100:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, httpbuf2,
+./src/app-layer-htp.c:3179:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:3273:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, httpbuf1, httplen1);
+./src/app-layer-htp.c:3355:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, httpbuf1, httplen1);
+./src/app-layer-htp.c:3428:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:3515:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:3595:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:3678:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:4090:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:4269:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:4436:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:4601:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:4736:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:4844:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:4952:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:5061:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:5167:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:5274:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, &httpbuf1[u], 1);
+./src/app-layer-htp.c:5344:    AppLayerParserStateStore parser;
+./src/app-layer-htp.c:5427:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp.c:5437:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/app-layer-htp.c:5543:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, (uint8_t *)&httpbuf[u], 1);
+./src/app-layer-htp.c:5682:        r = AppLayerParse(NULL, f, ALPROTO_HTTP, flags, (uint8_t *)&httpbuf[u], 1);
+./src/app-layer-htp-file.c:325:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:336:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:412:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:423:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:434:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf3, httplen3);
+./src/app-layer-htp-file.c:445:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf4, httplen4);
+./src/app-layer-htp-file.c:531:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:542:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:553:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf3, httplen3);
+./src/app-layer-htp-file.c:564:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf4, httplen4);
+./src/app-layer-htp-file.c:575:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf5, httplen5);
+./src/app-layer-htp-file.c:586:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf6, httplen6);
+./src/app-layer-htp-file.c:677:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:688:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:699:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf3, httplen3);
+./src/app-layer-htp-file.c:710:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf4, httplen4);
+./src/app-layer-htp-file.c:721:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf5, httplen5);
+./src/app-layer-htp-file.c:732:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf6, httplen6);
+./src/app-layer-htp-file.c:809:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:820:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:929:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:940:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:1038:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:1049:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:1134:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:1145:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:1225:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:1236:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:1247:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf3, httplen3);
+./src/app-layer-htp-file.c:1258:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf4, httplen4);
+./src/app-layer-htp-file.c:1336:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:1347:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:1358:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf3, httplen3);
+./src/app-layer-htp-file.c:1369:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf4, httplen4);
+./src/app-layer-htp-file.c:1470:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/app-layer-htp-file.c:1480:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/app-layer-htp-file.c:1490:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/app-layer-htp-file.c:1500:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf4, httplen4);
+./src/app-layer-mysql.c:16:static int MySqlDecode(Flow *f, uint8_t direction, void *alstate, AppLayerParserState *pstate,
+./src/app-layer-mysql.c:22:static int MySqlParseClientVersion(Flow *f, void *mysql_state, AppLayerParserState *pstate,
+./src/app-layer-mysql.c:23:        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output)
+./src/app-layer-mysql.c:30:static int MySqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
+./src/app-layer-mysql.c:31:        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output) {
+./src/app-layer-mysql.c:71:static int MySqlParseServerRecord(Flow *f, void *mysql_state, AppLayerParserState *pstate,
+./src/app-layer-mysql.c:72:        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output)
+./src/app-layer-mysql.c:105:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-parser.c:74:static AppLayerParserTableElement al_parser_table[MAX_PARSERS];
+./src/app-layer-parser.c:175:/** \brief Alloc a AppLayerParserResultElmt func for the pool */
+./src/app-layer-parser.c:178:    AppLayerParserResultElmt *e = NULL;
+./src/app-layer-parser.c:180:    e = (AppLayerParserResultElmt *)SCMalloc
+./src/app-layer-parser.c:181:        (sizeof(AppLayerParserResultElmt));
+./src/app-layer-parser.c:219:    AppLayerParserResultElmt *re = (AppLayerParserResultElmt *)e;
+./src/app-layer-parser.c:232:static AppLayerParserResultElmt *AlpGetResultElmt(void)
+./src/app-layer-parser.c:235:    AppLayerParserResultElmt *e = (AppLayerParserResultElmt *)PoolGet(al_result_pool);
+./src/app-layer-parser.c:245:static void AlpReturnResultElmt(AppLayerParserResultElmt *e)
+./src/app-layer-parser.c:261:static void AlpAppendResultElmt(AppLayerParserResult *r, AppLayerParserResultElmt *e)
+./src/app-layer-parser.c:279:static int AlpStoreField(AppLayerParserResult *output, uint16_t idx,
+./src/app-layer-parser.c:284:    AppLayerParserResultElmt *e = AlpGetResultElmt();
+./src/app-layer-parser.c:306:    AppLayerParserStateStore *parser_state_store =
+./src/app-layer-parser.c:307:        (AppLayerParserStateStore *)f->alparser;
+./src/app-layer-parser.c:324:int AlpParseFieldBySize(AppLayerParserResult *output, AppLayerParserState *pstate,
+./src/app-layer-parser.c:400:int AlpParseFieldByEOF(AppLayerParserResult *output, AppLayerParserState *pstate,
+./src/app-layer-parser.c:481:int AlpParseFieldByDelimiter(AppLayerParserResult *output, AppLayerParserState *pstate,
+./src/app-layer-parser.c:713: * \param AppLayerParser pointer to the parser function
+./src/app-layer-parser.c:719:                           int (*AppLayerParser)(Flow *f, void *protocol_state,
+./src/app-layer-parser.c:720:                                                 AppLayerParserState *parser_state,
+./src/app-layer-parser.c:723:                                                 AppLayerParserResult *output),
+./src/app-layer-parser.c:737:    al_parser_table[al_max_parsers].AppLayerParser = AppLayerParser;
+./src/app-layer-parser.c:741:                AppLayerParser, proto, al_max_parsers,
+./src/app-layer-parser.c:751: * \param AppLayerParser pointer to the parser function
+./src/app-layer-parser.c:757:                          int (*AppLayerParser)(Flow *f, void *protocol_state,
+./src/app-layer-parser.c:758:                                                AppLayerParserState *parser_state,
+./src/app-layer-parser.c:760:                                                void *local_data, AppLayerParserResult *output))
+./src/app-layer-parser.c:778:    al_parser_table[al_max_parsers].AppLayerParser = AppLayerParser;
+./src/app-layer-parser.c:788:                "idx %" PRIu32 ", %s", AppLayerParser, proto,
+./src/app-layer-parser.c:794:void AppLayerParserRegisterUnittests(uint16_t proto, void (*RegisterUnittests)(void)) {
+./src/app-layer-parser.c:901:AppLayerParserStateStore *AppLayerParserStateStoreAlloc(void)
+./src/app-layer-parser.c:903:    AppLayerParserStateStore *s = (AppLayerParserStateStore *)SCMalloc
+./src/app-layer-parser.c:904:                                    (sizeof(AppLayerParserStateStore));
+./src/app-layer-parser.c:908:    memset(s, 0, sizeof(AppLayerParserStateStore));
+./src/app-layer-parser.c:913:/** \brief free a AppLayerParserStateStore structure
+./src/app-layer-parser.c:914: *  \param s AppLayerParserStateStore structure to free */
+./src/app-layer-parser.c:915:void AppLayerParserStateStoreFree(AppLayerParserStateStore *s)
+./src/app-layer-parser.c:928:static void AppLayerParserResultCleanup(AppLayerParserResult *result)
+./src/app-layer-parser.c:930:    AppLayerParserResultElmt *e = result->head;
+./src/app-layer-parser.c:932:        AppLayerParserResultElmt *next_e = e->next;
+./src/app-layer-parser.c:946:                           AppLayerParserState *parser_state,
+./src/app-layer-parser.c:955:    AppLayerParserResult result = { NULL, NULL, 0 };
+./src/app-layer-parser.c:964:        AppLayerParser(f, app_layer_state,
+./src/app-layer-parser.c:969:            AppLayerParserResultCleanup(&result);
+./src/app-layer-parser.c:981:    AppLayerParserResultElmt *e = result.head;
+./src/app-layer-parser.c:1025:    AppLayerParserResultCleanup(&result);
+./src/app-layer-parser.c:1032:static void AppLayerTransactionsCleanup(AppLayerProto *p, AppLayerParserStateStore *parser_state_store, void *app_layer_state)
+./src/app-layer-parser.c:1078:int AppLayerParse(void *local_data, Flow *f, uint8_t proto,
+./src/app-layer-parser.c:1092:    /* Do this check before calling AppLayerParse */
+./src/app-layer-parser.c:1102:    AppLayerParserStateStore *parser_state_store = f->alparser;
+./src/app-layer-parser.c:1104:        parser_state_store = AppLayerParserStateStoreAlloc();
+./src/app-layer-parser.c:1115:    AppLayerParserState *parser_state = NULL;
+./src/app-layer-parser.c:1263:    uint64_t log_id = ((AppLayerParserStateStore *)f->alparser)->log_id;
+./src/app-layer-parser.c:1264:    uint64_t inspect_id = ((AppLayerParserStateStore *)f->alparser)->
+./src/app-layer-parser.c:1276:    ((AppLayerParserStateStore *)f->alparser)->log_id++;
+./src/app-layer-parser.c:1285:    return ((AppLayerParserStateStore *)f->alparser)->log_id;
+./src/app-layer-parser.c:1295:    AppLayerParserStateStore *parser_state_store = NULL;
+./src/app-layer-parser.c:1297:    parser_state_store = (AppLayerParserStateStore *)f->alparser;
+./src/app-layer-parser.c:1309:    return ((AppLayerParserStateStore *)f->alparser)->
+./src/app-layer-parser.c:1334:    ((AppLayerParserStateStore *)f->alparser)->inspect_id[direction] = idx;
+./src/app-layer-parser.c:1396:    AppLayerParserStateStore *parser_state_store = NULL;
+./src/app-layer-parser.c:1402:    parser_state_store = (AppLayerParserStateStore *)f->alparser;
+./src/app-layer-parser.c:1436:void RegisterAppLayerParsers(void)
+./src/app-layer-parser.c:1445:            sizeof(AppLayerParserResultElmt),
+./src/app-layer-parser.c:1499:void AppLayerParserCleanupState(Flow *f)
+./src/app-layer-parser.c:1520:        SCLogDebug("calling AppLayerParserStateStoreFree");
+./src/app-layer-parser.c:1521:        AppLayerParserStateStoreFree(f->alparser);
+./src/app-layer-parser.c:1530:void AppLayerParsersInitPostProcess(void)
+./src/app-layer-parser.c:1560:            SCLogError(SC_ERR_FATAL, "Fatal error encountered in AppLayerParsersInitPostProcess. Exiting...");
+./src/app-layer-parser.c:1617:int AppLayerParserEnabled(const char *al_proto)
+./src/app-layer-parser.c:1717:void AppLayerParseProbingParserPorts(const char *al_proto_name, uint16_t al_proto,
+./src/app-layer-parser.c:2425:static int TestProtocolParser(Flow *f, void *test_state, AppLayerParserState *pstate,
+./src/app-layer-parser.c:2427:                              void *local_data, AppLayerParserResult *output)
+./src/app-layer-parser.c:2453:void AppLayerParserBackupAlprotoTable(void)
+./src/app-layer-parser.c:2462:void AppLayerParserRestoreAlprotoTable(void)
+./src/app-layer-parser.c:2475:static int AppLayerParserTest01 (void)
+./src/app-layer-parser.c:2502:    int r = AppLayerParse(NULL, f, ALPROTO_TEST, STREAM_TOSERVER|STREAM_EOF, testbuf,
+./src/app-layer-parser.c:2529:static int AppLayerParserTest02 (void)
+./src/app-layer-parser.c:2551:    int r = AppLayerParse(NULL, f, ALPROTO_TEST, STREAM_TOSERVER|STREAM_EOF, testbuf,
+./src/app-layer-parser.c:3069:void AppLayerParserRegisterTests(void)
+./src/app-layer-parser.c:3091:    UtRegisterTest("AppLayerParserTest01", AppLayerParserTest01, 1);
+./src/app-layer-parser.c:3092:    UtRegisterTest("AppLayerParserTest02", AppLayerParserTest02, 1);
+./src/app-layer-parser.h:90:typedef struct AppLayerParserResultElmt_ {
+./src/app-layer-parser.h:97:    struct AppLayerParserResultElmt_ *next;
+./src/app-layer-parser.h:98:} AppLayerParserResultElmt;
+./src/app-layer-parser.h:101:typedef struct AppLayerParserResult_ {
+./src/app-layer-parser.h:102:    AppLayerParserResultElmt *head;
+./src/app-layer-parser.h:103:    AppLayerParserResultElmt *tail;
+./src/app-layer-parser.h:105:} AppLayerParserResult;
+./src/app-layer-parser.h:124:typedef struct AppLayerParserState_ {
+./src/app-layer-parser.h:130:} AppLayerParserState;
+./src/app-layer-parser.h:132:typedef struct AppLayerParserStateStore_ {
+./src/app-layer-parser.h:133:    AppLayerParserState to_client;
+./src/app-layer-parser.h:134:    AppLayerParserState to_server;
+./src/app-layer-parser.h:151:} AppLayerParserStateStore;
+./src/app-layer-parser.h:153:typedef struct AppLayerParserTableElement_ {
+./src/app-layer-parser.h:154:    int (*AppLayerParser)(Flow *f, void *protocol_state, AppLayerParserState
+./src/app-layer-parser.h:156:                          void *local_storage, AppLayerParserResult *output);
+./src/app-layer-parser.h:162:} AppLayerParserTableElement;
+./src/app-layer-parser.h:236:void AppLayerParsersInitPostProcess(void);
+./src/app-layer-parser.h:237:void RegisterAppLayerParsers(void);
+./src/app-layer-parser.h:238:void AppLayerParserRegisterTests(void);
+./src/app-layer-parser.h:242:                          int (*AppLayerParser)(Flow *f, void *protocol_state,
+./src/app-layer-parser.h:243:                                                AppLayerParserState *parser_state,
+./src/app-layer-parser.h:246:                                                AppLayerParserResult *output));
+./src/app-layer-parser.h:248:                           int (*AppLayerParser)(Flow *f, void *protocol_state,
+./src/app-layer-parser.h:249:                                                 AppLayerParserState *parser_state,
+./src/app-layer-parser.h:252:                                                 AppLayerParserResult *output),
+./src/app-layer-parser.h:267:void AppLayerParserRegisterUnittests(uint16_t proto, void (*RegisterUnittests)(void));
+./src/app-layer-parser.h:301:int AppLayerParse(void *, Flow *, uint8_t,
+./src/app-layer-parser.h:304:int AlpParseFieldBySize(AppLayerParserResult *, AppLayerParserState *, uint16_t,
+./src/app-layer-parser.h:306:int AlpParseFieldByEOF(AppLayerParserResult *, AppLayerParserState *, uint16_t,
+./src/app-layer-parser.h:308:int AlpParseFieldByDelimiter(AppLayerParserResult *, AppLayerParserState *,
+./src/app-layer-parser.h:356:void AppLayerParserCleanupState(Flow *);
+./src/app-layer-parser.h:451:int AppLayerParserEnabled(const char *alproto);
+./src/app-layer-parser.h:472:void AppLayerParseProbingParserPorts(const char *al_proto_name, uint16_t al_proto,
+./src/app-layer-parser.h:485:void AppLayerParserBackupAlprotoTable(void);
+./src/app-layer-parser.h:486:void AppLayerParserRestoreAlprotoTable(void);
+./src/app-layer-smb2.c:59:static uint32_t NBSSParseHeader(void *smb2_state, AppLayerParserState *pstate,
+./src/app-layer-smb2.c:60:        uint8_t *input, uint32_t input_len, AppLayerParserResult *output) {
+./src/app-layer-smb2.c:102:static uint32_t SMB2ParseHeader(void *smb2_state, AppLayerParserState *pstate,
+./src/app-layer-smb2.c:103:        uint8_t *input, uint32_t input_len, AppLayerParserResult *output) {
+./src/app-layer-smb2.c:520:static int SMB2Parse(Flow *f, void *smb2_state, AppLayerParserState *pstate,
+./src/app-layer-smb2.c:522:                     void *local_data, AppLayerParserResult *output) {
+./src/app-layer-smb2.c:601:    AppLayerParserRegisterUnittests(ALPROTO_SMB2, SMB2ParserRegisterTests);
+./src/app-layer-smb2.c:631:    int r = AppLayerParse(NULL, &f, ALPROTO_SMB2, STREAM_TOSERVER|STREAM_EOF, smb2buf, smb2len);
+./src/app-layer-smb.c:68:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:69:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:266:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:267:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:405:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:406:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:630:static uint32_t PaddingParser(void *smb_state, AppLayerParserState *pstate,
+./src/app-layer-smb.c:631:        uint8_t *input, uint32_t input_len, AppLayerParserResult *output) {
+./src/app-layer-smb.c:661:static int32_t DataParser(void *smb_state, AppLayerParserState *pstate,
+./src/app-layer-smb.c:662:        uint8_t *input, uint32_t input_len, AppLayerParserResult *output) {
+./src/app-layer-smb.c:688:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:689:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:712:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:713:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:743:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:744:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:803:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:804:        AppLayerParserResult *output)
+./src/app-layer-smb.c:872:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:873:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:930:        AppLayerParserState *pstate, uint8_t *input, uint32_t input_len,
+./src/app-layer-smb.c:931:        AppLayerParserResult *output) {
+./src/app-layer-smb.c:1159:static int SMBParse(Flow *f, void *smb_state, AppLayerParserState *pstate,
+./src/app-layer-smb.c:1161:                    void *local_data, AppLayerParserResult *output, uint8_t dir)
+./src/app-layer-smb.c:1378:static int SMBParseRequest(Flow *f, void *smb_state, AppLayerParserState *pstate,
+./src/app-layer-smb.c:1380:                           void *local_data, AppLayerParserResult *output)
+./src/app-layer-smb.c:1385:static int SMBParseResponse(Flow *f, void *smb_state, AppLayerParserState *pstate,
+./src/app-layer-smb.c:1387:                            void *local_data, AppLayerParserResult *output)
+./src/app-layer-smb.c:1532:            AppLayerParseProbingParserPorts(proto_name, ALPROTO_SMB,
+./src/app-layer-smb.c:1544:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-smb.c:1554:    AppLayerParserRegisterUnittests(ALPROTO_SMB, SMBParserRegisterTests);
+./src/app-layer-smb.c:1591:    int r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER|STREAM_EOF, smbbuf, smblen);
+./src/app-layer-smb.c:1663:    int r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER|STREAM_EOF, smbbuf, smblen);
+./src/app-layer-smb.c:1954:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER|STREAM_START, smbbuf1, smblen1);
+./src/app-layer-smb.c:1974:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER, smbbuf2, smblen2);
+./src/app-layer-smb.c:1982:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER, smbbuf3, smblen3);
+./src/app-layer-smb.c:2066:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER|STREAM_START, smbbuf1, smblen1);
+./src/app-layer-smb.c:2086:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER, smbbuf2, smblen2);
+./src/app-layer-smb.c:2094:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER, smbbuf3, smblen3);
+./src/app-layer-smb.c:2102:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER, smbbuf4, smblen4);
+./src/app-layer-smb.c:2315:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOCLIENT | STREAM_START, smbbuf1, smblen1);
+./src/app-layer-smb.c:2384:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOCLIENT | STREAM_START, smbbuf1, smblen1);
+./src/app-layer-smb.c:2415:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOCLIENT, smbbuf2, smblen2);
+./src/app-layer-smb.c:2493:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER | STREAM_START, smbbuf1, smblen1);
+./src/app-layer-smb.c:2524:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER, smbbuf2, smblen2);
+./src/app-layer-smb.c:2611:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOSERVER | STREAM_START, smbbuf1, smblen1);
+./src/app-layer-smb.c:2631:    r = AppLayerParse(NULL, &f, ALPROTO_SMB, STREAM_TOCLIENT, smbbuf2, smblen2);
+./src/app-layer-smtp.c:461:                                  AppLayerParserState *pstate)
+./src/app-layer-smtp.c:481:                                  AppLayerParserState *pstate)
+./src/app-layer-smtp.c:503:                                      AppLayerParserState *pstate)
+./src/app-layer-smtp.c:509:                            AppLayerParserState *pstate)
+./src/app-layer-smtp.c:645:                              AppLayerParserState *pstate)
+./src/app-layer-smtp.c:704:                     AppLayerParserState *pstate, uint8_t *input,
+./src/app-layer-smtp.c:706:                     PatternMatcherQueue *local_data, AppLayerParserResult *output)
+./src/app-layer-smtp.c:734:                                 AppLayerParserState *pstate,
+./src/app-layer-smtp.c:736:                                 void *local_data, AppLayerParserResult *output)
+./src/app-layer-smtp.c:746:                                 AppLayerParserState *pstate,
+./src/app-layer-smtp.c:748:                                 void *local_data, AppLayerParserResult *output)
+./src/app-layer-smtp.c:891:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-smtp.c:911:    AppLayerParserRegisterUnittests(ALPROTO_SMTP, SMTPParserRegisterTests);
+./src/app-layer-smtp.c:1000:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1022:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1040:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1057:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1075:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1356:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1378:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1396:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1413:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1431:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1448:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1466:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1483:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1501:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1519:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1538:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1557:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1576:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1595:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1613:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1630:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1648:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1665:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1683:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1700:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1718:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1736:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1755:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1774:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1793:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1812:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1830:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1847:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:1865:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:1988:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2010:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2028:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2045:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2065:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2133:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2155:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2278:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2300:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2318:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2335:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2353:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2377:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2395:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2572:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2594:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2612:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2629:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2647:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2664:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2682:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:2699:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2720:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2740:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2808:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2832:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2851:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2919:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2943:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:2962:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3030:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3054:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3073:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3141:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3165:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3184:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3246:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3270:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3357:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER | STREAM_START,
+./src/app-layer-smtp.c:3360:        printf("AppLayerParse for smtp failed.  Returned %" PRId32, r);
+./src/app-layer-smtp.c:3381:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT | STREAM_TOCLIENT,
+./src/app-layer-smtp.c:3384:        printf("AppLayerParse for smtp failed.  Returned %" PRId32, r);
+./src/app-layer-smtp.c:3494:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER | STREAM_START,
+./src/app-layer-smtp.c:3497:        printf("AppLayerParse for smtp failed.  Returned %" PRId32, r);
+./src/app-layer-smtp.c:3518:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOCLIENT,
+./src/app-layer-smtp.c:3521:        printf("AppLayerParse for smtp failed.  Returned %" PRId32, r);
+./src/app-layer-smtp.c:3536:    r = AppLayerParse(thread_local_data, &f, ALPROTO_SMTP, STREAM_TOSERVER,
+./src/app-layer-smtp.c:3539:        printf("AppLayerParse for smtp failed.  Returned %" PRId32, r);
+./src/app-layer-ssh.c:63:static int SSHParseServerVersion(Flow *f, void *ssh_state, AppLayerParserState *pstate,
+./src/app-layer-ssh.c:65:                                AppLayerParserResult *output) {
+./src/app-layer-ssh.c:85:            AppLayerParserResultElmt *e = output->head;
+./src/app-layer-ssh.c:210:static int SSHParseServerRecord(Flow *f, void *ssh_state, AppLayerParserState *pstate,
+./src/app-layer-ssh.c:212:                                void *local_data, AppLayerParserResult *output)
+./src/app-layer-ssh.c:389:static int SSHParseClientVersion(Flow *f, void *ssh_state, AppLayerParserState *pstate,
+./src/app-layer-ssh.c:391:                                AppLayerParserResult *output) {
+./src/app-layer-ssh.c:412:            AppLayerParserResultElmt *e = output->head;
+./src/app-layer-ssh.c:536:static int SSHParseClientRecord(Flow *f, void *ssh_state, AppLayerParserState *pstate,
+./src/app-layer-ssh.c:538:                                void *local_data, AppLayerParserResult *output)
+./src/app-layer-ssh.c:751:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-ssh.c:763:    AppLayerParserRegisterUnittests(ALPROTO_SSH, SSHParserRegisterTests);
+./src/app-layer-ssh.c:785:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER|STREAM_EOF, sshbuf, sshlen);
+./src/app-layer-ssh.c:855:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER|STREAM_EOF, sshbuf, sshlen);
+./src/app-layer-ssh.c:925:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER|STREAM_EOF, sshbuf, sshlen);
+./src/app-layer-ssh.c:980:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT|STREAM_EOF, sshbuf, sshlen);
+./src/app-layer-ssh.c:1050:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT|STREAM_EOF, sshbuf, sshlen);
+./src/app-layer-ssh.c:1120:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT|STREAM_EOF, sshbuf, sshlen);
+./src/app-layer-ssh.c:1176:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1185:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1250:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1259:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1268:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/app-layer-ssh.c:1329:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1338:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1403:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1412:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1421:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf3, sshlen3);
+./src/app-layer-ssh.c:1485:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1494:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1503:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/app-layer-ssh.c:1574:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1583:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1592:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/app-layer-ssh.c:1601:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf4, sshlen4);
+./src/app-layer-ssh.c:1670:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1679:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1688:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf3, sshlen3);
+./src/app-layer-ssh.c:1759:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf1, sshlen1);
+./src/app-layer-ssh.c:1768:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf2, sshlen2);
+./src/app-layer-ssh.c:1777:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf3, sshlen3);
+./src/app-layer-ssh.c:1786:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOCLIENT, sshbuf4, sshlen4);
+./src/app-layer-ssl.c:453:                       AppLayerParserState *pstate, uint8_t *input,
+./src/app-layer-ssl.c:681:                       AppLayerParserState *pstate, uint8_t *input,
+./src/app-layer-ssl.c:810:static int SSLDecode(Flow *f, uint8_t direction, void *alstate, AppLayerParserState *pstate,
+./src/app-layer-ssl.c:934:int SSLParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
+./src/app-layer-ssl.c:936:                         void *local_data, AppLayerParserResult *output)
+./src/app-layer-ssl.c:941:int SSLParseServerRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
+./src/app-layer-ssl.c:943:                         void *local_data, AppLayerParserResult *output)
+./src/app-layer-ssl.c:1091:            AppLayerParseProbingParserPorts(proto_name, ALPROTO_TLS,
+./src/app-layer-ssl.c:1103:    if (AppLayerParserEnabled(proto_name)) {
+./src/app-layer-ssl.c:1127:    AppLayerParserRegisterUnittests(ALPROTO_TLS, SSLParserRegisterTests);
+./src/app-layer-ssl.c:1159:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER | STREAM_EOF, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1211:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf1, tlslen1);
+./src/app-layer-ssl.c:1221:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf2, tlslen2);
+./src/app-layer-ssl.c:1275:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf1, tlslen1);
+./src/app-layer-ssl.c:1285:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf2, tlslen2);
+./src/app-layer-ssl.c:1295:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf3, tlslen3);
+./src/app-layer-ssl.c:1351:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf1, tlslen1);
+./src/app-layer-ssl.c:1361:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf2, tlslen2);
+./src/app-layer-ssl.c:1371:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf3, tlslen3);
+./src/app-layer-ssl.c:1381:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf4, tlslen4);
+./src/app-layer-ssl.c:1432:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1439:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1448:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1457:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1466:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1494:    AppLayerParserStateStore *parser_state_store = (AppLayerParserStateStore *)
+./src/app-layer-ssl.c:1496:    AppLayerParserState *parser_state = &parser_state_store->to_server;
+./src/app-layer-ssl.c:1537:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1544:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1553:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1562:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1590:    AppLayerParserStateStore *parser_state_store = (AppLayerParserStateStore *)
+./src/app-layer-ssl.c:1592:    AppLayerParserState *parser_state = &parser_state_store->to_server;
+./src/app-layer-ssl.c:1604:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1613:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1683:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf1, tlslen1);
+./src/app-layer-ssl.c:1760:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, tlsbuf1, tlslen1);
+./src/app-layer-ssl.c:1826:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1878:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1885:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1894:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1903:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1912:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf, tlslen);
+./src/app-layer-ssl.c:1940:    AppLayerParserStateStore *parser_state_store = (AppLayerParserStateStore *)
+./src/app-layer-ssl.c:1942:    AppLayerParserState *parser_state = &parser_state_store->to_server;
+./src/app-layer-ssl.c:2004:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2014:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:2088:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2098:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:2171:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2181:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:2259:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2269:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:2279:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf3, buf3_len);
+./src/app-layer-ssl.c:2362:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2372:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:2382:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf3, buf3_len);
+./src/app-layer-ssl.c:2392:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf4, buf4_len);
+./src/app-layer-ssl.c:2454:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2464:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:2507:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2543:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2579:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2621:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2631:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:2675:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2719:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:2757:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER | STREAM_EOF, buf,
+./src/app-layer-ssl.c:2819:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT | STREAM_EOF, buf,
+./src/app-layer-ssl.c:3119:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER | STREAM_START, chello_buf,
+./src/app-layer-ssl.c:3160:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, shello_buf,
+./src/app-layer-ssl.c:3193:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, client_change_cipher_spec_buf,
+./src/app-layer-ssl.c:3230:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, server_change_cipher_spec_buf,
+./src/app-layer-ssl.c:3268:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, toserver_app_data_buf,
+./src/app-layer-ssl.c:3303:    AppLayerParserStateStore *parser_state_store =
+./src/app-layer-ssl.c:3304:        (AppLayerParserStateStore *)f.alparser;
+./src/app-layer-ssl.c:3305:    AppLayerParserState *parser_state = &parser_state_store->to_server;
+./src/app-layer-ssl.c:3365:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf1, buf1_len);
+./src/app-layer-ssl.c:3375:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, buf2, buf2_len);
+./src/app-layer-ssl.c:3740:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, client_hello, client_hello_len);
+./src/app-layer-ssl.c:3762:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT,
+./src/app-layer-ssl.c:3780:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER,
+./src/decode-events.h:303:        AppLayerParserStateStore *parser_state_store =                  \
+./src/decode-events.h:304:            (AppLayerParserStateStore *)(f)->alparser;                  \
+./src/detect-app-layer-event.c:304:    AppLayerParserBackupAlprotoTable();
+./src/detect-app-layer-event.c:324:    AppLayerParserRestoreAlprotoTable();
+./src/detect-app-layer-event.c:332:    AppLayerParserBackupAlprotoTable();
+./src/detect-app-layer-event.c:399:    AppLayerParserRestoreAlprotoTable();
+./src/detect.c:1010:    AppLayerParserStateStore *parser_state_store = f->alparser;
+./src/detect.c:5171:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+./src/detect.c:5266:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+./src/detect.c:5285:    AppLayerParserCleanupState(&f);
+./src/detect.c:5363:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+./src/detect.c:5380:    AppLayerParserCleanupState(&f);
+./src/detect.c:5459:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+./src/detect.c:5474:    AppLayerParserCleanupState(&f);
+./src/detect.c:5548:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+./src/detect.c:5563:    AppLayerParserCleanupState(&f);
+./src/detect.c:5636:    AppLayerParserCleanupState(&f);
+./src/detect.c:10771:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect.c:10870:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect.c:10997:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect.c:11042:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect.c:11165:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect.c:11220:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-dce-iface.c:927:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-iface.c:930:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:953:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_bindack,
+./src/detect-dce-iface.c:956:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:971:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_request,
+./src/detect-dce-iface.c:974:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1167:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-iface.c:1170:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1192:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_bindack,
+./src/detect-dce-iface.c:1195:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1212:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request1,
+./src/detect-dce-iface.c:1215:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1232:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_response1,
+./src/detect-dce-iface.c:1235:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1252:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request2,
+./src/detect-dce-iface.c:1255:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1270:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_response2,
+./src/detect-dce-iface.c:1273:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1288:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request3,
+./src/detect-dce-iface.c:1291:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1306:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT | STREAM_EOF,
+./src/detect-dce-iface.c:1309:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1424:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-iface.c:1427:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1446:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_bindack,
+./src/detect-dce-iface.c:1449:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1464:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_request,
+./src/detect-dce-iface.c:1467:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1629:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-iface.c:1632:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1653:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_bindack,
+./src/detect-dce-iface.c:1656:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1675:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_alter_context,
+./src/detect-dce-iface.c:1678:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1697:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_alter_context_resp,
+./src/detect-dce-iface.c:1700:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1719:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request1,
+./src/detect-dce-iface.c:1722:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1741:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_response1,
+./src/detect-dce-iface.c:1744:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-iface.c:1763:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request2,
+./src/detect-dce-iface.c:1766:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1176:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-opnum.c:1179:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1192:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-opnum.c:1195:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1202:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_EOF,
+./src/detect-dce-opnum.c:1205:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1710:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-opnum.c:1713:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1913:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-opnum.c:1916:        SCLogDebug("AppLayerParse for dcerpc bind failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1931:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-opnum.c:1934:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1944:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/detect-dce-opnum.c:1947:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1964:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-opnum.c:1967:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:1982:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/detect-dce-opnum.c:1985:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2000:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-opnum.c:2003:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2018:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/detect-dce-opnum.c:2021:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2036:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT | STREAM_EOF,
+./src/detect-dce-opnum.c:2039:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2204:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-opnum.c:2207:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2208:        printf("AppLayerParse for dcerpcrequest1 failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2228:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-opnum.c:2231:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2232:        printf("AppLayerParse for dcerpcresponse1 failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2245:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/detect-dce-opnum.c:2248:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2249:        printf("AppLayerParse for dcerpcrequest2 failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2262:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-opnum.c:2265:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2266:        printf("AppLayerParse for dcerpcresponse2 failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2279:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/detect-dce-opnum.c:2282:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2283:        printf("AppLayerParse for dcerpc request3 failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2296:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT | STREAM_EOF,
+./src/detect-dce-opnum.c:2299:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2300:        printf("AppLayerParse for dcerpc response3 failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2474:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-opnum.c:2477:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2490:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_bindack,
+./src/detect-dce-opnum.c:2493:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2503:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request1,
+./src/detect-dce-opnum.c:2506:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2533:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_response1,
+./src/detect-dce-opnum.c:2536:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2563:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request2,
+./src/detect-dce-opnum.c:2566:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2593:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT | STREAM_EOF, dcerpc_response2,
+./src/detect-dce-opnum.c:2596:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2761:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request1,
+./src/detect-dce-opnum.c:2764:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2789:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_response1,
+./src/detect-dce-opnum.c:2792:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2818:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request2,
+./src/detect-dce-opnum.c:2821:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-opnum.c:2846:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT | STREAM_EOF, dcerpc_response2,
+./src/detect-dce-opnum.c:2849:        printf("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:622:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-stub-data.c:625:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:648:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_bindack,
+./src/detect-dce-stub-data.c:651:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:667:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_EOF,
+./src/detect-dce-stub-data.c:670:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1172:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-stub-data.c:1175:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1374:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-stub-data.c:1377:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1393:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_bindack,
+./src/detect-dce-stub-data.c:1396:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1407:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request1,
+./src/detect-dce-stub-data.c:1410:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1426:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_response1,
+./src/detect-dce-stub-data.c:1429:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1445:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request2,
+./src/detect-dce-stub-data.c:1448:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1464:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, dcerpc_response2,
+./src/detect-dce-stub-data.c:1467:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1483:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, dcerpc_request3,
+./src/detect-dce-stub-data.c:1486:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1502:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT | STREAM_EOF,
+./src/detect-dce-stub-data.c:1505:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1681:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER | STREAM_START,
+./src/detect-dce-stub-data.c:1684:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1706:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-stub-data.c:1709:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1725:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/detect-dce-stub-data.c:1728:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1744:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT,
+./src/detect-dce-stub-data.c:1747:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1763:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER,
+./src/detect-dce-stub-data.c:1766:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dce-stub-data.c:1782:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT | STREAM_EOF,
+./src/detect-dce-stub-data.c:1785:        SCLogDebug("AppLayerParse for dcerpc failed.  Returned %" PRId32, r);
+./src/detect-dns-query.c:183:    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf, sizeof(buf));
+./src/detect-dns-query.c:316:    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf1, sizeof(buf1));
+./src/detect-dns-query.c:343:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOCLIENT, buf2, sizeof(buf2));
+./src/detect-dns-query.c:364:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf3, sizeof(buf3));
+./src/detect-dns-query.c:457:    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf, sizeof(buf));
+./src/detect-dns-query.c:558:    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf1, sizeof(buf1));
+./src/detect-dns-query.c:581:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf2, sizeof(buf2));
+./src/detect-dns-query.c:723:    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf1, sizeof(buf1));
+./src/detect-dns-query.c:750:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf2, sizeof(buf2));
+./src/detect-dns-query.c:771:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOCLIENT, buf3, sizeof(buf3));
+./src/detect-dns-query.c:792:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf4, sizeof(buf4));
+./src/detect-dns-query.c:890:    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf, sizeof(buf));
+./src/detect-dns-query.c:1034:    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf1, sizeof(buf1));
+./src/detect-dns-query.c:1061:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOCLIENT, buf2, sizeof(buf2));
+./src/detect-dns-query.c:1086:    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf3, sizeof(buf3));
+./src/detect-engine-dcepayload.c:1347:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:1388:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:1429:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:1471:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:1513:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request3, request3_len);
+./src/detect-engine-dcepayload.c:1556:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request4, request4_len);
+./src/detect-engine-dcepayload.c:1597:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request5, request5_len);
+./src/detect-engine-dcepayload.c:1638:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request6, request6_len);
+./src/detect-engine-dcepayload.c:1679:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request7, request7_len);
+./src/detect-engine-dcepayload.c:1720:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request8, request8_len);
+./src/detect-engine-dcepayload.c:1761:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request9, request9_len);
+./src/detect-engine-dcepayload.c:2182:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:2199:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:2216:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:2233:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:2629:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:2646:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:2663:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:2680:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:3076:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:3093:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:3110:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:3127:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:3522:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:3539:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:3556:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:3573:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:3969:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:3986:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:4003:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:4020:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:4415:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:4432:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:4449:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:4466:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:4693:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:4916:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:5139:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:5497:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:5510:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:5869:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:5882:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:6067:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:6087:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, response1, response1_len);
+./src/detect-engine-dcepayload.c:6100:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:6123:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, response2, response2_len);
+./src/detect-engine-dcepayload.c:6136:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request3, request3_len);
+./src/detect-engine-dcepayload.c:6152:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, response3, response3_len);
+./src/detect-engine-dcepayload.c:6309:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:6330:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, bind, bind_len);
+./src/detect-engine-dcepayload.c:6344:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, bind_ack, bind_ack_len);
+./src/detect-engine-dcepayload.c:6360:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request2, request2_len);
+./src/detect-engine-dcepayload.c:6374:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOCLIENT, response2, response2_len);
+./src/detect-engine-dcepayload.c:6482:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:6594:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:6706:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:6818:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:6930:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:7042:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:7143:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:7240:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:7338:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:9550:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-dcepayload.c:9648:    r = AppLayerParse(NULL, &f, ALPROTO_DCERPC, STREAM_TOSERVER, request1, request1_len);
+./src/detect-engine-hcbd.c:358:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:383:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:478:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:583:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:608:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:706:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:731:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:828:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:853:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:950:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:975:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1072:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1095:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1191:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1216:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1314:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1339:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1437:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1462:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1560:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1585:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1683:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1708:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1806:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1831:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:1929:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:1954:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:2052:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:2077:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:2175:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:2200:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:2582:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:2607:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:2705:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:2730:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:2828:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:2853:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:2951:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:2976:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:3074:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:3099:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:3197:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:3222:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:3320:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:3345:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:3443:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:3468:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:3552:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-hcbd.c:3567:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT,
+./src/detect-engine-hcbd.c:3688:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:3713:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcbd.c:3836:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hcbd.c:3861:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hcd.c:210:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:304:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:398:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:492:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:586:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:680:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:774:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:868:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:962:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1057:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1152:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1247:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1342:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1437:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1532:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1627:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hcd.c:1722:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:335:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:427:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:519:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:611:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:703:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:795:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:887:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:979:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1071:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1163:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1255:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1347:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1439:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1531:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1623:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1715:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:1807:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhd.c:2055:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2080:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:2175:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2200:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:2295:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2320:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:2415:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2440:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:2535:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2560:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:2655:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2680:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:2775:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2800:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:2895:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:2920:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhd.c:3019:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1,
+./src/detect-engine-hhd.c:3045:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_buf2_len);
+./src/detect-engine-hhd.c:3144:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1,
+./src/detect-engine-hhd.c:3170:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_buf2_len);
+./src/detect-engine-hhd.c:3302:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1,
+./src/detect-engine-hhd.c:3328:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_buf2_len);
+./src/detect-engine-hhd.c:3420:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:3519:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:3626:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hhd.c:3651:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hhhd.c:183:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:277:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:371:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:465:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:559:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:653:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:747:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:841:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:935:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1030:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1125:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1220:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1315:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1410:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1505:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1600:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1695:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1785:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1875:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:1965:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:2054:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:2143:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:2232:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:2322:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hhhd.c:2412:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:175:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:268:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:361:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:454:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:547:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:640:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:733:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:826:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:919:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1013:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1107:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1201:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1295:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1389:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1483:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1577:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hmd.c:1671:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:221:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:313:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:405:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:497:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:589:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:681:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:773:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:865:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:957:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1049:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1141:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1233:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1325:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1417:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1509:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1601:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1693:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhd.c:1941:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:1966:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2061:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:2086:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2181:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:2206:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2301:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:2326:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2421:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:2446:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2541:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:2566:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2661:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:2686:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2781:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:2806:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhd.c:2905:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1,
+./src/detect-engine-hrhd.c:2931:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_buf2_len);
+./src/detect-engine-hrhd.c:3030:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1,
+./src/detect-engine-hrhd.c:3056:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_buf2_len);
+./src/detect-engine-hrhd.c:3182:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:3290:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrhd.c:3315:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrhhd.c:210:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:304:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:398:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:492:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:586:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:680:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:774:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:868:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:962:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1057:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1152:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1247:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1342:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1437:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1532:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1627:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1722:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1812:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1902:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:1992:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:2081:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:2170:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:2259:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:2349:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrhhd.c:2439:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hrud.c:195:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:220:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:315:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:421:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:446:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:545:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:570:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:668:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:693:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:791:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:816:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:914:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:939:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1037:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1062:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1161:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1186:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1285:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1310:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1409:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1434:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1533:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1558:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1657:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1682:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1781:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1806:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:1905:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:1930:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:2029:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:2054:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:2437:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:2462:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:2561:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:2586:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:2685:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:2710:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:2809:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:2834:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:2933:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:2958:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:3057:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:3082:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:3181:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:3206:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:3305:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-engine-hrud.c:3330:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-engine-hrud.c:3417:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-hrud.c:3507:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-hsbd.c:366:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:391:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:484:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:494:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:602:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:627:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:637:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf3, http_len3);
+./src/detect-engine-hsbd.c:736:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:761:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:860:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:885:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:984:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1009:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1108:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1133:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1232:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1257:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1357:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1382:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1482:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1507:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1607:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1632:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1732:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1757:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1857:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:1882:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:1982:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2007:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:2107:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2132:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:2257:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2282:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:2300:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf3, http_len3);
+./src/detect-engine-hsbd.c:2429:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2454:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:2472:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf3, http_len3);
+./src/detect-engine-hsbd.c:2584:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2606:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:2710:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2732:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:2836:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2858:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:2964:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:2986:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:3094:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:3116:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:3214:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:3239:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:3339:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:3364:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsbd.c:3468:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsbd.c:3493:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:192:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:217:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:310:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:320:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:428:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:453:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:463:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf3, http_len3);
+./src/detect-engine-hscd.c:562:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:587:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:686:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:711:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:810:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:835:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:934:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:959:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1058:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1083:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1183:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1208:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1308:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1333:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1433:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1458:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1558:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1583:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1683:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1708:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1808:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1833:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hscd.c:1933:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hscd.c:1958:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:192:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:217:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:310:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:320:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:428:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:453:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:463:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf3, http_len3);
+./src/detect-engine-hsmd.c:562:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:587:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:686:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:711:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:810:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:835:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:934:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:959:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1058:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1083:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1183:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1208:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1308:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1333:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1433:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1458:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1558:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1583:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1683:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1708:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1808:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1833:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hsmd.c:1933:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_len1);
+./src/detect-engine-hsmd.c:1958:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, http_buf2, http_len2);
+./src/detect-engine-hua.c:187:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:281:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:375:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:469:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:563:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:657:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:751:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:845:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:939:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1034:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1129:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1224:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1319:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1414:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1509:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1604:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-hua.c:1699:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-engine-state.c:948:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-engine-state.c:964:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-engine-state.c:980:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-engine-state.c:996:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-engine-state.c:1096:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-engine-state.c:1112:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-engine-state.c:1128:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-engine-state.c:1144:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-engine-state.c:1161:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-engine-state.c:1177:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-engine-state.c:1195:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf7, httplen7);
+./src/detect-engine-state.c:1284:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, httpbuf1, httplen1);
+./src/detect-engine-state.c:1405:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, httpbuf1, httplen1);
+./src/detect-engine-state.c:1526:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, httpbuf1, httplen1);
+./src/detect-engine-state.c:1647:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, httpbuf1, httplen1);
+./src/detect-engine-state.c:1771:    int r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/detect-engine-state.c:1789:    r = AppLayerParse(NULL, f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_EOF, httpbuf2, httplen2);
+./src/detect-engine-uri.c:163:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:188:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:282:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:307:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:401:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:426:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:520:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:545:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:639:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:664:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:758:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:783:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:877:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:902:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:996:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1021:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1115:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1140:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1234:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1259:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1354:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1379:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1474:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1499:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1593:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1618:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1713:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1738:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1833:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1858:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:1951:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+./src/detect-engine-uri.c:1979:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+./src/detect-engine-uri.c:2071:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2163:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2256:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2348:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2439:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2530:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2620:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2710:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2800:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2890:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:2980:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3104:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3193:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3282:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3371:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3460:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3547:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3634:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3721:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3808:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3895:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-engine-uri.c:3982:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_buf_len);
+./src/detect-ftpbounce.c:331:    int r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER, ftpbuf1, ftplen1);
+./src/detect-ftpbounce.c:339:    r = AppLayerParse(NULL, &f,ALPROTO_FTP, STREAM_TOSERVER, ftpbuf2, ftplen2);
+./src/detect-ftpbounce.c:347:    r = AppLayerParse(NULL, &f,ALPROTO_FTP, STREAM_TOSERVER, ftpbuf3, ftplen3);
+./src/detect-ftpbounce.c:355:    r = AppLayerParse(NULL, &f,ALPROTO_FTP, STREAM_TOSERVER, ftpbuf4, ftplen4);
+./src/detect-ftpbounce.c:467:    int r = AppLayerParse(NULL, &f, ALPROTO_FTP, STREAM_TOSERVER, ftpbuf1, ftplen1);
+./src/detect-ftpbounce.c:475:    r = AppLayerParse(NULL, &f,ALPROTO_FTP, STREAM_TOSERVER, ftpbuf2, ftplen2);
+./src/detect-ftpbounce.c:483:    r = AppLayerParse(NULL, &f,ALPROTO_FTP, STREAM_TOSERVER, ftpbuf3, ftplen3);
+./src/detect-ftpbounce.c:491:    r = AppLayerParse(NULL, &f,ALPROTO_FTP, STREAM_TOSERVER, ftpbuf4, ftplen4);
+./src/detect-http-client-body.c:346:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-client-body.c:453:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-client-body.c:477:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-client-body.c:577:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-client-body.c:602:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-client-body.c:704:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-client-body.c:729:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-client-body.c:830:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-client-body.c:855:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-client-body.c:947:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-client-body.c:1045:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-client-body.c:1144:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-client-body.c:1248:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-client-body.c:1265:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-http-client-body.c:1283:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-client-body.c:1300:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-http-client-body.c:1318:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-http-client-body.c:1335:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-http-client-body.c:1354:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf7, httplen7);
+./src/detect-http-client-body.c:1463:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-client-body.c:1480:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-http-client-body.c:1497:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-client-body.c:1514:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-http-client-body.c:1532:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-http-client-body.c:1549:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-http-client-body.c:1568:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf7, httplen7);
+./src/detect-http-cookie.c:370:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-cookie.c:464:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-cookie.c:552:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-cookie.c:641:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-cookie.c:730:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-cookie.c:820:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-cookie.c:907:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-cookie.c:1014:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER,
+./src/detect-http-cookie.c:1038:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT,
+./src/detect-http-cookie.c:1147:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER,
+./src/detect-http-cookie.c:1171:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT,
+./src/detect-http-header.c:352:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-header.c:458:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-header.c:483:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-header.c:581:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-header.c:606:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-header.c:706:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-header.c:731:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-header.c:830:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-header.c:855:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-header.c:946:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-header.c:1043:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-header.c:1141:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-header.c:1544:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-header.c:1627:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-header.c:1710:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hh.c:330:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hh.c:433:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hh.c:457:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hh.c:553:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hh.c:578:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hh.c:680:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hh.c:705:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hh.c:806:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hh.c:831:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hh.c:922:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hh.c:1017:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hh.c:1114:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hh.c:1219:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-hh.c:1236:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-http-hh.c:1253:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-hh.c:1270:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-http-hh.c:1287:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-http-hh.c:1306:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-http-hrh.c:330:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hrh.c:433:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hrh.c:457:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hrh.c:553:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hrh.c:578:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hrh.c:680:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hrh.c:705:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hrh.c:806:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hrh.c:831:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-hrh.c:921:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hrh.c:1016:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hrh.c:1113:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-hrh.c:1218:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-hrh.c:1235:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-http-hrh.c:1252:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-hrh.c:1269:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-http-hrh.c:1286:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-http-hrh.c:1305:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-http-hrh.c:2095:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-hrh.c:2120:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-method.c:460:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-method.c:560:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-method.c:651:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-method.c:744:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-raw-header.c:351:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-raw-header.c:457:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-raw-header.c:482:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-raw-header.c:580:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-raw-header.c:605:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-raw-header.c:704:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-raw-header.c:729:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-raw-header.c:828:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-raw-header.c:853:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-raw-header.c:944:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-raw-header.c:1041:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-raw-header.c:1139:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-server-body.c:366:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, http_buf, http_len);
+./src/detect-http-server-body.c:373:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START|STREAM_EOF, http_buf2, http_len2);
+./src/detect-http-server-body.c:485:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, http_buf1, http_len1);
+./src/detect-http-server-body.c:492:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:515:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:618:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:635:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:653:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:761:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:778:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:796:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:804:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf4, http_len4);
+./src/detect-http-server-body.c:912:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:929:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:947:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:955:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf4, http_len4);
+./src/detect-http-server-body.c:1059:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:1076:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:1094:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:1198:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:1215:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:1233:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:1325:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, http_buf, http_len);
+./src/detect-http-server-body.c:1332:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START|STREAM_EOF, http_buf2, http_len2);
+./src/detect-http-server-body.c:1448:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/detect-http-server-body.c:1457:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-server-body.c:1478:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-server-body.c:1487:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, httpbuf4, httplen4);
+./src/detect-http-server-body.c:1610:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/detect-http-server-body.c:1617:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-server-body.c:1638:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-server-body.c:1645:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, httpbuf4, httplen4);
+./src/detect-http-server-body.c:2426:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, http_buf, http_len);
+./src/detect-http-server-body.c:2433:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START|STREAM_EOF, http_buf2, http_len2);
+./src/detect-http-server-body.c:2545:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, http_buf1, http_len1);
+./src/detect-http-server-body.c:2553:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:2577:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:2680:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:2697:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:2715:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:2824:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:2841:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:2859:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:2867:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf4, http_len4);
+./src/detect-http-server-body.c:2975:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:2992:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:3010:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:3018:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf4, http_len4);
+./src/detect-http-server-body.c:3122:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:3139:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:3157:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:3261:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, http_buf1, http_len1);
+./src/detect-http-server-body.c:3278:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START, http_buf2, http_len2);
+./src/detect-http-server-body.c:3296:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, http_buf3, http_len3);
+./src/detect-http-server-body.c:3388:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|STREAM_EOF, http_buf, http_len);
+./src/detect-http-server-body.c:3395:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_START|STREAM_EOF, http_buf2, http_len2);
+./src/detect-http-server-body.c:3509:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/detect-http-server-body.c:3516:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-server-body.c:3533:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-server-body.c:3540:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, httpbuf4, httplen4);
+./src/detect-http-server-body.c:3661:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/detect-http-server-body.c:3668:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-server-body.c:3685:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-server-body.c:3692:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT|STREAM_EOF, httpbuf4, httplen4);
+./src/detect-http-stat-code.c:267:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-stat-code.c:274:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-stat-code.c:370:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-stat-code.c:378:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-stat-code.c:481:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-stat-code.c:489:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-stat-code.c:592:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-stat-code.c:600:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-stat-msg.c:265:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-stat-msg.c:273:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-stat-msg.c:368:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-stat-msg.c:376:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-stat-msg.c:475:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-stat-msg.c:483:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOCLIENT, httpbuf2, httplen2);
+./src/detect-http-ua.c:331:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-ua.c:434:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-ua.c:458:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-ua.c:554:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-ua.c:579:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-ua.c:681:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-ua.c:706:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-ua.c:807:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http1_buf, http1_len);
+./src/detect-http-ua.c:832:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http2_buf, http2_len);
+./src/detect-http-ua.c:922:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-ua.c:1017:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-ua.c:1114:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf, http_len);
+./src/detect-http-ua.c:1219:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-http-ua.c:1236:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-http-ua.c:1253:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-http-ua.c:1270:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-http-ua.c:1287:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-http-ua.c:1306:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-luajit.c:1022:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-luajit.c:1045:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-luajit.c:1446:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-luajit.c:1469:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-luajit.c:1588:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-luajit.c:1611:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-luajit.c:1735:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-luajit.c:1758:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-pcre.c:1694:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, buf, buflen);
+./src/detect-pcre.c:1957:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2088:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2119:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-pcre.c:2273:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2365:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2457:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2549:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2641:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2733:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2826:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:2919:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:3000:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START, httpbuf1, httplen1);
+./src/detect-pcre.c:3006:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-pcre.c:3012:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-pcre.c:3018:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-pcre.c:3025:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-pcre.c:3031:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-pcre.c:3037:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf7, httplen7);
+./src/detect-pcre.c:3169:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:3186:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-pcre.c:3203:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-pcre.c:3220:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-pcre.c:3238:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-pcre.c:3255:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-pcre.c:3274:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf7, httplen7);
+./src/detect-pcre.c:3414:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:3431:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-pcre.c:3448:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf3, httplen3);
+./src/detect-pcre.c:3465:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf4, httplen4);
+./src/detect-pcre.c:3483:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf5, httplen5);
+./src/detect-pcre.c:3500:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf6, httplen6);
+./src/detect-pcre.c:3519:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf7, httplen7);
+./src/detect-pcre.c:3633:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:3776:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-pcre.c:3915:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-ssh-proto-version.c:395:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/detect-ssh-proto-version.c:402:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/detect-ssh-proto-version.c:409:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/detect-ssh-proto-version.c:416:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf4, sshlen4);
+./src/detect-ssh-proto-version.c:503:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/detect-ssh-proto-version.c:509:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/detect-ssh-proto-version.c:516:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/detect-ssh-proto-version.c:523:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf4, sshlen4);
+./src/detect-ssh-proto-version.c:610:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/detect-ssh-proto-version.c:617:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/detect-ssh-proto-version.c:624:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/detect-ssh-proto-version.c:631:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf4, sshlen4);
+./src/detect-ssh-software-version.c:367:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/detect-ssh-software-version.c:374:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/detect-ssh-software-version.c:381:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/detect-ssh-software-version.c:388:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf4, sshlen4);
+./src/detect-ssh-software-version.c:475:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/detect-ssh-software-version.c:482:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/detect-ssh-software-version.c:489:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/detect-ssh-software-version.c:496:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf4, sshlen4);
+./src/detect-ssh-software-version.c:583:    int r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf1, sshlen1);
+./src/detect-ssh-software-version.c:590:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf2, sshlen2);
+./src/detect-ssh-software-version.c:597:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf3, sshlen3);
+./src/detect-ssh-software-version.c:604:    r = AppLayerParse(NULL, &f, ALPROTO_SSH, STREAM_TOSERVER, sshbuf4, sshlen4);
+./src/detect-ssl-state.c:757:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER | STREAM_START, chello_buf,
+./src/detect-ssl-state.c:786:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, shello_buf,
+./src/detect-ssl-state.c:809:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, client_change_cipher_spec_buf,
+./src/detect-ssl-state.c:833:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOCLIENT, server_change_cipher_spec_buf,
+./src/detect-ssl-state.c:857:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, toserver_app_data_buf,
+./src/detect-ssl-version.c:455:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf1, ssllen1);
+./src/detect-ssl-version.c:462:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf2, ssllen2);
+./src/detect-ssl-version.c:469:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf3, ssllen3);
+./src/detect-ssl-version.c:476:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf4, ssllen4);
+./src/detect-ssl-version.c:576:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf1, ssllen1);
+./src/detect-ssl-version.c:583:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf2, ssllen2);
+./src/detect-ssl-version.c:590:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf3, ssllen3);
+./src/detect-ssl-version.c:597:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf4, ssllen4);
+./src/detect-ssl-version.c:707:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf1, ssllen1);
+./src/detect-ssl-version.c:714:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf2, ssllen2);
+./src/detect-ssl-version.c:721:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf3, ssllen3);
+./src/detect-ssl-version.c:728:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, sslbuf4, ssllen4);
+./src/detect-tls-version.c:363:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf1, tlslen1);
+./src/detect-tls-version.c:370:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf2, tlslen2);
+./src/detect-tls-version.c:377:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf3, tlslen3);
+./src/detect-tls-version.c:384:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf4, tlslen4);
+./src/detect-tls-version.c:486:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf1, tlslen1);
+./src/detect-tls-version.c:493:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf2, tlslen2);
+./src/detect-tls-version.c:500:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf3, tlslen3);
+./src/detect-tls-version.c:507:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf4, tlslen4);
+./src/detect-tls-version.c:620:    int r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf1, tlslen1);
+./src/detect-tls-version.c:627:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf2, tlslen2);
+./src/detect-tls-version.c:634:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf3, tlslen3);
+./src/detect-tls-version.c:641:    r = AppLayerParse(NULL, &f, ALPROTO_TLS, STREAM_TOSERVER, tlsbuf4, tlslen4);
+./src/detect-uricontent.c:294:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|
+./src/detect-uricontent.c:297:        printf("AppLayerParse failed: r(%d) != 0: ", r);
+./src/detect-uricontent.c:356:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|
+./src/detect-uricontent.c:359:        printf("AppLayerParse failed: r(%d) != 0: ", r);
+./src/detect-uricontent.c:420:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|
+./src/detect-uricontent.c:423:        printf("AppLayerParse failed: r(%d) != 0: ", r);
+./src/detect-uricontent.c:485:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER|STREAM_START|
+./src/detect-uricontent.c:488:        printf("AppLayerParse failed: r(%d) != 0: ", r);
+./src/detect-uricontent.c:639:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-uricontent.c:750:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-uricontent.c:774:    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+./src/detect-uricontent.c:1098:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-uricontent.c:1235:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-uricontent.c:1354:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/detect-urilen.c:635:    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+./src/flow.c:100:    AppLayerParserCleanupState(f);
+./src/log-httplog.c:507:        if (!(((AppLayerParserStateStore *)p->flow->alparser)->id_flags & APP_LAYER_TRANSACTION_EOF)) {
+./src/runmode-unittests.c:142:    AppLayerParsersInitPostProcess();
+./src/runmode-unittests.c:217:    AppLayerParserRegisterTests();
+./src/stream-tcp.c:186:    //AppLayerParserCleanupState(ssn);
+./src/stream-tcp.c:4302:                    AppLayerParserCleanupState(p->flow);
+./src/suricata.c:1856:    AppLayerParsersInitPostProcess();

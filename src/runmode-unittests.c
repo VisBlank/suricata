@@ -72,6 +72,7 @@
 #include "app-layer-ssl.h"
 #include "app-layer-ssh.h"
 #include "app-layer-smtp.h"
+#include "app-layer-mysql.h"
 
 #include "util-action.h"
 #include "util-radix-tree.h"
@@ -187,6 +188,7 @@ int RunUnittests(int list_unittests, char *regex_arg)
     SCPerfRegisterTests();
     DecodePPPRegisterTests();
     DecodeVLANRegisterTests();
+    MysqlParserRegisterTests();
     HTPParserRegisterTests();
     SSHParserRegisterTests();
     SMBParserRegisterTests();

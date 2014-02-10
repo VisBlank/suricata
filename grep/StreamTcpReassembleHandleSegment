@@ -1,0 +1,145 @@
+./src/flow-timeout.c:557:                StreamTcpReassembleHandleSegment(stream_pseudo_pkt_stream_TV,
+./src/flow-timeout.c:575:                StreamTcpReassembleHandleSegment(stream_pseudo_pkt_stream_TV,
+./src/stream-tcp.c:1005:        StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn, &ssn->client, p, pq);
+./src/stream-tcp.c:1693:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:1760:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:1801:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:1834: *          ACK packets and call StreamTcpReassembleHandleSegment() to handle
+./src/stream-tcp.c:1971:        StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn, &ssn->client, p, pq);
+./src/stream-tcp.c:1991: *          ACK packets and call StreamTcpReassembleHandleSegment() to handle
+./src/stream-tcp.c:2093:        StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn, &ssn->server, p, pq);
+./src/stream-tcp.c:2137: *          StreamTcpReassembleHandleSegment(tv, ) to handle the reassembling.
+./src/stream-tcp.c:2181:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2214:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2412:        StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn, &ssn->client, p, pq);
+./src/stream-tcp.c:2460:        StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn, &ssn->server, p, pq);
+./src/stream-tcp.c:2513:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2526:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2587:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2644:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2709:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2767:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2848:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2919:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2974:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:2987:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3046:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3101:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3172:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3230:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3285:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3298:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3352:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3397:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3464:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3477:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3528:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3576:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3640:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3691:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3745:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3758:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3816:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3870:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3883:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3941:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:3993:            StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:4361:                    StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:4365:                    StreamTcpReassembleHandleSegment(tv, stt->ra_ctx, ssn,
+./src/stream-tcp.c:7864:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &ssn.client, p, &pq) == -1) {
+./src/stream-tcp.c:7874:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &ssn.client, p, &pq) == -1) {
+./src/stream-tcp.c:7884:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &ssn.client, p, &pq) == -1) {
+./src/stream-tcp.c:7951:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &ssn.client, p, &pq) == -1) {
+./src/stream-tcp.c:7961:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &ssn.client, p, &pq) == -1) {
+./src/stream-tcp.c:7971:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &ssn.client, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:1628:int StreamTcpReassembleHandleSegmentHandleData(ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx,
+./src/stream-tcp-reassemble.c:3384:int StreamTcpReassembleHandleSegmentUpdateACK (ThreadVars *tv,
+./src/stream-tcp-reassemble.c:3449:int StreamTcpReassembleHandleSegment(ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx,
+./src/stream-tcp-reassemble.c:3458:     * StreamTcpReassembleHandleSegmentUpdateACK */
+./src/stream-tcp-reassemble.c:3467:    if (StreamTcpReassembleHandleSegmentUpdateACK(tv, ra_ctx, ssn, opposing_stream, p) != 0)
+./src/stream-tcp-reassemble.c:3469:        SCLogDebug("StreamTcpReassembleHandleSegmentUpdateACK error");
+./src/stream-tcp-reassemble.c:3476:        SCLogDebug("calling StreamTcpReassembleHandleSegmentHandleData");
+./src/stream-tcp-reassemble.c:3478:        if (StreamTcpReassembleHandleSegmentHandleData(tv, ra_ctx, ssn, stream, p) != 0) {
+./src/stream-tcp-reassemble.c:3479:            SCLogDebug("StreamTcpReassembleHandleSegmentHandleData error");
+./src/stream-tcp-reassemble.c:3765:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3775:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3785:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3795:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3805:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3815:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3825:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3835:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3845:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3855:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3865:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3875:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3885:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3895:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3905:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3915:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3925:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:3935:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4124:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4134:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4144:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4154:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4164:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4175:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4185:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4238:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4248:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4258:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4268:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4278:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4288:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4298:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4352:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4362:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4372:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4382:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4392:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:4402:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5089:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5679:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1)
+./src/stream-tcp-reassemble.c:5687:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1)
+./src/stream-tcp-reassemble.c:5695:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1)
+./src/stream-tcp-reassemble.c:5703:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1)
+./src/stream-tcp-reassemble.c:5761:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5770:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5779:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5788:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5840:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5849:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5858:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5867:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5923:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5934:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:5989:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6000:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6059:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) != -1) {
+./src/stream-tcp-reassemble.c:6071:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6083:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx,&ssn, &stream, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6175:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6193:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6875:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6895:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6914:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6927:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6961:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:6974:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7000:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7013:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7116:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7134:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7153:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7187:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7206:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7341:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7357:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7373:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7458:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7475:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7494:    if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7580:        if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.c:7595:        if (StreamTcpReassembleHandleSegment(&tv, ra_ctx, &ssn, s, p, &pq) == -1) {
+./src/stream-tcp-reassemble.h:69:int StreamTcpReassembleHandleSegment(ThreadVars *, TcpReassemblyThreadCtx *, TcpSession *, TcpStream *, Packet *, PacketQueue *);

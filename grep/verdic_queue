@@ -1,0 +1,76 @@
+./src/runmode-ipfw.c:88:            "VerdictIPFW",
+./src/runmode-ipfw.c:108:            "VerdictIPFW",
+./src/runmode-ipfw.c:127:            "VerdictIPFW",
+./src/runmode-nfq.c:104:            "VerdictNFQ",
+./src/runmode-nfq.c:124:            "VerdictNFQ",
+./src/runmode-nfq.c:143:            "VerdictNFQ",
+./src/source-ipfw.c:70:void TmModuleVerdictIPFWRegister (void) {
+./src/source-ipfw.c:71:    tmm_modules[TMM_VERDICTIPFW].name = "VerdictIPFW";
+./src/source-ipfw.c:135:TmEcode IPFWSetVerdict(ThreadVars *, IPFWThreadVars *, Packet *);
+./src/source-ipfw.c:136:TmEcode VerdictIPFW(ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *);
+./src/source-ipfw.c:137:TmEcode VerdictIPFWThreadInit(ThreadVars *, void *, void **);
+./src/source-ipfw.c:138:void VerdictIPFWThreadExitStats(ThreadVars *, void *);
+./src/source-ipfw.c:139:TmEcode VerdictIPFWThreadDeinit(ThreadVars *, void *);
+./src/source-ipfw.c:165: * \brief Registration Function for VerdictIPFW.
+./src/source-ipfw.c:168:void TmModuleVerdictIPFWRegister (void) {
+./src/source-ipfw.c:169:    tmm_modules[TMM_VERDICTIPFW].name = "VerdictIPFW";
+./src/source-ipfw.c:170:    tmm_modules[TMM_VERDICTIPFW].ThreadInit = VerdictIPFWThreadInit;
+./src/source-ipfw.c:171:    tmm_modules[TMM_VERDICTIPFW].Func = VerdictIPFW;
+./src/source-ipfw.c:172:    tmm_modules[TMM_VERDICTIPFW].ThreadExitPrintStats = VerdictIPFWThreadExitStats;
+./src/source-ipfw.c:173:    tmm_modules[TMM_VERDICTIPFW].ThreadDeinit = VerdictIPFWThreadDeinit;
+./src/source-ipfw.c:493: * \brief This function sets the Verdict and processes the packet
+./src/source-ipfw.c:499:TmEcode IPFWSetVerdict(ThreadVars *tv, IPFWThreadVars *ptv, Packet *p)
+./src/source-ipfw.c:528:        SCLogDebug("IPFW Verdict is to Accept");
+./src/source-ipfw.c:534:        SCLogDebug("IPFWSetVerdict writing to socket %d, %p, %u", nq->fd, GET_PKT_DATA(p),GET_PKT_LEN(p));
+./src/source-ipfw.c:568:        SCLogDebug("IPFW SetVerdict is to DROP");
+./src/source-ipfw.c:581: * \brief This function handles the Verdict processing
+./src/source-ipfw.c:590:TmEcode VerdictIPFW(ThreadVars *tv, Packet *p, void *data, PacketQueue *pq, PacketQueue *postpq)
+./src/source-ipfw.c:615:            SCLogDebug("VerdictIPFW: not ready to verdict yet: "
+./src/source-ipfw.c:626:            retval = IPFWSetVerdict(tv, ptv, p->root ? p->root : p);
+./src/source-ipfw.c:634:        retval = IPFWSetVerdict(tv, ptv, p);
+./src/source-ipfw.c:641: * \brief This function initializes the VerdictThread
+./src/source-ipfw.c:648:TmEcode VerdictIPFWThreadInit(ThreadVars *tv, void *initdata, void **data)
+./src/source-ipfw.c:667: * \brief This function deinitializes the VerdictThread
+./src/source-ipfw.c:673:TmEcode VerdictIPFWThreadDeinit(ThreadVars *tv, void *data)
+./src/source-ipfw.c:685: * \brief This function prints stats for the VerdictThread
+./src/source-ipfw.c:691:void VerdictIPFWThreadExitStats(ThreadVars *tv, void *data)
+./src/source-ipfw.h:66:void TmModuleVerdictIPFWRegister (void);
+./src/source-nfq.c:28: * \todo test if Receive and Verdict if both are present
+./src/source-nfq.c:76:void TmModuleVerdictNFQRegister (void) {
+./src/source-nfq.c:77:    tmm_modules[TMM_VERDICTNFQ].name = "VerdictNFQ";
+./src/source-nfq.c:145:TmEcode VerdictNFQ(ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *);
+./src/source-nfq.c:146:TmEcode VerdictNFQThreadInit(ThreadVars *, void *, void **);
+./src/source-nfq.c:147:TmEcode VerdictNFQThreadDeinit(ThreadVars *, void *);
+./src/source-nfq.c:152:TmEcode NFQSetVerdict(Packet *p);
+./src/source-nfq.c:188:void TmModuleVerdictNFQRegister (void) {
+./src/source-nfq.c:189:    tmm_modules[TMM_VERDICTNFQ].name = "VerdictNFQ";
+./src/source-nfq.c:190:    tmm_modules[TMM_VERDICTNFQ].ThreadInit = VerdictNFQThreadInit;
+./src/source-nfq.c:191:    tmm_modules[TMM_VERDICTNFQ].Func = VerdictNFQ;
+./src/source-nfq.c:193:    tmm_modules[TMM_VERDICTNFQ].ThreadDeinit = VerdictNFQThreadDeinit;
+./src/source-nfq.c:292:static uint8_t NFQVerdictCacheLen(NFQQueueVars *t)
+./src/source-nfq.c:301:static void NFQVerdictCacheFlush(NFQQueueVars *t)
+./src/source-nfq.c:329:static int NFQVerdictCacheAdd(NFQQueueVars *t, Packet *p, uint32_t verdict)
+./src/source-nfq.c:360:        NFQVerdictCacheFlush(t);
+./src/source-nfq.c:366:    if (NFQVerdictCacheLen(t) > 0)
+./src/source-nfq.c:367:        NFQVerdictCacheFlush(t);
+./src/source-nfq.c:480:        NFQSetVerdict(p);
+./src/source-nfq.c:747:TmEcode VerdictNFQThreadInit(ThreadVars *tv, void *initdata, void **data) {
+./src/source-nfq.c:754:TmEcode VerdictNFQThreadDeinit(ThreadVars *tv, void *data) {
+./src/source-nfq.c:858:    int flag = NFQVerdictCacheLen(t) ? MSG_DONTWAIT : 0;
+./src/source-nfq.c:867:                NFQVerdictCacheFlush(t);
+./src/source-nfq.c:1013:TmEcode NFQSetVerdict(Packet *p) {
+./src/source-nfq.c:1070:    ret = NFQVerdictCacheAdd(t, p, verdict);
+./src/source-nfq.c:1153:TmEcode VerdictNFQ(ThreadVars *tv, Packet *p, void *data, PacketQueue *pq, PacketQueue *postpq) {
+./src/source-nfq.c:1159:        //printf("VerdictNFQ: tunnel pkt: %p %s\n", p, p->root ? "upper layer" : "root");
+./src/source-nfq.c:1177:            //printf("VerdictNFQ: setting verdict\n");
+./src/source-nfq.c:1178:            ret = NFQSetVerdict(p->root ? p->root : p);
+./src/source-nfq.c:1186:        ret = NFQSetVerdict(p);
+./src/source-nfq-prototypes.h:28:void TmModuleVerdictNFQRegister (void);
+./src/suricata.c:729:    TmModuleVerdictNFQRegister();
+./src/suricata.c:733:    TmModuleVerdictIPFWRegister();
+./src/tmqh-nfq.c:23: * NFQ Verdict Handler
+./src/tmqh-nfq.c:34:void TmqhOutputVerdictNfq(ThreadVars *t, Packet *p);
+./src/tmqh-nfq.c:39:    tmqh_table[TMQH_NFQ].OutHandler = TmqhOutputVerdictNfq;
+./src/tmqh-nfq.c:42:void TmqhOutputVerdictNfq(ThreadVars *t, Packet *p)
+./src/util-runmodes.c:836:        snprintf(tname, sizeof(tname), "Verdict%"PRIu16, i);
+./src/util-runmodes.c:1028:        snprintf(tname, sizeof(tname), "Verdict%"PRIu16, i);

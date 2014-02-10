@@ -1,0 +1,34 @@
+./src/counters.c:423:                q = &trans_q[tv->inq->id];
+./src/detect-engine.c:608:                        PacketQueue *q = &trans_q[detect_tvs[i]->inq->id];
+./src/flow-timeout.c:488:        SCCondSignal(&trans_q[stream_pseudo_pkt_decode_TV->inq->id].cond_q);
+./src/flow-timeout.c:693:                PacketQueue *q = &trans_q[tv->inq->id];
+./src/flow-timeout.c:699:                    SCCondSignal(&trans_q[tv->inq->id].cond_q);
+./src/flow-timeout.c:704:                        SCCondSignal(&trans_q[tv->inq->id].cond_q);
+./src/suricata.c:305:    memset(trans_q, 0, sizeof(trans_q));
+./src/suricata.c:308:    /* Initialize the trans_q mutex */
+./src/suricata.c:312:        r |= SCMutexInit(&trans_q[blah].mutex_q, NULL);
+./src/suricata.c:313:        r |= SCCondInit(&trans_q[blah].cond_q, NULL);
+./src/tmqh-flow.c:86:    PacketQueue *q = &trans_q[tv->inq->id];
+./src/tmqh-flow.c:139:    ctx->queues[ctx->size - 1].q = &trans_q[id];
+./src/tmqh-flow.c:398:    if (fctx->queues[0].q != &trans_q[0])
+./src/tmqh-flow.c:400:    if (fctx->queues[1].q != &trans_q[1])
+./src/tmqh-flow.c:402:    if (fctx->queues[2].q != &trans_q[2])
+./src/tmqh-flow.c:404:    if (fctx->queues[3].q != &trans_q[3])
+./src/tmqh-flow.c:450:    if (fctx->queues[0].q != &trans_q[0])
+./src/tmqh-flow.c:482:    if (fctx->queues[0].q != &trans_q[0])
+./src/tmqh-flow.c:484:    if (fctx->queues[1].q != &trans_q[1])
+./src/tmqh-flow.c:486:    if (fctx->queues[2].q != &trans_q[2])
+./src/tmqh-flow.c:488:    if (fctx->queues[3].q != &trans_q[3])
+./src/tmqh-nfq.c:46:    PacketQueue *q = &trans_q[p->verdict_q_id];
+./src/tmqh-simple.c:47:    PacketQueue *q = &trans_q[t->inq->id];
+./src/tmqh-simple.c:77:        SCCondSignal(&trans_q[tv->inq->id].cond_q);
+./src/tmqh-simple.c:84:    PacketQueue *q = &trans_q[t->outq->id];
+./src/tm-queues.c:81:        SCMutexLock(&trans_q[tmqs[i].id].mutex_q);
+./src/tm-queues.c:82:        printf("TmqDebugList: id %" PRIu32 ", name \'%s\', len %" PRIu32 "\n", tmqs[i].id, tmqs[i].name, trans_q[tmqs[i].id].len);
+./src/tm-queues.c:83:        SCMutexUnlock(&trans_q[tmqs[i].id].mutex_q);
+./src/tm-queues.c:102:        SCMutexLock(&trans_q[tmqs[i].id].mutex_q);
+./src/tm-queues.c:110:        SCMutexUnlock(&trans_q[tmqs[i].id].mutex_q);
+./src/tm-threads.c:1650:            PacketQueue *q = &trans_q[tv->inq->id];
+./src/tm-threads.c:1678:                    SCCondSignal(&trans_q[tv->inq->id].cond_q);
+./src/tm-threads.c:1755:                    PacketQueue *q = &trans_q[tv->inq->id];
+./src/tm-threads.c:1770:                        SCCondSignal(&trans_q[tv->inq->id].cond_q);

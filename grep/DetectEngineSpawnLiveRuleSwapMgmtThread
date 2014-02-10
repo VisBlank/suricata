@@ -1,0 +1,4 @@
+./src/detect-engine.c:685:void DetectEngineSpawnLiveRuleSwapMgmtThread(void)
+./src/detect-engine.h:56:void DetectEngineSpawnLiveRuleSwapMgmtThread(void);
+./src/suricata.c:270:    DetectEngineSpawnLiveRuleSwapMgmtThread();
+./src/unix-manager.c:716:        DetectEngineSpawnLiveRuleSwapMgmtThread();
