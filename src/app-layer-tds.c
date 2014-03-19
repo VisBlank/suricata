@@ -32,7 +32,6 @@ void RegisterTDSParsers(void) {
         } else {
             AppLayerParseProbingParserPorts(proto_name, ALPROTO_TDS, 0,
                     sizeof(TDSPktHeader), TDSProbingParser);
-
         }
 
         AppLayerRegisterParserAcceptableDataDirection(ALPROTO_TDS, STREAM_TOSERVER | STREAM_TOCLIENT);

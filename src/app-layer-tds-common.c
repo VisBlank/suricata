@@ -22,8 +22,8 @@ static int ExtractSSPIField(char **field, uint16_t *len, uint16_t *max_len, uint
 static int ExtractClientField(char **dst, uint8_t *begin, uint8_t *in, uint32_t payload_len);
 
 int TDSRequestParse(uint8_t *input, uint32_t ilen) {
-	/* do nothing */ 
-		 return 0;
+    /* do nothing */ 
+    return 0;
 }
 
 int TDSParseClientRecord(Flow *f, void *alstate,

@@ -47,6 +47,7 @@ enum AppProto {
 
     ALPROTO_TDS,
     ALPROTO_DRDA,
+    ALPROTO_TNS,
 
     /* used by the probing parser when alproto detection fails
      * permanently for that particular stream */
