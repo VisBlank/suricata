@@ -22,7 +22,8 @@ static int ExtractSSPIField(char **field, uint16_t *len, uint16_t *max_len, uint
 static int ExtractClientField(char **dst, uint8_t *begin, uint8_t *in, uint32_t payload_len);
 
 int TDSRequestParse(uint8_t *input, uint32_t ilen) {
-    return 0;
+	/* do nothing */ 
+		 return 0;
 }
 
 int TDSParseClientRecord(Flow *f, void *alstate,
@@ -62,15 +63,19 @@ int TDSParseClientRecord(Flow *f, void *alstate,
             cmd->sql = SCCalloc(cmd->sql_size, 1);
             uint16_t idx = 0;
             uint8_t *sql = cmd->sql;
+            /* because the SQL encoded in Unicode(every character
+             * are 2 bytes, include ASCII character), we can not simply
+             * use memcpy to dump the SQL statement */
             while (idx < cmd->sql_size) {
+                /* for ascii, one of its bytes are '\0', and we skip it */
                 if (p[idx] != '\0') {
                     *sql = p[idx];
                     ++sql;
                 }
                 ++idx;
             }
-                        }
-            break;
+        }
+        break;
         case TDS_LOGIN: 
             break;
         case TDS_RPC:

@@ -72,7 +72,7 @@ static int DRDAParseParameter(struct DRDAState_ *s, uint8_t *in, uint32_t len) {
                     /* as type DRDA_CP_DATA, the length field is zero,
                      * means copy the remind bytes as the data.
                      *
-                     * the data seems like encaped with * a byte
+                     * the data seems like encaped with a byte
                      * prefix(`%` or `$` or others) and a 0xff suffix
                      * 
                      * type of DRDA_CP_DATA is in ASCII format, not EBCDIC
@@ -110,8 +110,7 @@ static int DRDAParseParameter(struct DRDAState_ *s, uint8_t *in, uint32_t len) {
     return 0;
 }
 
-int DRDAParseClientRecord(Flow *f,
-        void *alstate,
+int DRDAParseClientRecord(Flow *f, void *alstate,
         AppLayerParserState *alps, uint8_t *in,
         uint32_t in_len, void *local_data,
         AppLayerParserResult *res) {
@@ -150,4 +149,4 @@ int DRDAParseClientRecord(Flow *f,
     }
 
     return 0;
-} 
+}

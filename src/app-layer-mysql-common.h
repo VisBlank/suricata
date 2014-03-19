@@ -169,7 +169,7 @@ typedef struct MysqlTransaction_ {
 
     MysqlClientCommand cmd;
 
-    MysqlClient cli;
+    MysqlClient cli; /* transaction must map to a client */
 
     /* need list to the next? */
     TAILQ_ENTRY(MysqlTransaction_) next;

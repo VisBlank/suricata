@@ -1,6 +1,6 @@
 /**
- * \file
- * \author
+ * \file: app-layer-mysql.c
+ * \author: coanor
  *
  * App-layer parser for Mysql protocol
  *
