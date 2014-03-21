@@ -61,8 +61,7 @@ host-mode: auto
 # The default logging directory.  Any log or output file will be
 # placed here if its not specified with a full path name.  This can be
 # overridden with the -l command line parameter.
-#default-log-dir: /usr/local/var/log/suricata/
-default-log-dir: log/suricata/
+default-log-dir: /usr/local/var/log/suricata/
 
 # Unix command socket can be used to pass commands to suricata.
 # An external tool can then connect to get information from suricata
@@ -77,24 +76,34 @@ unix-command:
 outputs:
 
   # a line based alerts log similar to Snort's fast.log
-  - mysql-log:
-      enabled: yes
-      format: json
-      filename: mysql.json
-      append: yes
-
-  - tds-log:
-      enabled: yes
-      format: json
-      filename: tds.json
-      append: yes
-
-  # a line based alerts log similar to Snort's fast.log
   - fast:
       enabled: yes
       filename: fast.log
       append: yes
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
+
+  # Extensible Event Format (nicknamed EVE) event log in JSON format
+  - eve-log:
+      enabled: yes
+      type: file #file|syslog|unix_dgram|unix_stream
+      filename: eve.json
+      # the following are valid when type: syslog above
+      #identity: "suricata"
+      #facility: local5
+      #level: Info ## possible levels: Emergency, Alert, Critical,
+                   ## Error, Warning, Notice, Info, Debug
+      types:
+        - alert
+        - http:
+            extended: yes     # enable this for extended logging information
+        - dns
+        - tls:
+            extended: yes     # enable this for extended logging information
+        - files:
+            force-magic: no   # force logging magic on all logged files
+            force-md5: no     # force logging of md5 checksums
+        #- drop
+        - ssh
 
   # alert output for use with Barnyard2
   - unified2-alert:
@@ -577,7 +586,7 @@ defrag:
 # in bytes.
 
 flow:
-  memcap: 32mb
+  memcap: 64mb
   hash-size: 65536
   prealloc: 10000
   emergency-recovery: 30
@@ -673,18 +682,48 @@ flow-timeouts:
 #                               # a random value between (1 - randomize-chunk-range/100)*randomize-chunk-size
 #                               # and (1 + randomize-chunk-range/100)*randomize-chunk-size. Default value
 #                               # of randomize-chunk-range is 10.
-
+#
+#     raw: yes                  # 'Raw' reassembly enabled or disabled.
+#                               # raw is for content inspection by detection
+#                               # engine.
+#
+#     chunk-prealloc: 250       # Number of preallocated stream chunks. These
+#                               # are used during stream inspection (raw).
+#     segments:                 # Settings for reassembly segment pool.
+#       - size: 4               # Size of the (data)segment for a pool
+#         prealloc: 256         # Number of segments to prealloc and keep
+#                               # in the pool.
+#
 stream:
   memcap: 32mb
   checksum-validation: yes      # reject wrong csums
   inline: auto                  # auto will use inline mode in IPS mode, yes or no set it statically
   reassembly:
-    memcap: 64mb
+    memcap: 128mb
     depth: 1mb                  # reassemble 1mb into a stream
     toserver-chunk-size: 2560
     toclient-chunk-size: 2560
     randomize-chunk-size: yes
     #randomize-chunk-range: 10
+    #raw: yes
+    #chunk-prealloc: 250
+    #segments:
+    #  - size: 4
+    #    prealloc: 256
+    #  - size: 16
+    #    prealloc: 512
+    #  - size: 112
+    #    prealloc: 512
+    #  - size: 248
+    #    prealloc: 512
+    #  - size: 512
+    #    prealloc: 512
+    #  - size: 768
+    #    prealloc: 1024
+    #  - size: 1448
+    #    prealloc: 1024
+    #  - size: 65535
+    #    prealloc: 128
 
 # Host table:
 #
@@ -704,8 +743,7 @@ logging:
   # compiled with the --enable-debug configure option.
   #
   # This value is overriden by the SC_LOG_LEVEL env var.
-  #default-log-level: notice
-  default-log-level: debug
+  default-log-level: notice
 
   # The default output format.  Optional parameter, should default to
   # something reasonable if not provided.  Can be overriden in an
@@ -723,17 +761,15 @@ logging:
   # Define your logging outputs.  If none are defined, or they are all
   # disabled you will get the default - console output.
   outputs:
-  #- console:
-  #    #enabled: yes
-  #    #enabled: no
-  - file:
+  - console:
       enabled: yes
-      #filename: /var/log/suricata.log
-      filename: ./log/suricata/suricata.log
-  #- syslog:
-  #    enabled: no
-  #    facility: local5
-  #    format: "[%i] <%d> -- "
+  - file:
+      enabled: no
+      filename: /var/log/suricata.log
+  - syslog:
+      enabled: no
+      facility: local5
+      format: "[%i] <%d> -- "
 
 # Tilera mpipe configuration. for use on Tilera TILE-Gx.
 mpipe:
@@ -868,64 +904,59 @@ ipfw:
 
 # Set the default rule path here to search for the files.
 # if not set, it will look at the current working dir
-#default-rule-path: /usr/local/etc/suricata/rules
-default-rule-path: ./rules
+default-rule-path: /usr/local/etc/suricata/rules
 rule-files:
- #- botcc.rules
- #- test.rules
- #- ciarmy.rules
- #- compromised.rules
- #- drop.rules
- #- dshield.rules
- #- emerging-activex.rules
- #- emerging-attack_response.rules
- #- emerging-chat.rules
- #- emerging-current_events.rules
- #- emerging-dns.rules
- #- emerging-dos.rules
- #- emerging-exploit.rules
- #- emerging-ftp.rules
- #- emerging-games.rules
- #- emerging-icmp_info.rules
- #- emerging-icmp.rules
- #- emerging-imap.rules
- #- emerging-inappropriate.rules
- #- emerging-malware.rules
- #- emerging-misc.rules
- #- emerging-mobile_malware.rules
- #- emerging-netbios.rules
- #- emerging-p2p.rules
- #- emerging-policy.rules
- #- emerging-pop3.rules
- #- emerging-rpc.rules
- #- emerging-scada.rules
- #- emerging-scan.rules
- #- emerging-shellcode.rules
- #- emerging-smtp.rules
- #- emerging-snmp.rules
- #- emerging-sql.rules
- #- emerging-telnet.rules
- #- emerging-tftp.rules
- #- emerging-trojan.rules
- #- emerging-user_agents.rules
- #- emerging-voip.rules
- #- emerging-web_client.rules
- #- emerging-web_server.rules
- #- emerging-web_specific_apps.rules
- #- emerging-worm.rules
- #- rbn-malvertisers.rules
- #- rbn.rules
- #- tor.rules
+ - botcc.rules
+ - ciarmy.rules
+ - compromised.rules
+ - drop.rules
+ - dshield.rules
+ - emerging-activex.rules
+ - emerging-attack_response.rules
+ - emerging-chat.rules
+ - emerging-current_events.rules
+ - emerging-dns.rules
+ - emerging-dos.rules
+ - emerging-exploit.rules
+ - emerging-ftp.rules
+ - emerging-games.rules
+ - emerging-icmp_info.rules
+# - emerging-icmp.rules
+ - emerging-imap.rules
+ - emerging-inappropriate.rules
+ - emerging-malware.rules
+ - emerging-misc.rules
+ - emerging-mobile_malware.rules
+ - emerging-netbios.rules
+ - emerging-p2p.rules
+ - emerging-policy.rules
+ - emerging-pop3.rules
+ - emerging-rpc.rules
+ - emerging-scada.rules
+ - emerging-scan.rules
+ - emerging-shellcode.rules
+ - emerging-smtp.rules
+ - emerging-snmp.rules
+ - emerging-sql.rules
+ - emerging-telnet.rules
+ - emerging-tftp.rules
+ - emerging-trojan.rules
+ - emerging-user_agents.rules
+ - emerging-voip.rules
+ - emerging-web_client.rules
+ - emerging-web_server.rules
+ - emerging-web_specific_apps.rules
+ - emerging-worm.rules
+ - tor.rules
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
  - smtp-events.rules    # available in suricata sources under rules dir
  - dns-events.rules     # available in suricata sources under rules dir
+ - tls-events.rules     # available in suricata sources under rules dir
 
-#classification-file: /usr/local/etc/suricata/classification.config
-classification-file: classification.config
-#reference-config-file: /usr/local/etc/suricata/reference.config
-reference-config-file: reference.config
+classification-file: /usr/local/etc/suricata/classification.config
+reference-config-file: /usr/local/etc/suricata/reference.config
 
 # Holds variables that would be used by the engine.
 vars:
@@ -1040,67 +1071,51 @@ pcre:
 # "detection-only" enables detection only(parser disabled).
 app-layer:
   protocols:
-    tds:
-      enabled: yes
-      detection-ports:
-        tcp:
-          toserver: 1433
-    mysql:
-      enabled: yes
-      detection-ports:
-        tcp:
-          toserver: 3306
     tls:
       enabled: yes
       detection-ports:
-        tcp:
-          toserver: 1433
-    mysql:
-      enabled: no
-      detection-ports:
-        tcp:
-          toserver: 3306
-    tls:
-      enabled: no
-      detection-ports:
-        tcp:
-          toserver: 443
+        toserver: 443
 
       #no-reassemble: yes
     dcerpc:
-      enabled: no
+      enabled: yes
     ftp:
-      enabled: no
+      enabled: yes
     ssh:
-      enabled: no
+      enabled: yes
     smtp:
-      enabled: no
+      enabled: yes
     imap:
-      #enabled: detection-only
-      enabled: no
+      enabled: detection-only
     msn:
-      #enabled: detection-only
-      enabled: no
+      enabled: detection-only
     smb:
-      enabled: no
+      enabled: yes
       detection-ports:
-        tcp:
-          toserver: 139
+        toserver: 139
     # smb2 detection is disabled internally inside the engine.
     #smb2:
     #  enabled: yes
-    dnstcp:
-       enabled: no
-       detection-ports:
-         tcp:
-           toserver: 53
-    dnsudp:
-       enabled: no
-       detection-ports:
-         udp:
-           toserver: 53
+    dns:
+      # memcaps. Globally and per flow/state.
+      #global-memcap: 16mb
+      #state-memcap: 512kb
+
+      # How many unreplied DNS requests are considered a flood.
+      # If the limit is reached, app-layer-event:dns.flooded; will match.
+      #request-flood: 500
+
+      tcp:
+        enabled: yes
+        detection-ports:
+          toserver: 53
+      udp:
+        enabled: yes
+        detection-ports:
+          toserver: 53
     http:
-      enabled: no
+      enabled: yes
+      # memcap: 64mb
 
       ###########################################################################
       # Configure libhtp.
@@ -1184,32 +1199,36 @@ app-layer:
 
          server-config:
 
-           - apache:
-               address: [192.168.1.0/24, 127.0.0.0/8, "::1"]
-               personality: Apache_2
-               # Can be specified in kb, mb, gb.  Just a number indicates
-               # it's in bytes.
-               request-body-limit: 4096
-               response-body-limit: 4096
-               double-decode-path: no
-               double-decode-query: no
+           #- apache:
+           #    address: [192.168.1.0/24, 127.0.0.0/8, "::1"]
+           #    personality: Apache_2
+           #    # Can be specified in kb, mb, gb.  Just a number indicates
+           #    # it's in bytes.
+           #    request-body-limit: 4096
+           #    response-body-limit: 4096
+           #    double-decode-path: no
+           #    double-decode-query: no
 
-           - iis7:
-               address:
-                 - 192.168.0.0/24
-                 - 192.168.10.0/24
-               personality: IIS_7_0
-               # Can be specified in kb, mb, gb.  Just a number indicates
-               # it's in bytes.
-               request-body-limit: 4096
-               response-body-limit: 4096
-               double-decode-path: no
-               double-decode-query: no
+           #- iis7:
+           #    address:
+           #      - 192.168.0.0/24
+           #      - 192.168.10.0/24
+           #    personality: IIS_7_0
+           #    # Can be specified in kb, mb, gb.  Just a number indicates
+           #    # it's in bytes.
+           #    request-body-limit: 4096
+           #    response-body-limit: 4096
+           #    double-decode-path: no
+           #    double-decode-query: no
 
 # Profiling settings. Only effective if Suricata has been built with the
 # the --enable-profiling configure flag.
 #
 profiling:
+  # Run profiling for every xth packet. The default is 1, which means we
+  # profile every packet. If set to 1000, one packet is profiled for every
+  # 1000 received.
+  #sample-rate: 1000
 
   # rule profiling
   rules:

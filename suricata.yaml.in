@@ -82,6 +82,29 @@ outputs:
       append: yes
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
 
+  # Extensible Event Format (nicknamed EVE) event log in JSON format
+  - eve-log:
+      enabled: yes
+      type: file #file|syslog|unix_dgram|unix_stream
+      filename: eve.json
+      # the following are valid when type: syslog above
+      #identity: "suricata"
+      #facility: local5
+      #level: Info ## possible levels: Emergency, Alert, Critical,
+                   ## Error, Warning, Notice, Info, Debug
+      types:
+        - alert
+        - http:
+            extended: yes     # enable this for extended logging information
+        - dns
+        - tls:
+            extended: yes     # enable this for extended logging information
+        - files:
+            force-magic: no   # force logging magic on all logged files
+            force-md5: no     # force logging of md5 checksums
+        #- drop
+        - ssh
+
   # alert output for use with Barnyard2
   - unified2-alert:
       enabled: yes
@@ -563,7 +586,7 @@ defrag:
 # in bytes.
 
 flow:
-  memcap: 32mb
+  memcap: 64mb
   hash-size: 65536
   prealloc: 10000
   emergency-recovery: 30
@@ -659,18 +682,48 @@ flow-timeouts:
 #                               # a random value between (1 - randomize-chunk-range/100)*randomize-chunk-size
 #                               # and (1 + randomize-chunk-range/100)*randomize-chunk-size. Default value
 #                               # of randomize-chunk-range is 10.
-
+#
+#     raw: yes                  # 'Raw' reassembly enabled or disabled.
+#                               # raw is for content inspection by detection
+#                               # engine.
+#
+#     chunk-prealloc: 250       # Number of preallocated stream chunks. These
+#                               # are used during stream inspection (raw).
+#     segments:                 # Settings for reassembly segment pool.
+#       - size: 4               # Size of the (data)segment for a pool
+#         prealloc: 256         # Number of segments to prealloc and keep
+#                               # in the pool.
+#
 stream:
   memcap: 32mb
   checksum-validation: yes      # reject wrong csums
   inline: auto                  # auto will use inline mode in IPS mode, yes or no set it statically
   reassembly:
-    memcap: 64mb
+    memcap: 128mb
     depth: 1mb                  # reassemble 1mb into a stream
     toserver-chunk-size: 2560
     toclient-chunk-size: 2560
     randomize-chunk-size: yes
     #randomize-chunk-range: 10
+    #raw: yes
+    #chunk-prealloc: 250
+    #segments:
+    #  - size: 4
+    #    prealloc: 256
+    #  - size: 16
+    #    prealloc: 512
+    #  - size: 112
+    #    prealloc: 512
+    #  - size: 248
+    #    prealloc: 512
+    #  - size: 512
+    #    prealloc: 512
+    #  - size: 768
+    #    prealloc: 1024
+    #  - size: 1448
+    #    prealloc: 1024
+    #  - size: 65535
+    #    prealloc: 128
 
 # Host table:
 #
@@ -868,7 +921,7 @@ rule-files:
  - emerging-ftp.rules
  - emerging-games.rules
  - emerging-icmp_info.rules
- - emerging-icmp.rules
+# - emerging-icmp.rules
  - emerging-imap.rules
  - emerging-inappropriate.rules
  - emerging-malware.rules
@@ -894,14 +947,13 @@ rule-files:
  - emerging-web_server.rules
  - emerging-web_specific_apps.rules
  - emerging-worm.rules
- - rbn-malvertisers.rules
- - rbn.rules
  - tor.rules
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
  - smtp-events.rules    # available in suricata sources under rules dir
  - dns-events.rules     # available in suricata sources under rules dir
+ - tls-events.rules     # available in suricata sources under rules dir
 
 classification-file: @e_sysconfdir@classification.config
 reference-config-file: @e_sysconfdir@reference.config
@@ -1019,21 +1071,10 @@ pcre:
 # "detection-only" enables detection only(parser disabled).
 app-layer:
   protocols:
-    tds:
-      enabled: yes
-      detection-ports:
-        tcp:
-          toserver: 1433
-    mysql:
-      enabled: yes
-      detection-ports:
-        tcp:
-          toserver: 3306
     tls:
       enabled: yes
       detection-ports:
-        tcp:
-          toserver: 443
+        toserver: 443
 
       #no-reassemble: yes
     dcerpc:
@@ -1051,23 +1092,30 @@ app-layer:
     smb:
       enabled: yes
       detection-ports:
-        tcp:
-          toserver: 139
+        toserver: 139
     # smb2 detection is disabled internally inside the engine.
     #smb2:
     #  enabled: yes
-    dnstcp:
-       enabled: yes
-       detection-ports:
-         tcp:
-           toserver: 53
-    dnsudp:
-       enabled: yes
-       detection-ports:
-         udp:
-           toserver: 53
+    dns:
+      # memcaps. Globally and per flow/state.
+      #global-memcap: 16mb
+      #state-memcap: 512kb
+
+      # How many unreplied DNS requests are considered a flood.
+      # If the limit is reached, app-layer-event:dns.flooded; will match.
+      #request-flood: 500
+
+      tcp:
+        enabled: yes
+        detection-ports:
+          toserver: 53
+      udp:
+        enabled: yes
+        detection-ports:
+          toserver: 53
     http:
       enabled: yes
+      # memcap: 64mb
 
       ###########################################################################
       # Configure libhtp.
@@ -1151,32 +1199,36 @@ app-layer:
 
          server-config:
 
-           - apache:
-               address: [192.168.1.0/24, 127.0.0.0/8, "::1"]
-               personality: Apache_2
-               # Can be specified in kb, mb, gb.  Just a number indicates
-               # it's in bytes.
-               request-body-limit: 4096
-               response-body-limit: 4096
-               double-decode-path: no
-               double-decode-query: no
+           #- apache:
+           #    address: [192.168.1.0/24, 127.0.0.0/8, "::1"]
+           #    personality: Apache_2
+           #    # Can be specified in kb, mb, gb.  Just a number indicates
+           #    # it's in bytes.
+           #    request-body-limit: 4096
+           #    response-body-limit: 4096
+           #    double-decode-path: no
+           #    double-decode-query: no
 
-           - iis7:
-               address:
-                 - 192.168.0.0/24
-                 - 192.168.10.0/24
-               personality: IIS_7_0
-               # Can be specified in kb, mb, gb.  Just a number indicates
-               # it's in bytes.
-               request-body-limit: 4096
-               response-body-limit: 4096
-               double-decode-path: no
-               double-decode-query: no
+           #- iis7:
+           #    address:
+           #      - 192.168.0.0/24
+           #      - 192.168.10.0/24
+           #    personality: IIS_7_0
+           #    # Can be specified in kb, mb, gb.  Just a number indicates
+           #    # it's in bytes.
+           #    request-body-limit: 4096
+           #    response-body-limit: 4096
+           #    double-decode-path: no
+           #    double-decode-query: no
 
 # Profiling settings. Only effective if Suricata has been built with the
 # the --enable-profiling configure flag.
 #
 profiling:
+  # Run profiling for every xth packet. The default is 1, which means we
+  # profile every packet. If set to 1000, one packet is profiled for every
+  # 1000 received.
+  #sample-rate: 1000
 
   # rule profiling
   rules:

@@ -69,7 +69,7 @@
                 CFLAGS="$CFLAGS -W"
         fi
     fi
-    CFLAGS="$CFLAGS -Wall -fno-strict-aliasing"
+    CFLAGS="$CFLAGS -Wall"
     CFLAGS="$CFLAGS -Wno-unused-parameter"
     CFLAGS="$CFLAGS -std=gnu99"
 
@@ -90,17 +90,6 @@
         echo
         exit 1
     fi
-
-    AC_PATH_PROG(HAVE_COCCINELLE_CONFIG, spatch, "no")
-    if test "$HAVE_COCCINELLE_CONFIG" = "no"; then
-        echo
-        echo "   Warning! spatch not found, you will not be "
-        echo "   able to run code checking with coccinelle  "
-        echo "   get it from http://coccinelle.lip6.fr      "
-        echo "   or install from your distribution          "
-        echo
-    fi
-    AM_CONDITIONAL([HAVE_COCCINELLE], [test "$HAVE_COCCINELLE_CONFIG" != "no"])
 
     AC_PATH_PROG(HAVE_PYTHON_CONFIG, python, "no")
     if test "$HAVE_PYTHON_CONFIG" = "no"; then
@@ -145,12 +134,18 @@
         #endif
     ]])
 
-    AC_CHECK_HEADERS([windows.h winsock2.h ws2tcpip.h], [], [],
-                    [[#define _X86_
+    AC_CHECK_HEADERS([windows.h winsock2.h ws2tcpip.h w32api/wtypes.h], [], [],
+                    [[
+                        #ifndef _X86_
+                        #define _X86_
+                        #endif
                      ]])
     AC_CHECK_HEADERS([w32api/winbase.h], [], [],
-                    [[#define _X86_
-                     #include <windows.h>
+                    [[
+                        #ifndef _X86_
+                        #define _X86_
+                        #endif
+                        #include <windows.h>
                      ]])
 
     # Checks for typedefs, structures, and compiler characteristics.
@@ -189,23 +184,11 @@
             LDFLAGS="${LDFLAGS} -L/usr/local/lib -L/usr/local/lib/libnet11"
             e_magic_file="/usr/share/misc/magic"
             ;;
-        *-*-openbsd5.1)
-            CFLAGS="${CFLAGS} -D__OpenBSD__ -fgnu89-inline"
-            CPPFLAGS="${CPPFLAGS} -I/usr/local/include -I/usr/local/include/libnet-1.1"
-            LDFLAGS="${LDFLAGS} -L/usr/local/lib -I/usr/local/lib/libnet-1.1"
-            e_magic_file="/usr/local/share/misc/magic.mgc"
-            ;;
-        *-*-openbsd5.2)
+        *-*-openbsd*)
             CFLAGS="${CFLAGS} -D__OpenBSD__"
             CPPFLAGS="${CPPFLAGS} -I/usr/local/include -I/usr/local/include/libnet-1.1"
             LDFLAGS="${LDFLAGS} -L/usr/local/lib -I/usr/local/lib/libnet-1.1"
             e_magic_file="/usr/local/share/misc/magic.mgc"
-            ;;
-        *-*-openbsd*)
-            CFLAGS="${CFLAGS} -D__OpenBSD__ -fgnu89-inline"
-            CPPFLAGS="${CPPFLAGS} -I/usr/local/include -I/usr/local/include/libnet-1.1"
-            LDFLAGS="${LDFLAGS} -L/usr/local/lib -I/usr/local/lib/libnet-1.1"
-            e_magic_file="/usr/local/share/file/magic.mgc"
             ;;
         *darwin*|*Darwin*)
             CFLAGS="${CFLAGS} -DOS_DARWIN"
@@ -383,6 +366,29 @@
         CFLAGS="$CFLAGS -DIPFW"
     ])
 
+    AC_ARG_ENABLE(coccinelle,
+           AS_HELP_STRING([--disable-coccinelle], [Disable coccinelle QA steps during make check])],[enable_coccinelle="$enableval"],[enable_coccinelle=yes])
+    AS_IF([test "x$enable_coccinelle" = "xyes"], [
+        AC_PATH_PROG(HAVE_COCCINELLE_CONFIG, spatch, "no")
+        if test "$HAVE_COCCINELLE_CONFIG" = "no"; then
+            echo "   Warning! spatch not found, you will not be "
+            echo "   able to run code checking with coccinelle  "
+            echo "   get it from http://coccinelle.lip6.fr      "
+            echo "   or install from your distribution          "
+            enable_coccinelle=no
+        fi
+    ])
+    AM_CONDITIONAL([HAVE_COCCINELLE], [test "x$enable_coccinelle" != "xno"])
+
+  # disable detection
+    AC_ARG_ENABLE(detection,
+           AS_HELP_STRING([--disable-detection], [Disable Detection Modules])], [enable_detection="$enableval"],[enable_detection=yes])
+    AS_IF([test "x$enable_detection" = "xno"], [
+        AC_DEFINE([HAVE_DETECT_DISABLED], [1], [Detection is disabled])
+    ])
+
+    AM_CONDITIONAL([BUILD_PCIE_LOGGING], [test ! -z "$TILERA_ROOT"])
+
 # libraries
 
     AC_MSG_CHECKING([for Mpipe])
@@ -391,7 +397,7 @@
         [
         AC_MSG_RESULT([yes])
         AC_DEFINE([HAVE_MPIPE],[1],[mPIPE support is available])
-        LDFLAGS="$LDFLAGS -lgxio -ltmc"
+        LDFLAGS="$LDFLAGS -lgxpci -lgxio -ltmc"
         ],
         [AC_MSG_RESULT([no])])
 
@@ -597,7 +603,7 @@
         if test "$JANSSON" = "no"; then
             echo
             echo "   Jansson >= 2.2 is required for features like unix socket"
-            echo "   Go get it from your distribution of from:"
+            echo "   Go get it from your distribution or from:"
             echo "     http://www.digip.org/jansson/"
             echo
 	    if test "x$enable_unixsocket" = "xyes"; then
@@ -622,7 +628,7 @@
         if test "x$enable_unixsocket" = "xyes"; then
             echo
             echo "   Jansson >= 2.2 is required for features like unix socket"
-            echo "   Go get it from your distribution of from:"
+            echo "   Go get it from your distribution or from:"
             echo "     http://www.digip.org/jansson/"
             echo
             exit 1
@@ -766,7 +772,6 @@
     CFLAGS="${CFLAGS} -Wno-error=unused-result"
 
     AS_IF([test "x$enable_prelude" = "xyes"], [
-        CFLAGS="$CFLAGS -DPRELUDE"
         AM_PATH_LIBPRELUDE(0.9.9, , AC_MSG_ERROR(Cannot find libprelude: Is libprelude-config in the path?), no)
         if test "x${LIBPRELUDE_CFLAGS}" != "x"; then
             CPPFLAGS="${CPPFLAGS} ${LIBPRELUDE_CFLAGS}"
@@ -779,6 +784,7 @@
         if test "x${LIBPRELUDE_LIBS}" != "x"; then
             LDFLAGS="${LDFLAGS} ${LIBPRELUDE_LIBS}"
         fi
+        AC_DEFINE([PRELUDE], [1], [Libprelude support enabled])
     ])
     CFLAGS="${STORECFLAGS}"
 
@@ -1612,7 +1618,7 @@ AC_SUBST(e_localstatedir)
 AC_DEFINE_UNQUOTED([CONFIG_DIR],["$e_sysconfdir"],[Our CONFIG_DIR])
 AC_SUBST(e_magic_file)
 
-AC_OUTPUT(Makefile src/Makefile qa/Makefile qa/coccinelle/Makefile rules/Makefile doc/Makefile contrib/Makefile contrib/file_processor/Makefile contrib/file_processor/Action/Makefile contrib/file_processor/Processor/Makefile suricata.yaml scripts/Makefile scripts/suricatasc/Makefile scripts/suricatasc/suricatasc)
+AC_OUTPUT(Makefile src/Makefile qa/Makefile qa/coccinelle/Makefile rules/Makefile doc/Makefile contrib/Makefile contrib/file_processor/Makefile contrib/file_processor/Action/Makefile contrib/file_processor/Processor/Makefile contrib/tile_pcie_logd/Makefile suricata.yaml scripts/Makefile scripts/suricatasc/Makefile scripts/suricatasc/suricatasc)
 
 SURICATA_BUILD_CONF="Suricata Configuration:
   AF_PACKET support:                       ${enable_af_packet}
@@ -1622,6 +1628,7 @@ SURICATA_BUILD_CONF="Suricata Configuration:
   DAG enabled:                             ${enable_dag}
   Napatech enabled:                        ${enable_napatech}
   Unix socket enabled:                     ${enable_unixsocket}
+  Detection enabled:                       ${enable_detection}
 
   libnss support:                          ${enable_nss}
   libnspr support:                         ${enable_nspr}
@@ -1641,6 +1648,7 @@ SURICATA_BUILD_CONF="Suricata Configuration:
   Debug validation enabled:                ${enable_debug_validation}
   Profiling enabled:                       ${enable_profiling}
   Profiling locks enabled:                 ${enable_profiling_locks}
+  Coccinelle / spatch:                     ${enable_coccinelle}
 
 Generic build parameters:
   Installation prefix (--prefix):          ${prefix}
