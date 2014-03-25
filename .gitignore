@@ -36,3 +36,5 @@ src/suricata
 stamp-h1
 src/build-info.h
 qa/log/
+Makefile
+tags
