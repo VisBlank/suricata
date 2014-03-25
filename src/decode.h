@@ -83,8 +83,15 @@ enum PktSrcEnum {
 
 #include "app-layer-protos.h"
 
-/* forward declaration */
+/* forward declarations */
 struct DetectionEngineThreadCtx_;
+typedef struct AppLayerThreadCtx_ AppLayerThreadCtx;
+
+/* declare these here as they are called from the
+ * PACKET_RECYCLE and PACKET_CLEANUP macro's. */
+typedef struct AppLayerDecoderEvents_ AppLayerDecoderEvents;
+void AppLayerDecoderEventsResetEvents(AppLayerDecoderEvents *events);
+void AppLayerDecoderEventsFreeEvents(AppLayerDecoderEvents **events);
 
 /* Address */
 typedef struct Address_ {
@@ -519,7 +526,7 @@ typedef struct Packet_
 
 
 #ifdef PROFILING
-    PktProfiling profile;
+    PktProfiling *profile;
 #endif
 #ifdef __SC_CUDA_SUPPORT__
     CudaPacketVars cuda_pkt_vars;
@@ -548,35 +555,11 @@ typedef struct PacketQueue_ {
     SCCondT cond_q;
 } PacketQueue;
 
-/** \brief Specific ctx for AL proto detection */
-typedef struct AlpProtoDetectDirectionThread_ {
-    MpmThreadCtx mpm_ctx;
-    PatternMatcherQueue pmq;
-} AlpProtoDetectDirectionThread;
-
-/** \brief Specific ctx for AL proto detection */
-typedef struct AlpProtoDetectThreadCtx_ {
-    AlpProtoDetectDirectionThread toserver;
-    AlpProtoDetectDirectionThread toclient;
-
-    void *alproto_local_storage[ALPROTO_MAX];
-
-#ifdef PROFILING
-    uint64_t ticks_start;
-    uint64_t ticks_end;
-    uint64_t ticks_spent;
-    uint16_t alproto;
-    uint64_t proto_detect_ticks_start;
-    uint64_t proto_detect_ticks_end;
-    uint64_t proto_detect_ticks_spent;
-#endif
-} AlpProtoDetectThreadCtx;
-
 /** \brief Structure to hold thread specific data for all decode modules */
 typedef struct DecodeThreadVars_
 {
     /** Specific context for udp protocol detection (here atm) */
-    AlpProtoDetectThreadCtx udp_dp_ctx;
+    AppLayerThreadCtx *app_tctx;
 
     int vlan_disabled;
 
@@ -597,6 +580,7 @@ typedef struct DecodeThreadVars_
     uint16_t counter_ppp;
     uint16_t counter_gre;
     uint16_t counter_vlan;
+    uint16_t counter_vlan_qinq;
     uint16_t counter_pppoe;
     uint16_t counter_teredo;
     uint16_t counter_ipv4inipv6;
@@ -734,7 +718,8 @@ typedef struct DecodeThreadVars_
             PktVarFree((p)->pktvar);            \
         }                                       \
         SCMutexDestroy(&(p)->tunnel_mutex);     \
-        AppLayerDecoderEventsFreeEvents((p)->app_layer_events); \
+        AppLayerDecoderEventsFreeEvents(&(p)->app_layer_events); \
+        PACKET_PROFILING_RESET((p));            \
     } while (0)
 
 
@@ -822,7 +807,7 @@ int PacketSetData(Packet *p, uint8_t *pktdata, int pktlen);
 int PacketCopyDataOffset(Packet *p, int offset, uint8_t *data, int datalen);
 const char *PktSrcToString(enum PktSrcEnum pkt_src);
 
-DecodeThreadVars *DecodeThreadVarsAlloc();
+DecodeThreadVars *DecodeThreadVarsAlloc(ThreadVars *);
 
 /* decoder functions */
 int DecodeEthernet(ThreadVars *, DecodeThreadVars *, Packet *, uint8_t *, uint16_t, PacketQueue *);
@@ -952,6 +937,7 @@ void AddressDebugPrint(Address *);
 
 #define PKT_IS_FRAGMENT                 (1<<19)     /**< Packet is a fragment */
 #define PKT_IS_INVALID                  (1<<20)
+#define PKT_PROFILE                     (1<<21)
 
 /** \brief return 1 if the packet is a pseudo packet */
 #define PKT_IS_PSEUDOPKT(p) ((p)->flags & PKT_PSEUDO_STREAM_END)

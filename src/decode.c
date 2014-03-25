@@ -54,12 +54,14 @@
 #include "util-debug.h"
 #include "util-mem.h"
 #include "app-layer-detect-proto.h"
+#include "app-layer.h"
 #include "tm-threads.h"
 #include "util-error.h"
 #include "util-print.h"
 #include "tmqh-packetpool.h"
 #include "util-profiling.h"
 #include "pkt-var.h"
+#include "util-mpm-ac.h"
 
 int DecodeTunnel(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p,
         uint8_t *pkt, uint16_t len, PacketQueue *pq, uint8_t proto)
@@ -329,6 +331,9 @@ Packet *PacketDefragPktSetup(Packet *parent, uint8_t *pkt, uint16_t len, uint8_t
     p->datalink = DLT_RAW;
     /* tell new packet it's part of a tunnel */
     SET_TUNNEL_PKT(p);
+    p->vlan_id[0] = parent->vlan_id[0];
+    p->vlan_id[1] = parent->vlan_id[1];
+    p->vlan_idx = parent->vlan_idx;
 
     SCReturnPtr(p, "Packet");
 }
@@ -387,6 +392,8 @@ void DecodeRegisterPerfCounters(DecodeThreadVars *dtv, ThreadVars *tv)
     dtv->counter_gre = SCPerfTVRegisterCounter("decoder.gre", tv,
                                                SC_PERF_TYPE_UINT64, "NULL");
     dtv->counter_vlan = SCPerfTVRegisterCounter("decoder.vlan", tv,
+                                               SC_PERF_TYPE_UINT64, "NULL");
+    dtv->counter_vlan_qinq = SCPerfTVRegisterCounter("decoder.vlan_qinq", tv,
                                                SC_PERF_TYPE_UINT64, "NULL");
     dtv->counter_teredo = SCPerfTVRegisterCounter("decoder.teredo", tv,
                                                SC_PERF_TYPE_UINT64, "NULL");
@@ -448,18 +455,15 @@ void AddressDebugPrint(Address *a)
 }
 
 /** \brief Alloc and setup DecodeThreadVars */
-DecodeThreadVars *DecodeThreadVarsAlloc()
+DecodeThreadVars *DecodeThreadVarsAlloc(ThreadVars *tv)
 {
-
     DecodeThreadVars *dtv = NULL;
 
     if ( (dtv = SCMalloc(sizeof(DecodeThreadVars))) == NULL)
         return NULL;
-
     memset(dtv, 0, sizeof(DecodeThreadVars));
 
-    /* initialize UDP app layer code */
-    AlpProtoFinalize2Thread(&dtv->udp_dp_ctx);
+    dtv->app_tctx = AppLayerGetCtxThread(tv);
 
     /** set config defaults */
     int vlanbool = 0;
