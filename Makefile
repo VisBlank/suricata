@@ -80,9 +80,10 @@ host_triplet = i686-pc-linux-gnu
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in $(srcdir)/suricata.yaml.in COPYING \
-	ChangeLog config.guess config.rpath config.sub depcomp \
-	install-sh missing ltmain.sh
+	$(srcdir)/config.h.in $(srcdir)/suricata.yaml.in \
+	$(top_srcdir)/scripts/Makefile.in COPYING ChangeLog \
+	config.guess config.rpath config.sub depcomp install-sh \
+	missing ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libprelude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
@@ -94,7 +95,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES = suricata.yaml
+CONFIG_CLEAN_FILES = suricata.yaml scripts/Makefile
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -202,10 +203,10 @@ AR = ar
 AUTOCONF = ${SHELL} /home/coanor/git/suricata/missing autoconf
 AUTOHEADER = ${SHELL} /home/coanor/git/suricata/missing autoheader
 AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing automake-1.13
-AWK = mawk
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="dc6080c"
+CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="0762361"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo
@@ -423,6 +424,8 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 distclean-hdr:
 	-rm -f config.h stamp-h1
 suricata.yaml: $(top_builddir)/config.status $(srcdir)/suricata.yaml.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+scripts/Makefile: $(top_builddir)/config.status $(top_srcdir)/scripts/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:

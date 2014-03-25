@@ -304,7 +304,7 @@ static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)
 }
 
 int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
-        uint8_t *input, uint32_t input_len, void *local_data, AppLayerParserResult *output) {
+        uint8_t *input, uint32_t input_len, void *local_data) {
     MysqlState *state = (MysqlState *)alstate;
     SCEnter();
 
@@ -325,7 +325,7 @@ int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
 
 int MysqlParseServerRecord(Flow *f, void *mysql_state,
         AppLayerParserState *pstate, uint8_t *input,
-        uint32_t input_len, void *local_data, AppLayerParserResult *output) {
+        uint32_t input_len, void *local_data) {
     MysqlState *state = (MysqlState *)mysql_state;
     SCEnter();
 
