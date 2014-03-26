@@ -173,9 +173,9 @@ AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing automake-1.13
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="c102aae"
+CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="58420e8"
 CPP = gcc -std=gnu99 -E
-CPPFLAGS = -I/usr/local/include/htp 
+CPPFLAGS = -I/usr/local/include/htp  -I/usr/local/include
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -205,7 +205,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld
-LDFLAGS =  -L/usr/local/lib
+LDFLAGS =   -L/usr/local/lib -L/usr/local/lib
 LIBHTPDEVVERSION_CFLAGS = 
 LIBHTPDEVVERSION_LIBS = 
 LIBHTPMINVERSION_CFLAGS = -I/usr/local/include/htp -I/usr/local/lib/htp/include  
@@ -218,7 +218,7 @@ LIBPRELUDE_LDFLAGS =
 LIBPRELUDE_LIBS = 
 LIBPRELUDE_PREFIX = 
 LIBPRELUDE_PTHREAD_CFLAGS = 
-LIBS = -lmagic -lcap-ng -lhtp -lpcap -lnet -lnetfilter_queue -lnfnetlink -lpthread -lyaml -lpcre 
+LIBS = -lmagic -lcap-ng -lhtp -lpcap -lnet -lnetfilter_queue -lnfnetlink -ljansson -lpthread -lyaml -lpcre 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
