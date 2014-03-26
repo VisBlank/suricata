@@ -22,6 +22,7 @@ static uint16_t TDSProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset
 }
 
 void RegisterTDSParsers(void) {
+#if 0
     char *proto_name = "tds";
     if (AppLayerProtoDetectionEnabled(proto_name)) {
         if (RunmodeIsUnittests()) {
@@ -49,7 +50,7 @@ void RegisterTDSParsers(void) {
 #ifdef UNITTESTS
     AppLayerParserRegisterUnittests(ALPROTO_TDS, TDSParserRegisterTests);
 #endif
-
+#endif
     return;
 }
 

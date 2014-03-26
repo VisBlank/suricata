@@ -158,11 +158,11 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
         SCReturnInt(TM_ECODE_OK);
 
     FLOWLOCK_WRLOCK(p->flow); /* write lock before update flow log id */
-    uint16_t proto = AppLayerGetProtoFromPacket(p);
+    uint16_t proto = FlowGetAppProtocol(p->flow);
     if (proto != ALPROTO_MYSQL)
         goto end;
 
-    s = (MysqlState *)AppLayerGetProtoStateFromPacket(p);
+    s = (MysqlState *)FlowGetAppState(p->flow);
     if (s == NULL) {
         SCLogDebug("no mysql state, so no request logging");
         goto end;
@@ -205,7 +205,7 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
     }
 
     uint8_t *json_sql;
-    uint8_t *sql = s->cur_tx->cmd.sql;
+    uint8_t *sql = (uint8_t *)s->cur_tx->cmd.sql;
     if (sql == NULL)
         json_sql = NULL;
     else
@@ -227,7 +227,6 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
     (void)MemBufferPrintToFPAsString(mlt->buffer, mlt->file_ctx->fp);
     fflush(mlt->file_ctx->fp);
     SCMutexUnlock(&mlt->file_ctx->fp_mutex);
-    AppLayerTransactionUpdateLogId(p->flow);
 
     if (json_sql)
         SCFree(json_sql);
