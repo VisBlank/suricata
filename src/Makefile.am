@@ -16,8 +16,6 @@ alert-unified2-alert.c alert-unified2-alert.h \
 app-layer.c app-layer.h \
 app-layer-mysql-common.c app-layer-mysql-common.h \
 app-layer-mysql.c app-layer-mysql.h \
-log-mysqllog.c log-mysqllog.h \
-log-tdslog.c log-tdslog.h \
 app-layer-dcerpc.c app-layer-dcerpc.h \
 app-layer-dcerpc-udp.c app-layer-dcerpc-udp.h \
 app-layer-detect-proto.c app-layer-detect-proto.h \
@@ -41,6 +39,8 @@ app-layer-ssl.c app-layer-ssl.h \
 app-layer-tls-handshake.c app-layer-tls-handshake.h \
 app-layer-tds-common.c app-layer-tds-common.h \
 app-layer-tds.c app-layer-tds.h \
+app-layer-tns.c app-layer-tns.h \
+app-layer-drda.c app-layer-drda.h \
 conf.c conf.h \
 conf-yaml-loader.c conf-yaml-loader.h \
 counters.c counters.h \
@@ -231,6 +231,7 @@ output-json-file.c output-json-file.h \
 output-json-http.c output-json-http.h \
 output-json-ssh.c output-json-ssh.h \
 output-json-tls.c output-json-tls.h \
+output-json-db.c output-json-db.h \
 output-packet.c output-packet.h \
 output-tx.c output-tx.h \
 output-json.c output-json.h \
@@ -377,6 +378,10 @@ util-json.h util-json.c \
 win32-misc.c win32-misc.h \
 win32-service.c win32-service.h \
 win32-syslog.h
+
+# unused source code
+#log-mysqllog.c log-mysqllog.h
+#log-tdslog.c log-tdslog.h
 
 EXTRA_DIST = util-mpm-ac-cuda-kernel.cu ptxdump.py
 

@@ -9,6 +9,7 @@
 #include "app-layer-tns.h"
 
 static uint16_t TNSProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset) {
+#if 0
     if (ilen == 0 || ilen < sizeof(TNSPktHeader)) {
         return ALPROTO_UNKNOWN;
     }
@@ -17,10 +18,12 @@ static uint16_t TNSProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset
         return ALPROTO_FAILED;
     }
 
+#endif
     return ALPROTO_TDS;
 }
 
 void RegisterTNSParsers(void) {
+#if 0
     char *proto_name = "tns";
     if (AppLayerProtoDetectionEnabled(proto_name)) {
         if (RunmodeIsUnittests()) {
@@ -49,7 +52,7 @@ void RegisterTNSParsers(void) {
 #ifdef UNITTESTS
     AppLayerParserRegisterUnittests(ALPROTO_TNS, TNSParserRegisterTests);
 #endif
-
+#endif
     return;
 }
 

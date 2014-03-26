@@ -12,6 +12,14 @@ void TDSStateFree(void *ms);
 void *TDSStateAlloc(void);
 const uint8_t *TDSCmdStr(size_t cmd);
 
+int TDSParseClientRecord(Flow *f, void *alstate,
+        AppLayerParserState *pstate, uint8_t *input,
+        uint32_t input_len, void *local_data);
+
+int TDSParseServerRecord(Flow *f, void *alstate,
+        AppLayerParserState *pstate, uint8_t *input,
+        uint32_t input_len, void *local_data);
+
 enum pkt_status {
     /* bit 0~4 */
     END_OF_MSG = 1,

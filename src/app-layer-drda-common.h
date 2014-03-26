@@ -18,14 +18,12 @@ typedef struct DRDAClient_ {
 int DRDAParseClientRecord(Flow *f,
         void *alstate,
         AppLayerParserState *alps, uint8_t *in,
-        uint32_t in_len, void *local_data,
-        AppLayerParserResult *out);
+        uint32_t in_len, void *local_data);
 
 int DRDAParseServerRecord(Flow *f,
         void *alstate,
         AppLayerParserState *alps, uint8_t *in,
-        uint32_t in_len, void *local_data,
-        AppLayerParserResult *out);
+        uint32_t in_len, void *local_data);
 void DRDAStateFree(void *ds);
 void *DRDAStateAlloc(void);
 #endif

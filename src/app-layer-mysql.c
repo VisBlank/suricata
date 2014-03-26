@@ -35,8 +35,7 @@ void RegisterMysqlParsers(void) {
                     STREAM_TOSERVER, MysqlProbingParser);
         } else {
 			int have_cfg = AppLayerProtoDetectPPParseConfPorts("tcp", IPPROTO_TCP,
-					proto_name, ALPROTO_MYSQL, 0,
-					sizeof(MysqlPktHeader), MysqlProbingParser);
+					proto_name, ALPROTO_MYSQL, 0, sizeof(MysqlPktHeader), MysqlProbingParser);
 
 			/* if not configured, enable the default 3306 port */
 			if (!have_cfg) {

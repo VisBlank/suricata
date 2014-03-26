@@ -100,8 +100,7 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	alert-pcapinfo.$(OBJEXT) alert-prelude.$(OBJEXT) \
 	alert-syslog.$(OBJEXT) alert-unified2-alert.$(OBJEXT) \
 	app-layer.$(OBJEXT) app-layer-mysql-common.$(OBJEXT) \
-	app-layer-mysql.$(OBJEXT) log-mysqllog.$(OBJEXT) \
-	log-tdslog.$(OBJEXT) app-layer-dcerpc.$(OBJEXT) \
+	app-layer-mysql.$(OBJEXT) app-layer-dcerpc.$(OBJEXT) \
 	app-layer-dcerpc-udp.$(OBJEXT) \
 	app-layer-detect-proto.$(OBJEXT) \
 	app-layer-dns-common.$(OBJEXT) app-layer-dns-tcp.$(OBJEXT) \
@@ -114,6 +113,7 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	app-layer-smtp.$(OBJEXT) app-layer-ssh.$(OBJEXT) \
 	app-layer-ssl.$(OBJEXT) app-layer-tls-handshake.$(OBJEXT) \
 	app-layer-tds-common.$(OBJEXT) app-layer-tds.$(OBJEXT) \
+	app-layer-tns.$(OBJEXT) app-layer-drda.$(OBJEXT) \
 	conf.$(OBJEXT) conf-yaml-loader.$(OBJEXT) counters.$(OBJEXT) \
 	data-queue.$(OBJEXT) decode.$(OBJEXT) \
 	decode-ethernet.$(OBJEXT) decode-events.$(OBJEXT) \
@@ -209,22 +209,23 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	output-json-alert.$(OBJEXT) output-json-dns.$(OBJEXT) \
 	output-json-drop.$(OBJEXT) output-json-file.$(OBJEXT) \
 	output-json-http.$(OBJEXT) output-json-ssh.$(OBJEXT) \
-	output-json-tls.$(OBJEXT) output-packet.$(OBJEXT) \
-	output-tx.$(OBJEXT) output-json.$(OBJEXT) \
-	packet-queue.$(OBJEXT) pkt-var.$(OBJEXT) reputation.$(OBJEXT) \
-	respond-reject.$(OBJEXT) respond-reject-libnet11.$(OBJEXT) \
-	runmode-af-packet.$(OBJEXT) runmode-erf-dag.$(OBJEXT) \
-	runmode-erf-file.$(OBJEXT) runmode-ipfw.$(OBJEXT) \
-	runmode-napatech.$(OBJEXT) runmode-nfq.$(OBJEXT) \
-	runmode-pcap.$(OBJEXT) runmode-pcap-file.$(OBJEXT) \
-	runmode-pfring.$(OBJEXT) runmode-unittests.$(OBJEXT) \
-	runmode-unix-socket.$(OBJEXT) runmode-tile.$(OBJEXT) \
-	runmodes.$(OBJEXT) source-af-packet.$(OBJEXT) \
-	source-erf-dag.$(OBJEXT) source-erf-file.$(OBJEXT) \
-	source-ipfw.$(OBJEXT) source-mpipe.$(OBJEXT) \
-	source-napatech.$(OBJEXT) source-nfq.$(OBJEXT) \
-	source-pcap.$(OBJEXT) source-pcap-file.$(OBJEXT) \
-	source-pfring.$(OBJEXT) stream.$(OBJEXT) stream-tcp.$(OBJEXT) \
+	output-json-tls.$(OBJEXT) output-json-db.$(OBJEXT) \
+	output-packet.$(OBJEXT) output-tx.$(OBJEXT) \
+	output-json.$(OBJEXT) packet-queue.$(OBJEXT) pkt-var.$(OBJEXT) \
+	reputation.$(OBJEXT) respond-reject.$(OBJEXT) \
+	respond-reject-libnet11.$(OBJEXT) runmode-af-packet.$(OBJEXT) \
+	runmode-erf-dag.$(OBJEXT) runmode-erf-file.$(OBJEXT) \
+	runmode-ipfw.$(OBJEXT) runmode-napatech.$(OBJEXT) \
+	runmode-nfq.$(OBJEXT) runmode-pcap.$(OBJEXT) \
+	runmode-pcap-file.$(OBJEXT) runmode-pfring.$(OBJEXT) \
+	runmode-unittests.$(OBJEXT) runmode-unix-socket.$(OBJEXT) \
+	runmode-tile.$(OBJEXT) runmodes.$(OBJEXT) \
+	source-af-packet.$(OBJEXT) source-erf-dag.$(OBJEXT) \
+	source-erf-file.$(OBJEXT) source-ipfw.$(OBJEXT) \
+	source-mpipe.$(OBJEXT) source-napatech.$(OBJEXT) \
+	source-nfq.$(OBJEXT) source-pcap.$(OBJEXT) \
+	source-pcap-file.$(OBJEXT) source-pfring.$(OBJEXT) \
+	stream.$(OBJEXT) stream-tcp.$(OBJEXT) \
 	stream-tcp-inline.$(OBJEXT) stream-tcp-reassemble.$(OBJEXT) \
 	stream-tcp-sack.$(OBJEXT) stream-tcp-util.$(OBJEXT) \
 	suricata.$(OBJEXT) threads.$(OBJEXT) tm-modules.$(OBJEXT) \
@@ -358,7 +359,7 @@ AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing automake-1.13
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="58420e8"
+CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="9d0c6c4"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp  -I/usr/local/include
 CYGPATH_W = echo
@@ -528,8 +529,6 @@ alert-unified2-alert.c alert-unified2-alert.h \
 app-layer.c app-layer.h \
 app-layer-mysql-common.c app-layer-mysql-common.h \
 app-layer-mysql.c app-layer-mysql.h \
-log-mysqllog.c log-mysqllog.h \
-log-tdslog.c log-tdslog.h \
 app-layer-dcerpc.c app-layer-dcerpc.h \
 app-layer-dcerpc-udp.c app-layer-dcerpc-udp.h \
 app-layer-detect-proto.c app-layer-detect-proto.h \
@@ -553,6 +552,8 @@ app-layer-ssl.c app-layer-ssl.h \
 app-layer-tls-handshake.c app-layer-tls-handshake.h \
 app-layer-tds-common.c app-layer-tds-common.h \
 app-layer-tds.c app-layer-tds.h \
+app-layer-tns.c app-layer-tns.h \
+app-layer-drda.c app-layer-drda.h \
 conf.c conf.h \
 conf-yaml-loader.c conf-yaml-loader.h \
 counters.c counters.h \
@@ -743,6 +744,7 @@ output-json-file.c output-json-file.h \
 output-json-http.c output-json-http.h \
 output-json-ssh.c output-json-ssh.h \
 output-json-tls.c output-json-tls.h \
+output-json-db.c output-json-db.h \
 output-packet.c output-packet.h \
 output-tx.c output-tx.h \
 output-json.c output-json.h \
@@ -890,6 +892,10 @@ win32-misc.c win32-misc.h \
 win32-service.c win32-service.h \
 win32-syslog.h
 
+
+# unused source code
+#log-mysqllog.c log-mysqllog.h
+#log-tdslog.c log-tdslog.h
 EXTRA_DIST = util-mpm-ac-cuda-kernel.cu ptxdump.py
 
 # set the include path found by configure
@@ -1034,6 +1040,7 @@ include ./$(DEPDIR)/app-layer-detect-proto.Po
 include ./$(DEPDIR)/app-layer-dns-common.Po
 include ./$(DEPDIR)/app-layer-dns-tcp.Po
 include ./$(DEPDIR)/app-layer-dns-udp.Po
+include ./$(DEPDIR)/app-layer-drda.Po
 include ./$(DEPDIR)/app-layer-events.Po
 include ./$(DEPDIR)/app-layer-ftp.Po
 include ./$(DEPDIR)/app-layer-htp-body.Po
@@ -1053,6 +1060,7 @@ include ./$(DEPDIR)/app-layer-ssl.Po
 include ./$(DEPDIR)/app-layer-tds-common.Po
 include ./$(DEPDIR)/app-layer-tds.Po
 include ./$(DEPDIR)/app-layer-tls-handshake.Po
+include ./$(DEPDIR)/app-layer-tns.Po
 include ./$(DEPDIR)/app-layer.Po
 include ./$(DEPDIR)/conf-yaml-loader.Po
 include ./$(DEPDIR)/conf.Po
@@ -1232,13 +1240,12 @@ include ./$(DEPDIR)/log-droplog.Po
 include ./$(DEPDIR)/log-file.Po
 include ./$(DEPDIR)/log-filestore.Po
 include ./$(DEPDIR)/log-httplog.Po
-include ./$(DEPDIR)/log-mysqllog.Po
 include ./$(DEPDIR)/log-pcap.Po
-include ./$(DEPDIR)/log-tdslog.Po
 include ./$(DEPDIR)/log-tlslog.Po
 include ./$(DEPDIR)/output-file.Po
 include ./$(DEPDIR)/output-filedata.Po
 include ./$(DEPDIR)/output-json-alert.Po
+include ./$(DEPDIR)/output-json-db.Po
 include ./$(DEPDIR)/output-json-dns.Po
 include ./$(DEPDIR)/output-json-drop.Po
 include ./$(DEPDIR)/output-json-file.Po

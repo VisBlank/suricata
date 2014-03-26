@@ -277,6 +277,8 @@ typedef enum {
     SC_ERR_PCIE_INIT_FAILED,
 
 	SC_ERR_MYSQL_CONFIG,
+	SC_ERR_TDS_CONFIG,
+	SC_ERR_JONS_LOG_GENERIC,
 } SCError;
 
 const char *SCErrorToString(SCError);

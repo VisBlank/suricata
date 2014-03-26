@@ -8,6 +8,7 @@
 #include "suricata-common.h"
 #include "app-layer-tds-common.h"
 #include "app-layer-tds.h"
+#include "stream.h"
 
 static uint16_t TDSProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset) {
     if (ilen == 0 || ilen < sizeof(TDSPktHeader)) {
@@ -22,34 +23,40 @@ static uint16_t TDSProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset
 }
 
 void RegisterTDSParsers(void) {
-#if 0
     char *proto_name = "tds";
-    if (AppLayerProtoDetectionEnabled(proto_name)) {
+    if (AppLayerProtoDetectConfProtoDetectionEnabled("tcp", proto_name)) {
+		AppLayerProtoDetectRegisterProtocol(ALPROTO_TDS, proto_name);
+
         if (RunmodeIsUnittests()) {
-            AppLayerRegisterProbingParser(&alp_proto_ctx,
-                    IPPROTO_TCP, "1433", proto_name,
-                    ALPROTO_TDS, 0, sizeof(TDSPktHeader),
+            AppLayerProtoDetectPPRegister(IPPROTO_TCP, "1433",
+					ALPROTO_TDS, 0, sizeof(TDSPktHeader),
                     STREAM_TOSERVER, TDSProbingParser);
         } else {
-            AppLayerParseProbingParserPorts(proto_name, ALPROTO_TDS, 0,
-                    sizeof(TDSPktHeader), TDSProbingParser);
+			int have_cfg = AppLayerProtoDetectPPParseConfPorts("tcp", IPPROTO_TCP,
+					proto_name, ALPROTO_TDS, 0, sizeof(TDSPktHeader), TDSProbingParser);
+			if (!have_cfg) {
+				SCLogWarning(SC_ERR_TDS_CONFIG, "no TDS(MSSQL) config found, "
+						"enabling TDS detection on port 1433");
+				AppLayerProtoDetectPPRegister(IPPROTO_TCP, "1433", ALPROTO_TDS, 0,
+						sizeof(TDSPktHeader), STREAM_TOSERVER, TDSProbingParser);
+			}
         }
 
-        AppLayerRegisterParserAcceptableDataDirection(ALPROTO_TDS, STREAM_TOSERVER | STREAM_TOCLIENT);
+		AppLayerParserRegisterParserAcceptableDataDirection(IPPROTO_TCP, ALPROTO_TDS,
+				STREAM_TOSERVER | STREAM_TOCLIENT);
     } else {
         SCLogInfo("Protocol detection and parser disabled for %s protocol", proto_name);
         return;
     }
 
-    if (AppLayerParserEnabled(proto_name)) {
-        AppLayerRegisterProto(proto_name, ALPROTO_TDS, STREAM_TOSERVER, TDSParseClientRecord);
-        AppLayerRegisterProto(proto_name, ALPROTO_TDS, STREAM_TOCLIENT, TDSParseServerRecord);
-        AppLayerRegisterStateFuncs(ALPROTO_TDS, TDSStateAlloc, TDSStateFree);
+    if (AppLayerParserConfParserEnabled("tcp", proto_name)) {
+        AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_TDS, STREAM_TOSERVER, TDSParseClientRecord);
+        AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_TDS, STREAM_TOCLIENT, TDSParseServerRecord);
+        AppLayerParserRegisterStateFuncs(IPPROTO_TCP, ALPROTO_TDS, TDSStateAlloc, TDSStateFree);
     }
 
 #ifdef UNITTESTS
     AppLayerParserRegisterUnittests(ALPROTO_TDS, TDSParserRegisterTests);
-#endif
 #endif
     return;
 }

@@ -18,6 +18,7 @@ static uint16_t DRDAProbingParser(uint8_t *in, uint32_t len,
 }
 
 void RegisterDRDAParsers(void) {
+#if 0
     char *proto_name = "drda";
     static const int drda_hdr_len = 0; /* FIXME */
     if (AppLayerProtoDetectionEnabled(proto_name)) {
@@ -47,7 +48,7 @@ void RegisterDRDAParsers(void) {
 #ifdef UNITTESTS
     AppLayerParserRegisterUnittests(ALPROTO_DRDA, DRDAParserRegisterTests);
 #endif
-
+#endif
     return;
 }
 

@@ -182,7 +182,6 @@ TmEcode LogTDSLogIPWrapper(ThreadVars *tv, Packet *p,
     
     char timebuf[64];
     char srcip[46], dstip[46];
-    Port sp = 0, dp = 0;
 
     CreateTimeString(&p->ts, timebuf, sizeof(timebuf));
     if ((PKT_IS_TOSERVER(p))) {
@@ -198,8 +197,6 @@ TmEcode LogTDSLogIPWrapper(ThreadVars *tv, Packet *p,
             default:
                 goto end;
         }
-        sp = p->sp;
-        dp = p->dp;
     } else {
         goto end; /* do not log server response */
 #if 0
