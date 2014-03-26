@@ -60,7 +60,10 @@ int DecodeVLAN(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p, uint8_t *pkt, u
 {
     uint32_t proto;
 
-    SCPerfCounterIncr(dtv->counter_vlan, tv->sc_perf_pca);
+    if (p->vlan_idx == 0)
+        SCPerfCounterIncr(dtv->counter_vlan, tv->sc_perf_pca);
+    else if (p->vlan_idx == 1)
+        SCPerfCounterIncr(dtv->counter_vlan_qinq, tv->sc_perf_pca);
 
     if(len < VLAN_HEADER_LEN)    {
         ENGINE_SET_INVALID_EVENT(p, VLAN_HEADER_TOO_SMALL);
@@ -105,6 +108,7 @@ int DecodeVLAN(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p, uint8_t *pkt, u
                                  len - VLAN_HEADER_LEN, pq);
             break;
         case ETHERNET_TYPE_VLAN:
+        case ETHERNET_TYPE_8021AD:
             if (p->vlan_idx >= 2) {
                 ENGINE_SET_EVENT(p,VLAN_HEADER_TOO_MANY_LAYERS);
                 return TM_ECODE_OK;
@@ -120,6 +124,19 @@ int DecodeVLAN(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p, uint8_t *pkt, u
     }
 
     return TM_ECODE_OK;
+}
+
+uint16_t DecodeVLANGetId(const Packet *p, uint8_t layer)
+{
+    if (unlikely(layer > 1))
+        return 0;
+
+    if (p->vlanh[layer] == NULL && (p->vlan_idx >= (layer + 1))) {
+        return p->vlan_id[layer];
+    } else {
+        return GET_VLAN_ID(p->vlanh[layer]);
+    }
+    return 0;
 }
 
 #ifdef UNITTESTS

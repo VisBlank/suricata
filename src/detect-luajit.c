@@ -71,6 +71,7 @@ static int DetectLuajitSetupNoSupport (DetectEngineCtx *a, Signature *b, char *c
  */
 void DetectLuajitRegister(void) {
     sigmatch_table[DETECT_LUAJIT].name = "luajit";
+    sigmatch_table[DETECT_LUAJIT].alias = "lua";
     sigmatch_table[DETECT_LUAJIT].Setup = DetectLuajitSetupNoSupport;
     sigmatch_table[DETECT_LUAJIT].Free  = NULL;
     sigmatch_table[DETECT_LUAJIT].RegisterTests = NULL;
@@ -95,6 +96,7 @@ static void DetectLuajitFree(void *);
  */
 void DetectLuajitRegister(void) {
     sigmatch_table[DETECT_LUAJIT].name = "luajit";
+    sigmatch_table[DETECT_LUAJIT].alias = "lua";
     sigmatch_table[DETECT_LUAJIT].desc = "match via a luajit script";
     sigmatch_table[DETECT_LUAJIT].url = "https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Lua_scripting";
     sigmatch_table[DETECT_LUAJIT].Match = DetectLuajitMatch;
@@ -408,10 +410,11 @@ static int DetectLuajitMatch (ThreadVars *tv, DetectEngineThreadCtx *det_ctx,
         HtpState *htp_state = p->flow->alstate;
         if (htp_state != NULL && htp_state->connp != NULL) {
             htp_tx_t *tx = NULL;
-            uint64_t idx = AppLayerTransactionGetInspectId(p->flow, 0);
-            uint64_t total_txs= AppLayerGetTxCnt(ALPROTO_HTTP, htp_state);
+            uint64_t idx = AppLayerParserGetTransactionInspectId(p->flow->alparser,
+                                                                 STREAM_TOSERVER);
+            uint64_t total_txs= AppLayerParserGetTxCnt(IPPROTO_TCP, ALPROTO_HTTP, htp_state);
             for ( ; idx < total_txs; idx++) {
-                tx = AppLayerGetTx(ALPROTO_HTTP, htp_state, idx);
+                tx = AppLayerParserGetTx(IPPROTO_TCP, ALPROTO_HTTP, htp_state, idx);
                 if (tx == NULL)
                     continue;
 
@@ -878,7 +881,7 @@ static int DetectLuajitSetup (DetectEngineCtx *de_ctx, Signature *s, char *str)
             SigMatchAppendSMToList(s, sm, DETECT_SM_LIST_AMATCH);
     } else {
         SCLogError(SC_ERR_LUAJIT_ERROR, "luajit can't be used with protocol %s",
-                AppLayerGetProtoString(luajit->alproto));
+                   AppLayerGetProtoName(luajit->alproto));
         goto error;
     }
 
@@ -924,6 +927,8 @@ static void DetectLuajitFree(void *ptr) {
 
         if (luajit->buffername)
             SCFree(luajit->buffername);
+        if (luajit->filename)
+            SCFree(luajit->filename);
 
         SCFree(luajit);
     }
@@ -978,6 +983,8 @@ static int LuajitMatchTest01(void) {
     ThreadVars th_v;
     DetectEngineThreadCtx *det_ctx;
 
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
+
     ut_script = script;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -989,6 +996,7 @@ static int LuajitMatchTest01(void) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     f.alproto = ALPROTO_HTTP;
 
@@ -1019,7 +1027,7 @@ static int LuajitMatchTest01(void) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1042,7 +1050,7 @@ static int LuajitMatchTest01(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
     if (r != 0) {
         printf("toserver chunk 2 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1078,6 +1086,8 @@ static int LuajitMatchTest01(void) {
 
     result = 1;
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (de_ctx != NULL)
         DetectEngineCtxFree(de_ctx);
 
@@ -1147,6 +1157,7 @@ static int LuajitMatchTest02(void) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     f.alproto = ALPROTO_HTTP;
 
@@ -1281,6 +1292,7 @@ static int LuajitMatchTest03(void) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     f.alproto = ALPROTO_HTTP;
 
@@ -1401,6 +1413,8 @@ static int LuajitMatchTest04(void) {
     ThreadVars th_v;
     DetectEngineThreadCtx *det_ctx;
 
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
+
     ut_script = script;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -1412,6 +1426,7 @@ static int LuajitMatchTest04(void) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     f.alproto = ALPROTO_HTTP;
 
@@ -1443,7 +1458,7 @@ static int LuajitMatchTest04(void) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1466,7 +1481,7 @@ static int LuajitMatchTest04(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
     if (r != 0) {
         printf("toserver chunk 2 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1495,6 +1510,8 @@ static int LuajitMatchTest04(void) {
 
     result = 1;
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (de_ctx != NULL)
         DetectEngineCtxFree(de_ctx);
 
@@ -1543,6 +1560,8 @@ static int LuajitMatchTest05(void) {
     ThreadVars th_v;
     DetectEngineThreadCtx *det_ctx;
 
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
+
     ut_script = script;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -1554,6 +1573,7 @@ static int LuajitMatchTest05(void) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     f.alproto = ALPROTO_HTTP;
 
@@ -1585,7 +1605,7 @@ static int LuajitMatchTest05(void) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1608,7 +1628,7 @@ static int LuajitMatchTest05(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
     if (r != 0) {
         printf("toserver chunk 2 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1637,6 +1657,8 @@ static int LuajitMatchTest05(void) {
 
     result = 1;
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (de_ctx != NULL)
         DetectEngineCtxFree(de_ctx);
 
@@ -1690,6 +1712,8 @@ static int LuajitMatchTest06(void) {
     ThreadVars th_v;
     DetectEngineThreadCtx *det_ctx;
 
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
+
     ut_script = script;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -1701,6 +1725,7 @@ static int LuajitMatchTest06(void) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     f.alproto = ALPROTO_HTTP;
 
@@ -1732,7 +1757,7 @@ static int LuajitMatchTest06(void) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf1, httplen1);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1755,7 +1780,7 @@ static int LuajitMatchTest06(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, httpbuf2, httplen2);
     if (r != 0) {
         printf("toserver chunk 2 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1784,6 +1809,8 @@ static int LuajitMatchTest06(void) {
 
     result = 1;
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (de_ctx != NULL)
         DetectEngineCtxFree(de_ctx);
 

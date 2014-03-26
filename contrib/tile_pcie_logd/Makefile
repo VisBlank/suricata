@@ -163,17 +163,17 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/coanor/git/suricata-bak/missing aclocal-1.13
+ACLOCAL = ${SHELL} /home/coanor/git/suricata/missing aclocal-1.13
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /home/coanor/git/suricata-bak/missing autoconf
-AUTOHEADER = ${SHELL} /home/coanor/git/suricata-bak/missing autoheader
-AUTOMAKE = ${SHELL} /home/coanor/git/suricata-bak/missing automake-1.13
-AWK = mawk
+AUTOCONF = ${SHELL} /home/coanor/git/suricata/missing autoconf
+AUTOHEADER = ${SHELL} /home/coanor/git/suricata/missing autoheader
+AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing automake-1.13
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="12e4398"
+CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="c102aae"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo
@@ -225,7 +225,7 @@ LN_S = ln -s
 LTLIBOBJS = 
 LUAJIT_CFLAGS = 
 LUAJIT_LIBS = 
-MAKEINFO = ${SHELL} /home/coanor/git/suricata-bak/missing makeinfo
+MAKEINFO = ${SHELL} /home/coanor/git/suricata/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -257,10 +257,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 2.0dev
-abs_builddir = /home/coanor/git/suricata-bak/contrib/tile_pcie_logd
-abs_srcdir = /home/coanor/git/suricata-bak/contrib/tile_pcie_logd
-abs_top_builddir = /home/coanor/git/suricata-bak
-abs_top_srcdir = /home/coanor/git/suricata-bak
+abs_builddir = /home/coanor/git/suricata/contrib/tile_pcie_logd
+abs_srcdir = /home/coanor/git/suricata/contrib/tile_pcie_logd
+abs_top_builddir = /home/coanor/git/suricata
+abs_top_srcdir = /home/coanor/git/suricata
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
@@ -297,7 +297,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/coanor/git/suricata-bak/install-sh
+install_sh = ${SHELL} /home/coanor/git/suricata/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 libnspr_CFLAGS = 
@@ -345,9 +345,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu contrib/tile_pcie_logd/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign contrib/tile_pcie_logd/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu contrib/tile_pcie_logd/Makefile
+	  $(AUTOMAKE) --foreign contrib/tile_pcie_logd/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

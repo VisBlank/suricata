@@ -138,7 +138,7 @@ OutputCtx *LogMysqlLogInitCtx(ConfNode *conf) {
   
     SCLogDebug("Mysql log output initialized");
 
-    AppLayerRegisterLogger(ALPROTO_MYSQL);
+    AppLayerParserRegisterLogger(IPPROTO_TCP, ALPROTO_MYSQL);
     return output_ctx;
 }
 

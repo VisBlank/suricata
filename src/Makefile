@@ -105,9 +105,10 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	app-layer-dcerpc-udp.$(OBJEXT) \
 	app-layer-detect-proto.$(OBJEXT) \
 	app-layer-dns-common.$(OBJEXT) app-layer-dns-tcp.$(OBJEXT) \
-	app-layer-dns-udp.$(OBJEXT) app-layer-ftp.$(OBJEXT) \
-	app-layer-htp-body.$(OBJEXT) app-layer-htp.$(OBJEXT) \
-	app-layer-htp-file.$(OBJEXT) app-layer-htp-libhtp.$(OBJEXT) \
+	app-layer-dns-udp.$(OBJEXT) app-layer-events.$(OBJEXT) \
+	app-layer-ftp.$(OBJEXT) app-layer-htp-body.$(OBJEXT) \
+	app-layer-htp.$(OBJEXT) app-layer-htp-file.$(OBJEXT) \
+	app-layer-htp-libhtp.$(OBJEXT) app-layer-htp-mem.$(OBJEXT) \
 	app-layer-parser.$(OBJEXT) app-layer-protos.$(OBJEXT) \
 	app-layer-smb2.$(OBJEXT) app-layer-smb.$(OBJEXT) \
 	app-layer-smtp.$(OBJEXT) app-layer-ssh.$(OBJEXT) \
@@ -204,6 +205,12 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	log-droplog.$(OBJEXT) log-file.$(OBJEXT) \
 	log-filestore.$(OBJEXT) log-httplog.$(OBJEXT) \
 	log-pcap.$(OBJEXT) log-tlslog.$(OBJEXT) output.$(OBJEXT) \
+	output-file.$(OBJEXT) output-filedata.$(OBJEXT) \
+	output-json-alert.$(OBJEXT) output-json-dns.$(OBJEXT) \
+	output-json-drop.$(OBJEXT) output-json-file.$(OBJEXT) \
+	output-json-http.$(OBJEXT) output-json-ssh.$(OBJEXT) \
+	output-json-tls.$(OBJEXT) output-packet.$(OBJEXT) \
+	output-tx.$(OBJEXT) output-json.$(OBJEXT) \
 	packet-queue.$(OBJEXT) pkt-var.$(OBJEXT) reputation.$(OBJEXT) \
 	respond-reject.$(OBJEXT) respond-reject-libnet11.$(OBJEXT) \
 	runmode-af-packet.$(OBJEXT) runmode-erf-dag.$(OBJEXT) \
@@ -241,16 +248,17 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	util-fix_checksum.$(OBJEXT) util-fmemopen.$(OBJEXT) \
 	util-hash.$(OBJEXT) util-hashlist.$(OBJEXT) \
 	util-hash-lookup3.$(OBJEXT) util-host-os-info.$(OBJEXT) \
-	util-ioctl.$(OBJEXT) util-ip.$(OBJEXT) \
-	util-logopenfile.$(OBJEXT) util-magic.$(OBJEXT) \
+	util-host-info.$(OBJEXT) util-ioctl.$(OBJEXT) \
+	util-ip.$(OBJEXT) util-logopenfile.$(OBJEXT) \
+	util-logopenfile-tile.$(OBJEXT) util-magic.$(OBJEXT) \
 	util-memcmp.$(OBJEXT) util-memrchr.$(OBJEXT) \
 	util-misc.$(OBJEXT) util-mpm-ac-bs.$(OBJEXT) \
 	util-mpm-ac.$(OBJEXT) util-mpm-ac-gfbs.$(OBJEXT) \
-	util-mpm-ac-tile.$(OBJEXT) util-mpm-b2gc.$(OBJEXT) \
-	util-mpm-b2g.$(OBJEXT) util-mpm-b2gm.$(OBJEXT) \
-	util-mpm-b3g.$(OBJEXT) util-mpm.$(OBJEXT) \
-	util-mpm-wumanber.$(OBJEXT) util-path.$(OBJEXT) \
-	util-pidfile.$(OBJEXT) util-pool.$(OBJEXT) \
+	util-mpm-ac-tile.$(OBJEXT) util-mpm-ac-tile-small.$(OBJEXT) \
+	util-mpm-b2gc.$(OBJEXT) util-mpm-b2g.$(OBJEXT) \
+	util-mpm-b2gm.$(OBJEXT) util-mpm-b3g.$(OBJEXT) \
+	util-mpm.$(OBJEXT) util-mpm-wumanber.$(OBJEXT) \
+	util-path.$(OBJEXT) util-pidfile.$(OBJEXT) util-pool.$(OBJEXT) \
 	util-pool-thread.$(OBJEXT) util-print.$(OBJEXT) \
 	util-privs.$(OBJEXT) util-profiling.$(OBJEXT) \
 	util-profiling-locks.$(OBJEXT) util-profiling-rules.$(OBJEXT) \
@@ -340,17 +348,17 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/coanor/git/suricata-bak/missing aclocal-1.13
+ACLOCAL = ${SHELL} /home/coanor/git/suricata/missing aclocal-1.13
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /home/coanor/git/suricata-bak/missing autoconf
-AUTOHEADER = ${SHELL} /home/coanor/git/suricata-bak/missing autoheader
-AUTOMAKE = ${SHELL} /home/coanor/git/suricata-bak/missing automake-1.13
-AWK = mawk
+AUTOCONF = ${SHELL} /home/coanor/git/suricata/missing autoconf
+AUTOHEADER = ${SHELL} /home/coanor/git/suricata/missing autoheader
+AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing automake-1.13
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DUNITTESTS -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="12e4398"
+CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="c102aae"
 CPP = gcc -std=gnu99 -E
 CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo
@@ -402,7 +410,7 @@ LN_S = ln -s
 LTLIBOBJS = 
 LUAJIT_CFLAGS = 
 LUAJIT_LIBS = 
-MAKEINFO = ${SHELL} /home/coanor/git/suricata-bak/missing makeinfo
+MAKEINFO = ${SHELL} /home/coanor/git/suricata/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -434,10 +442,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 2.0dev
-abs_builddir = /home/coanor/git/suricata-bak/src
-abs_srcdir = /home/coanor/git/suricata-bak/src
-abs_top_builddir = /home/coanor/git/suricata-bak
-abs_top_srcdir = /home/coanor/git/suricata-bak
+abs_builddir = /home/coanor/git/suricata/src
+abs_srcdir = /home/coanor/git/suricata/src
+abs_top_builddir = /home/coanor/git/suricata
+abs_top_srcdir = /home/coanor/git/suricata
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
@@ -474,7 +482,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/coanor/git/suricata-bak/install-sh
+install_sh = ${SHELL} /home/coanor/git/suricata/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 libnspr_CFLAGS = 
@@ -528,11 +536,13 @@ app-layer-detect-proto.c app-layer-detect-proto.h \
 app-layer-dns-common.c app-layer-dns-common.h \
 app-layer-dns-tcp.c app-layer-dns-tcp.h \
 app-layer-dns-udp.c app-layer-dns-udp.h \
+app-layer-events.c app-layer-events.h \
 app-layer-ftp.c app-layer-ftp.h \
 app-layer-htp-body.c app-layer-htp-body.h \
 app-layer-htp.c app-layer-htp.h \
 app-layer-htp-file.c app-layer-htp-file.h \
 app-layer-htp-libhtp.c app-layer-htp-libhtp.h \
+app-layer-htp-mem.c app-layer-htp-mem.h \
 app-layer-parser.c app-layer-parser.h \
 app-layer-protos.c app-layer-protos.h \
 app-layer-smb2.c app-layer-smb2.h \
@@ -724,6 +734,18 @@ log-httplog.c log-httplog.h \
 log-pcap.c log-pcap.h \
 log-tlslog.c log-tlslog.h \
 output.c output.h \
+output-file.c output-file.h \
+output-filedata.c output-filedata.h \
+output-json-alert.c output-json-alert.h \
+output-json-dns.c output-json-dns.h \
+output-json-drop.c output-json-drop.h \
+output-json-file.c output-json-file.h \
+output-json-http.c output-json-http.h \
+output-json-ssh.c output-json-ssh.h \
+output-json-tls.c output-json-tls.h \
+output-packet.c output-packet.h \
+output-tx.c output-tx.h \
+output-json.c output-json.h \
 packet-queue.c packet-queue.h \
 pkt-var.c pkt-var.h \
 reputation.c reputation.h \
@@ -804,11 +826,14 @@ util-hash.c util-hash.h \
 util-hashlist.c util-hashlist.h \
 util-hash-lookup3.c util-hash-lookup3.h \
 util-host-os-info.c util-host-os-info.h \
+util-host-info.c util-host-info.h \
 util-ioctl.h util-ioctl.c \
 util-ip.h util-ip.c \
 util-logopenfile.h util-logopenfile.c \
+util-logopenfile-tile.h util-logopenfile-tile.c \
 util-magic.c util-magic.h \
 util-memcmp.c util-memcmp.h \
+util-memcpy.h \
 util-mem.h \
 util-memrchr.c util-memrchr.h \
 util-misc.c util-misc.h \
@@ -816,6 +841,7 @@ util-mpm-ac-bs.c util-mpm-ac-bs.h \
 util-mpm-ac.c util-mpm-ac.h \
 util-mpm-ac-gfbs.c util-mpm-ac-gfbs.h \
 util-mpm-ac-tile.c util-mpm-ac-tile.h \
+util-mpm-ac-tile-small.c \
 util-mpm-b2gc.c util-mpm-b2gc.h \
 util-mpm-b2g.c util-mpm-b2g.h \
 util-mpm-b2gm.c util-mpm-b2gm.h \
@@ -915,9 +941,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/Makefile
+	  $(AUTOMAKE) --foreign src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -1008,10 +1034,12 @@ include ./$(DEPDIR)/app-layer-detect-proto.Po
 include ./$(DEPDIR)/app-layer-dns-common.Po
 include ./$(DEPDIR)/app-layer-dns-tcp.Po
 include ./$(DEPDIR)/app-layer-dns-udp.Po
+include ./$(DEPDIR)/app-layer-events.Po
 include ./$(DEPDIR)/app-layer-ftp.Po
 include ./$(DEPDIR)/app-layer-htp-body.Po
 include ./$(DEPDIR)/app-layer-htp-file.Po
 include ./$(DEPDIR)/app-layer-htp-libhtp.Po
+include ./$(DEPDIR)/app-layer-htp-mem.Po
 include ./$(DEPDIR)/app-layer-htp.Po
 include ./$(DEPDIR)/app-layer-mysql-common.Po
 include ./$(DEPDIR)/app-layer-mysql.Po
@@ -1208,6 +1236,18 @@ include ./$(DEPDIR)/log-mysqllog.Po
 include ./$(DEPDIR)/log-pcap.Po
 include ./$(DEPDIR)/log-tdslog.Po
 include ./$(DEPDIR)/log-tlslog.Po
+include ./$(DEPDIR)/output-file.Po
+include ./$(DEPDIR)/output-filedata.Po
+include ./$(DEPDIR)/output-json-alert.Po
+include ./$(DEPDIR)/output-json-dns.Po
+include ./$(DEPDIR)/output-json-drop.Po
+include ./$(DEPDIR)/output-json-file.Po
+include ./$(DEPDIR)/output-json-http.Po
+include ./$(DEPDIR)/output-json-ssh.Po
+include ./$(DEPDIR)/output-json-tls.Po
+include ./$(DEPDIR)/output-json.Po
+include ./$(DEPDIR)/output-packet.Po
+include ./$(DEPDIR)/output-tx.Po
 include ./$(DEPDIR)/output.Po
 include ./$(DEPDIR)/packet-queue.Po
 include ./$(DEPDIR)/pkt-var.Po
@@ -1288,10 +1328,12 @@ include ./$(DEPDIR)/util-fmemopen.Po
 include ./$(DEPDIR)/util-hash-lookup3.Po
 include ./$(DEPDIR)/util-hash.Po
 include ./$(DEPDIR)/util-hashlist.Po
+include ./$(DEPDIR)/util-host-info.Po
 include ./$(DEPDIR)/util-host-os-info.Po
 include ./$(DEPDIR)/util-ioctl.Po
 include ./$(DEPDIR)/util-ip.Po
 include ./$(DEPDIR)/util-json.Po
+include ./$(DEPDIR)/util-logopenfile-tile.Po
 include ./$(DEPDIR)/util-logopenfile.Po
 include ./$(DEPDIR)/util-magic.Po
 include ./$(DEPDIR)/util-memcmp.Po
@@ -1299,6 +1341,7 @@ include ./$(DEPDIR)/util-memrchr.Po
 include ./$(DEPDIR)/util-misc.Po
 include ./$(DEPDIR)/util-mpm-ac-bs.Po
 include ./$(DEPDIR)/util-mpm-ac-gfbs.Po
+include ./$(DEPDIR)/util-mpm-ac-tile-small.Po
 include ./$(DEPDIR)/util-mpm-ac-tile.Po
 include ./$(DEPDIR)/util-mpm-ac.Po
 include ./$(DEPDIR)/util-mpm-b2g.Po
@@ -1609,10 +1652,10 @@ uninstall-am: uninstall-binPROGRAMS
 #cuda-ptxdump.h: $(PTXS)
 #	$(PYTHON) ptxdump.py cuda-ptxdump $(PTXS)
 
-check-am:
-	-mkdir $(top_builddir)/qa/log/
-	$(top_builddir)/src/suricata -u -l $(top_builddir)/qa/log/
-	-rm -rf $(top_builddir)/qa/log
+#check-am:
+#	-mkdir $(top_builddir)/qa/log/
+#	$(top_builddir)/src/suricata -u -l $(top_builddir)/qa/log/
+#	-rm -rf $(top_builddir)/qa/log
 
 distclean-local:
 	-rm -rf $(top_builddir)/src/build-info.h

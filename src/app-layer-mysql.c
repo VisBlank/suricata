@@ -9,6 +9,7 @@
 #include "suricata-common.h"
 #include "app-layer-mysql-common.h"
 #include "app-layer-mysql.h"
+#include "stream.h"
 
 static uint16_t MysqlProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset) {
     if (ilen == 0 || ilen < sizeof(MysqlPktHeader)) {
@@ -25,32 +26,44 @@ static uint16_t MysqlProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offs
 void RegisterMysqlParsers(void) {
     char *proto_name = "mysql";
 
-    if (AppLayerProtoDetectionEnabled(proto_name)) {
+    if (AppLayerProtoDetectConfProtoDetectionEnabled("tcp", proto_name)) {
+		AppLayerProtoDetectRegisterProtocol(ALPROTO_MYSQL, proto_name);
         if (RunmodeIsUnittests()) {
-            AppLayerRegisterProbingParser(&alp_proto_ctx,
-                    IPPROTO_TCP, "3306", proto_name,
-                    ALPROTO_MYSQL, 0, sizeof(MysqlPktHeader),
+			AppLayerProtoDetectPPRegister(
+                    IPPROTO_TCP, "3306", ALPROTO_MYSQL, 0,
+					sizeof(MysqlPktHeader),
                     STREAM_TOSERVER, MysqlProbingParser);
         } else {
-            AppLayerParseProbingParserPorts(proto_name, ALPROTO_MYSQL, 0,
-                    sizeof(MysqlPktHeader), MysqlProbingParser);
+			int have_cfg = AppLayerProtoDetectPPParseConfPorts("tcp", IPPROTO_TCP,
+					proto_name, ALPROTO_MYSQL, 0,
+					sizeof(MysqlPktHeader), MysqlProbingParser);
 
+			/* if not configured, enable the default 3306 port */
+			if (!have_cfg) {
+				SCLogWarning(SC_ERR_MYSQL_CONFIG, "no MySQL config found, "
+						"enabling MySQL detection on port 3306");
+				AppLayerProtoDetectPPRegister(
+						IPPROTO_TCP, "3306", ALPROTO_MYSQL, 0,
+						sizeof(MysqlPktHeader),
+						STREAM_TOSERVER, MysqlProbingParser);
+			}
         }
 
-        AppLayerRegisterParserAcceptableDataDirection(ALPROTO_MYSQL, STREAM_TOSERVER | STREAM_TOCLIENT);
+        AppLayerParserRegisterParserAcceptableDataDirection(IPPROTO_TCP, ALPROTO_MYSQL,
+				STREAM_TOSERVER | STREAM_TOCLIENT);
     } else {
         SCLogInfo("Protocol detection and parser disabled for %s protocol", proto_name);
         return;
     }
 
-    if (AppLayerParserEnabled(proto_name)) {
-        AppLayerRegisterProto(proto_name, ALPROTO_MYSQL, STREAM_TOSERVER, MysqlParseClientRecord);
-        AppLayerRegisterProto(proto_name, ALPROTO_MYSQL, STREAM_TOCLIENT, MysqlParseServerRecord);
-        AppLayerRegisterStateFuncs(ALPROTO_MYSQL, MysqlStateAlloc, MysqlStateFree);
+    if (AppLayerParserConfParserEnabled("tcp", proto_name)) {
+        AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_MYSQL, STREAM_TOSERVER, MysqlParseClientRecord);
+        AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_MYSQL, STREAM_TOCLIENT, MysqlParseServerRecord);
+		AppLayerParserRegisterStateFuncs(IPPROTO_TCP, ALPROTO_MYSQL, MysqlStateAlloc, MysqlStateFree);
     }
 
 #ifdef UNITTESTS
-    AppLayerParserRegisterUnittests(ALPROTO_MYSQL, MysqlParserRegisterTests);
+    AppLayerParserRegisterProtocolUnittests(IPPROTO_TCP, ALPROTO_MYSQL, MysqlParserRegisterTests);
 #endif
 
     return;
