@@ -22,7 +22,7 @@ printf(
 "\n"
 "  Suricatasc install:                      yes\n"
 "\n"
-"  Unit tests enabled:                      yes\n"
+"  Unit tests enabled:                      no\n"
 "  Debug output enabled:                    yes\n"
 "  Debug validation enabled:                no\n"
 "  Profiling enabled:                       no\n"
