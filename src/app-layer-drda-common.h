@@ -12,9 +12,6 @@
 #include "app-layer-parser.h"
 #include "app-layer-detect-proto.h"
 
-typedef struct DRDAClient_ {
-} DRDAClient;
-
 int DRDAParseClientRecord(Flow *f,
         void *alstate,
         AppLayerParserState *alps, uint8_t *in,

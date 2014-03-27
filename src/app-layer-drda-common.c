@@ -45,8 +45,15 @@ static char ebcdic_map[256] = {
 0xFB, 0xFC, 0xFD, 0xFE, 0xFF,
 };
 
-struct DRDAState_ {
-    
+typedef struct DRDATransaction_ {
+	char *username, *dbname;
+	uint16_t sql_size;
+	char *sql;
+};
+
+typedef struct DRDAState_ {
+	TAILQ_HEAD(, DRDATransaction_) tx_list;    
+	DRDATransaction *cur_tx;
 };
 
 static int DRDAParseParameter(struct DRDAState_ *s, uint8_t *in, uint32_t len) {
@@ -64,11 +71,15 @@ static int DRDAParseParameter(struct DRDAState_ *s, uint8_t *in, uint32_t len) {
         
         uint8_t *data = NULL;
         uint16_t data_sz = 0;
+		uint8_t *rdb_name = NULL, *userid = NULL;
+		uin16_t rdb_name_size = 0;
+
+		DRDATransaction *tx = NULL;
         switch (param_cp) {
             /* TODO: we should transfer EBCDIC to ASCII for some @param_cp type,
              * if not labeled, default is ASCII encoded */
             case DRDA_CP_DATA:
-                if (param_len == 0) { /* need more verify... */
+                if (param_len == 0) { /* FIXME: verify that! */
                     /* as type DRDA_CP_DATA, the length field is zero,
                      * means copy the remind bytes as the data.
                      *
@@ -80,7 +91,8 @@ static int DRDAParseParameter(struct DRDAState_ *s, uint8_t *in, uint32_t len) {
                     data_sz = (len - offset) - 2 * sizeof(uint16_t) - 2 + 1;
                     data = SCCalloc(data_sz);
                     memcpy(data, in + offset + 4, data_sz);
-
+					s->cur_tx->sql_size = data_sz;
+					s->cur_tx->sql = data;
                     /* TODO: should we attach the data to @s? and how? */
                     /* data is the last part of the DDM(verify that), just return */
                     return
@@ -91,6 +103,29 @@ static int DRDAParseParameter(struct DRDAState_ *s, uint8_t *in, uint32_t len) {
                  * also apply to DB2 client, they share the same  @param_cp value,
                  * these data used to exchange attributes between client and server
                  */
+
+				/* client login */
+			case DRDA_CP_RDBNAM:
+				if (rdb_name != NULL)
+					SCFree(rdb_name); /* FIXME: should we free it? if someone need it ? */
+				rdb_name = SCCalloc(param_len + 1, 1);
+				memcpy(rdb_name, in + offset + 4, param_len); /* TODO: transfer EBCDIC to ASCII */
+				rdb_name_size = param_len + 1;
+				break;
+			case DRDA_CP_USRID:
+				if (s->cur_tx->username != NULL)
+					SCFree(s->cur_tx->username);
+				if (s->cur_tx->dbname != NULL)
+					SCFree(s->cur_tx->dbname);
+				
+				s->cur_tx->username = SCCalloc(param_len + 1, 1);
+				memcpy(s->cur_tx->usernamed, in + offset + 4, param_len);
+				s->cur_tx->dbname = SCCalloc(rdb_name_size, 1);
+				memcpy(s->cur_tx->dbname, rdb_name, rdb_name_size);
+				SCFree(rdb_name);
+				rdb_name = NULL;
+				break;
+
             case DRDA_CP_SRVNAM:    /* EBCDIC encoded: server app name, not DB2 Server name */
             case DRDA_CP_SRVRLSLV:  /* EBCDIC encoded: server product release level */
             case DRDA_CP_SRVCLSNM:  /* EBCDIC encoded: server class name  */
@@ -116,7 +151,8 @@ int DRDAParseClientRecord(Flow *f, void *alstate,
         AppLayerParserResult *res) {
 
     int offset = 0;
-    struct drdaState_ *s = alstate;
+    DRDAState *s = alstate;
+	DRDATransaction *tx = NULL;
 
     /* there may be multiple DRDA commands in @in */
     for (;;) {
@@ -137,6 +173,11 @@ int DRDAParseClientRecord(Flow *f, void *alstate,
             case DRDA_CP_EXCSAT:
             case DRDA_CP_EXCSQLSET:
                 break;
+			case DRDA_CP_SECCHK: /* login */
+				tx = SCCalloc(sizeof(*tx), 1);
+				TAILQ_INSERT_HEAD(&s->tx_list, tx, next);
+				s->cur_tx = tx;
+				/* go through */
             case DRDA_CP_SQLSTT: /* comes the SQL statement */
                 if (DRDAParseParameter(s, in + offset + DRDA_DDM_LEN, len - DRDA_DDM_LEN) == -1)
                     SCLogError("DRDAParseParameter error on DRDA_CP_SQLSTT");
