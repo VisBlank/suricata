@@ -46,6 +46,7 @@
 #include "util-affinity.h"
 #include "util-runmodes.h"
 #include "source-ipfw.h"
+#include "util-device.h"
 
 static const char *default_mode;
 
@@ -82,6 +83,8 @@ int RunModeIpsIPFWAuto(DetectEngineCtx *de_ctx)
 
     TimeModeSetLive();
 
+    LiveDeviceHasNoStats();
+
     ret = RunModeSetIPSAuto(de_ctx,
             IPFWGetThread,
             "ReceiveIPFW",
@@ -102,6 +105,8 @@ int RunModeIpsIPFWAutoFp(DetectEngineCtx *de_ctx)
 
     TimeModeSetLive();
 
+    LiveDeviceHasNoStats();
+
     ret = RunModeSetIPSAutoFp(de_ctx,
             IPFWGetThread,
             "ReceiveIPFW",
@@ -120,6 +125,8 @@ int RunModeIpsIPFWWorker(DetectEngineCtx *de_ctx)
     RunModeInitialize();
 
     TimeModeSetLive();
+
+    LiveDeviceHasNoStats();
 
     ret = RunModeSetIPSWorker(de_ctx,
             IPFWGetThread,

@@ -54,9 +54,9 @@
  *  \brief Parse DNS request packet
  */
 static int DNSUDPRequestParse(Flow *f, void *dstate,
-                          AppLayerParserState *pstate,
-                          uint8_t *input, uint32_t input_len,
-                          void *local_data, AppLayerParserResult *output)
+                              AppLayerParserState *pstate,
+                              uint8_t *input, uint32_t input_len,
+                              void *local_data)
 {
     DNSState *dns_state = (DNSState *)dstate;
 
@@ -160,9 +160,9 @@ insufficient_data:
  *
  */
 static int DNSUDPResponseParse(Flow *f, void *dstate,
-                          AppLayerParserState *pstate,
-                          uint8_t *input, uint32_t input_len,
-                          void *local_data, AppLayerParserResult *output)
+                               AppLayerParserState *pstate,
+                               uint8_t *input, uint32_t input_len,
+                               void *local_data)
 {
 	DNSState *dns_state = (DNSState *)dstate;
 
@@ -272,10 +272,18 @@ static int DNSUDPResponseParse(Flow *f, void *dstate,
     /* see if this is a "no such name" error */
     if (ntohs(dns_header->flags) & 0x0003) {
         SCLogDebug("no such name");
-
-        if (tx != NULL) {
+        if (tx != NULL)
             tx->no_such_name = 1;
-        }
+    }
+
+    if (ntohs(dns_header->flags) & 0x0080) {
+        SCLogDebug("recursion desired");
+        if (tx != NULL)
+            tx->recursion_desired = 1;
+    }
+
+    if (tx != NULL) {
+        tx->replied = 1;
     }
 
     SCReturnInt(1);
@@ -293,16 +301,18 @@ static uint16_t DNSUdpProbingParser(uint8_t *input, uint32_t ilen, uint32_t *off
         return ALPROTO_UNKNOWN;
     }
 
-    if (DNSUDPRequestParse(NULL, NULL, NULL, input, ilen, NULL, NULL) == -1)
+    if (DNSUDPRequestParse(NULL, NULL, NULL, input, ilen, NULL) == -1)
         return ALPROTO_FAILED;
 
-    return ALPROTO_DNS_UDP;
+    return ALPROTO_DNS;
 }
 
 static void DNSUDPConfigure(void) {
     uint32_t request_flood = DNS_CONFIG_DEFAULT_REQUEST_FLOOD;
+    uint32_t state_memcap = DNS_CONFIG_DEFAULT_STATE_MEMCAP;
+    uint64_t global_memcap = DNS_CONFIG_DEFAULT_GLOBAL_MEMCAP;
 
-    ConfNode *p = ConfGetNode("app-layer.protocols.dnsudp.request-flood");
+    ConfNode *p = ConfGetNode("app-layer.protocols.dns.request-flood");
     if (p != NULL) {
         uint32_t value;
         if (ParseSizeStringU32(p->val, &value) < 0) {
@@ -313,26 +323,60 @@ static void DNSUDPConfigure(void) {
     }
     SCLogInfo("DNS request flood protection level: %u", request_flood);
     DNSConfigSetRequestFlood(request_flood);
+
+    p = ConfGetNode("app-layer.protocols.dns.state-memcap");
+    if (p != NULL) {
+        uint32_t value;
+        if (ParseSizeStringU32(p->val, &value) < 0) {
+            SCLogError(SC_ERR_DNS_CONFIG, "invalid value for state-memcap %s", p->val);
+        } else {
+            state_memcap = value;
+        }
+    }
+    SCLogInfo("DNS per flow memcap (state-memcap): %u", state_memcap);
+    DNSConfigSetStateMemcap(state_memcap);
+
+    p = ConfGetNode("app-layer.protocols.dns.global-memcap");
+    if (p != NULL) {
+        uint64_t value;
+        if (ParseSizeStringU64(p->val, &value) < 0) {
+            SCLogError(SC_ERR_DNS_CONFIG, "invalid value for global-memcap %s", p->val);
+        } else {
+            global_memcap = value;
+        }
+    }
+    SCLogInfo("DNS global memcap: %"PRIu64, global_memcap);
+    DNSConfigSetGlobalMemcap(global_memcap);
 }
 
 void RegisterDNSUDPParsers(void) {
-    char *proto_name = "dnsudp";
+    char *proto_name = "dns";
 
     /** DNS */
-    if (AppLayerProtoDetectionEnabled(proto_name)) {
+    if (AppLayerProtoDetectConfProtoDetectionEnabled("udp", proto_name)) {
+        AppLayerProtoDetectRegisterProtocol(ALPROTO_DNS, proto_name);
+
         if (RunmodeIsUnittests()) {
-            AppLayerRegisterProbingParser(&alp_proto_ctx,
-                                          IPPROTO_UDP,
+            AppLayerProtoDetectPPRegister(IPPROTO_UDP,
                                           "53",
-                                          proto_name,
                                           ALPROTO_DNS,
                                           0, sizeof(DNSHeader),
                                           STREAM_TOSERVER,
                                           DNSUdpProbingParser);
         } else {
-            AppLayerParseProbingParserPorts(proto_name, ALPROTO_DNS,
-                                            0, sizeof(DNSHeader),
-                                            DNSUdpProbingParser);
+            int have_cfg = AppLayerProtoDetectPPParseConfPorts("udp", IPPROTO_UDP,
+                                                proto_name, ALPROTO_DNS,
+                                                0, sizeof(DNSHeader),
+                                                DNSUdpProbingParser);
+            /* if we have no config, we enable the default port 53 */
+            if (!have_cfg) {
+                SCLogWarning(SC_ERR_DNS_CONFIG, "no DNS UDP config found, "
+                                                "enabling DNS detection on "
+                                                "port 53.");
+                AppLayerProtoDetectPPRegister(IPPROTO_UDP, "53",
+                                   ALPROTO_DNS, 0, sizeof(DNSHeader),
+                                   STREAM_TOSERVER, DNSUdpProbingParser);
+            }
         }
     } else {
         SCLogInfo("Protocol detection and parser disabled for %s protocol.",
@@ -340,29 +384,29 @@ void RegisterDNSUDPParsers(void) {
         return;
     }
 
-    if (AppLayerParserEnabled(proto_name)) {
-        AppLayerRegisterProto(proto_name, ALPROTO_DNS_UDP, STREAM_TOSERVER,
-                              DNSUDPRequestParse);
-        AppLayerRegisterProto(proto_name, ALPROTO_DNS_UDP, STREAM_TOCLIENT,
-                              DNSUDPResponseParse);
-        AppLayerRegisterStateFuncs(ALPROTO_DNS_UDP, DNSStateAlloc,
-                                   DNSStateFree);
-        AppLayerRegisterTxFreeFunc(ALPROTO_DNS_UDP,
-                                   DNSStateTransactionFree);
+    if (AppLayerParserConfParserEnabled("udp", proto_name)) {
+        AppLayerParserRegisterParser(IPPROTO_UDP, ALPROTO_DNS, STREAM_TOSERVER,
+                                     DNSUDPRequestParse);
+        AppLayerParserRegisterParser(IPPROTO_UDP, ALPROTO_DNS, STREAM_TOCLIENT,
+                                     DNSUDPResponseParse);
+        AppLayerParserRegisterStateFuncs(IPPROTO_UDP, ALPROTO_DNS, DNSStateAlloc,
+                                         DNSStateFree);
+        AppLayerParserRegisterTxFreeFunc(IPPROTO_UDP, ALPROTO_DNS,
+                                         DNSStateTransactionFree);
 
-        AppLayerRegisterGetEventsFunc(ALPROTO_DNS_UDP, DNSGetEvents);
-        AppLayerRegisterHasEventsFunc(ALPROTO_DNS_UDP, DNSHasEvents);
+        AppLayerParserRegisterGetEventsFunc(IPPROTO_UDP, ALPROTO_DNS, DNSGetEvents);
+        AppLayerParserRegisterHasEventsFunc(IPPROTO_UDP, ALPROTO_DNS, DNSHasEvents);
 
-        AppLayerRegisterGetTx(ALPROTO_DNS_UDP,
-                              DNSGetTx);
-        AppLayerRegisterGetTxCnt(ALPROTO_DNS_UDP,
-                                 DNSGetTxCnt);
-        AppLayerRegisterGetAlstateProgressFunc(ALPROTO_DNS_UDP,
-                                               DNSGetAlstateProgress);
-        AppLayerRegisterGetAlstateProgressCompletionStatus(ALPROTO_DNS_UDP,
-                                                           DNSGetAlstateProgressCompletionStatus);
+        AppLayerParserRegisterGetTx(IPPROTO_UDP, ALPROTO_DNS,
+                                    DNSGetTx);
+        AppLayerParserRegisterGetTxCnt(IPPROTO_UDP, ALPROTO_DNS,
+                                       DNSGetTxCnt);
+        AppLayerParserRegisterGetStateProgressFunc(IPPROTO_UDP, ALPROTO_DNS,
+                                                   DNSGetAlstateProgress);
+        AppLayerParserRegisterGetStateProgressCompletionStatus(IPPROTO_UDP, ALPROTO_DNS,
+                                                               DNSGetAlstateProgressCompletionStatus);
 
-        DNSAppLayerRegisterGetEventInfo(ALPROTO_DNS_UDP);
+        DNSAppLayerRegisterGetEventInfo(IPPROTO_UDP, ALPROTO_DNS);
 
         DNSUDPConfigure();
     } else {
@@ -370,7 +414,7 @@ void RegisterDNSUDPParsers(void) {
                   "still on.", proto_name);
     }
 #ifdef UNITTESTS
-    AppLayerParserRegisterUnittests(ALPROTO_DNS_UDP, DNSUDPParserRegisterTests);
+    AppLayerParserRegisterProtocolUnittests(IPPROTO_UDP, ALPROTO_DNS, DNSUDPParserRegisterTests);
 #endif
 }
 
@@ -402,10 +446,10 @@ static int DNSUDPParserTest01 (void) {
     if (f == NULL)
         goto end;
     f->proto = IPPROTO_UDP;
-    f->alproto = ALPROTO_DNS_UDP;
+    f->alproto = ALPROTO_DNS;
     f->alstate = DNSStateAlloc();
 
-    int r = DNSUDPResponseParse(f, f->alstate, NULL, buf, buflen, NULL, NULL);
+    int r = DNSUDPResponseParse(f, f->alstate, NULL, buf, buflen, NULL);
     if (r != 1)
         goto end;
 

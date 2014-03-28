@@ -57,6 +57,7 @@ enum {
     DNS_DECODER_EVENT_NOT_A_RESPONSE,
     DNS_DECODER_EVENT_Z_FLAG_SET,
     DNS_DECODER_EVENT_FLOODED,
+    DNS_DECODER_EVENT_STATE_MEMCAP_REACHED,
 };
 
 /** \brief DNS packet header */
@@ -129,6 +130,7 @@ typedef struct DNSTransaction_ {
                                                          replied to. */
     uint8_t reply_lost;
     uint8_t no_such_name;                           /**< server said "no such name" */
+    uint8_t recursion_desired;                      /**< server said "recursion desired" */
 
     TAILQ_HEAD(, DNSQueryEntry_) query_list;        /**< list for query/queries */
     TAILQ_HEAD(, DNSAnswerEntry_) answer_list;      /**< list for answers */
@@ -145,6 +147,8 @@ typedef struct DNSState_ {
     DNSTransaction *curr;                   /**< ptr to current tx */
     uint64_t transaction_max;
     uint32_t unreplied_cnt;                 /**< number of unreplied requests in a row */
+    uint32_t memuse;                        /**< state memuse, for comparing with
+                                                 state-memcap settings */
     uint16_t events;
     uint16_t givenup;
 
@@ -155,9 +159,19 @@ typedef struct DNSState_ {
 } DNSState;
 
 #define DNS_CONFIG_DEFAULT_REQUEST_FLOOD 500
+#define DNS_CONFIG_DEFAULT_STATE_MEMCAP 512*1024
+#define DNS_CONFIG_DEFAULT_GLOBAL_MEMCAP 16*1024*1024
 
 void DNSConfigInit(void);
 void DNSConfigSetRequestFlood(uint32_t value);
+void DNSConfigSetStateMemcap(uint32_t value);
+void DNSConfigSetGlobalMemcap(uint64_t value);
+
+void DNSIncrMemcap(uint32_t size, DNSState *state);
+void DNSDecrMemcap(uint32_t size, DNSState *state);
+int DNSCheckMemcap(uint32_t want, DNSState *state);
+void DNSMemcapGetCounters(uint64_t *memuse, uint64_t *memcap_state,
+                          uint64_t *memcap_global);
 
 void RegisterDNSParsers(void);
 void DNSParserTests(void);
@@ -165,14 +179,13 @@ void DNSParserRegisterTests(void);
 void DNSAppLayerDecoderEventsRegister(int alproto);
 int DNSStateGetEventInfo(const char *event_name,
                          int *event_id, AppLayerEventType *event_type);
-void DNSAppLayerRegisterGetEventInfo(uint16_t alproto);
+void DNSAppLayerRegisterGetEventInfo(uint8_t ipproto, AppProto alproto);
 
 void *DNSGetTx(void *alstate, uint64_t tx_id);
 uint64_t DNSGetTxCnt(void *alstate);
 int DNSGetAlstateProgress(void *tx, uint8_t direction);
 int DNSGetAlstateProgressCompletionStatus(uint8_t direction);
 
-DNSTransaction *DNSTransactionAlloc(const uint16_t tx_id);
 void DNSStateTransactionFree(void *state, uint64_t tx_id);
 DNSTransaction *DNSTransactionFindByTxId(const DNSState *dns_state, const uint16_t tx_id);
 

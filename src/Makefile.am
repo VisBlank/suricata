@@ -24,11 +24,13 @@ app-layer-detect-proto.c app-layer-detect-proto.h \
 app-layer-dns-common.c app-layer-dns-common.h \
 app-layer-dns-tcp.c app-layer-dns-tcp.h \
 app-layer-dns-udp.c app-layer-dns-udp.h \
+app-layer-events.c app-layer-events.h \
 app-layer-ftp.c app-layer-ftp.h \
 app-layer-htp-body.c app-layer-htp-body.h \
 app-layer-htp.c app-layer-htp.h \
 app-layer-htp-file.c app-layer-htp-file.h \
 app-layer-htp-libhtp.c app-layer-htp-libhtp.h \
+app-layer-htp-mem.c app-layer-htp-mem.h \
 app-layer-parser.c app-layer-parser.h \
 app-layer-protos.c app-layer-protos.h \
 app-layer-smb2.c app-layer-smb2.h \
@@ -220,6 +222,18 @@ log-httplog.c log-httplog.h \
 log-pcap.c log-pcap.h \
 log-tlslog.c log-tlslog.h \
 output.c output.h \
+output-file.c output-file.h \
+output-filedata.c output-filedata.h \
+output-json-alert.c output-json-alert.h \
+output-json-dns.c output-json-dns.h \
+output-json-drop.c output-json-drop.h \
+output-json-file.c output-json-file.h \
+output-json-http.c output-json-http.h \
+output-json-ssh.c output-json-ssh.h \
+output-json-tls.c output-json-tls.h \
+output-packet.c output-packet.h \
+output-tx.c output-tx.h \
+output-json.c output-json.h \
 packet-queue.c packet-queue.h \
 pkt-var.c pkt-var.h \
 reputation.c reputation.h \
@@ -300,11 +314,14 @@ util-hash.c util-hash.h \
 util-hashlist.c util-hashlist.h \
 util-hash-lookup3.c util-hash-lookup3.h \
 util-host-os-info.c util-host-os-info.h \
+util-host-info.c util-host-info.h \
 util-ioctl.h util-ioctl.c \
 util-ip.h util-ip.c \
 util-logopenfile.h util-logopenfile.c \
+util-logopenfile-tile.h util-logopenfile-tile.c \
 util-magic.c util-magic.h \
 util-memcmp.c util-memcmp.h \
+util-memcpy.h \
 util-mem.h \
 util-memrchr.c util-memrchr.h \
 util-misc.c util-misc.h \
@@ -312,6 +329,7 @@ util-mpm-ac-bs.c util-mpm-ac-bs.h \
 util-mpm-ac.c util-mpm-ac.h \
 util-mpm-ac-gfbs.c util-mpm-ac-gfbs.h \
 util-mpm-ac-tile.c util-mpm-ac-tile.h \
+util-mpm-ac-tile-small.c \
 util-mpm-b2gc.c util-mpm-b2gc.h \
 util-mpm-b2g.c util-mpm-b2g.h \
 util-mpm-b2gm.c util-mpm-b2gm.h \

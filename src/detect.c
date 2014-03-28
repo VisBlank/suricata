@@ -498,7 +498,7 @@ int SigLoadSignatures(DetectEngineCtx *de_ctx, char *sig_file, int sig_file_excl
  */
 int SigMatchSignaturesBuildMatchArrayAddSignature(DetectEngineThreadCtx *det_ctx,
                                                   Packet *p, SignatureHeader *s,
-                                                  uint16_t alproto)
+                                                  AppProto alproto)
 {
     /* if the sig has alproto and the session as well they should match */
     if (likely(s->flags & SIG_FLAG_APPLAYER)) {
@@ -506,11 +506,6 @@ int SigMatchSignaturesBuildMatchArrayAddSignature(DetectEngineThreadCtx *det_ctx
             if (s->alproto == ALPROTO_DCERPC) {
                 if (alproto != ALPROTO_SMB && alproto != ALPROTO_SMB2) {
                     SCLogDebug("DCERPC sig, alproto not SMB or SMB2");
-                    return 0;
-                }
-            } else if (s->alproto == ALPROTO_DNS) {
-                if (alproto != ALPROTO_DNS_UDP && alproto != ALPROTO_DNS_TCP) {
-                    SCLogDebug("DNS sig, alproto not DNS/TCP or DNS/UDP");
                     return 0;
                 }
             } else {
@@ -584,7 +579,7 @@ int SigMatchSignaturesBuildMatchArrayAddSignature(DetectEngineThreadCtx *det_ctx
  */
 void SigMatchSignaturesBuildMatchArray(DetectEngineThreadCtx *det_ctx,
                                        Packet *p, SignatureMask mask,
-                                       uint16_t alproto)
+                                       AppProto alproto)
 {
     uint32_t u;
 
@@ -738,9 +733,9 @@ static StreamMsg *SigMatchSignaturesGetSmsg(Flow *f, Packet *p, uint8_t flags) {
 
                 /* if the smsg is bigger than the current packet, we will
                  * process the smsg in a later run */
-                if ((head->data.seq + head->data.data_len) > (TCP_GET_SEQ(p) + p->payload_len)) {
+                if ((head->seq + head->data_len) > (TCP_GET_SEQ(p) + p->payload_len)) {
                     SCLogDebug("smsg ends beyond current packet, skipping for now %"PRIu32">%"PRIu32,
-                            (head->data.seq + head->data.data_len), (TCP_GET_SEQ(p) + p->payload_len));
+                            (head->seq + head->data_len), (TCP_GET_SEQ(p) + p->payload_len));
                     goto end;
                 }
 
@@ -757,9 +752,9 @@ static StreamMsg *SigMatchSignaturesGetSmsg(Flow *f, Packet *p, uint8_t flags) {
 
                 /* if the smsg is bigger than the current packet, we will
                  * process the smsg in a later run */
-                if ((head->data.seq + head->data.data_len) > (TCP_GET_SEQ(p) + p->payload_len)) {
+                if ((head->seq + head->data_len) > (TCP_GET_SEQ(p) + p->payload_len)) {
                     SCLogDebug("smsg ends beyond current packet, skipping for now %"PRIu32">%"PRIu32,
-                            (head->data.seq + head->data.data_len), (TCP_GET_SEQ(p) + p->payload_len));
+                            (head->seq + head->data_len), (TCP_GET_SEQ(p) + p->payload_len));
                     goto end;
                 }
 
@@ -797,7 +792,7 @@ end:
  */
 static inline void DetectMpmPrefilter(DetectEngineCtx *de_ctx,
         DetectEngineThreadCtx *det_ctx, StreamMsg *smsg, Packet *p,
-        uint8_t flags, uint16_t alproto, void *alstate, uint8_t *sms_runflags)
+        uint8_t flags, AppProto alproto, void *alstate, uint8_t *sms_runflags)
 {
     /* have a look at the reassembled stream (if any) */
     if (p->flowflags & FLOW_PKT_ESTABLISHED) {
@@ -815,13 +810,13 @@ static inline void DetectMpmPrefilter(DetectEngineCtx *de_ctx,
             }
 
             int tx_progress = 0;
-            uint64_t idx = AppLayerTransactionGetInspectId(p->flow, flags);
-            uint64_t total_txs = AppLayerGetTxCnt(ALPROTO_HTTP, alstate);
+            uint64_t idx = AppLayerParserGetTransactionInspectId(p->flow->alparser, flags);
+            uint64_t total_txs = AppLayerParserGetTxCnt(p->flow->proto, ALPROTO_HTTP, alstate);
             for (; idx < total_txs; idx++) {
-                htp_tx_t *tx = AppLayerGetTx(ALPROTO_HTTP, htp_state, idx);
+                htp_tx_t *tx = AppLayerParserGetTx(p->flow->proto, ALPROTO_HTTP, htp_state, idx);
                 if (tx == NULL)
                     continue;
-                tx_progress = AppLayerGetAlstateProgress(ALPROTO_HTTP, tx, 0);
+                tx_progress = AppLayerParserGetStateProgress(p->flow->proto, ALPROTO_HTTP, tx, STREAM_TOSERVER);
 
                 if (p->flowflags & FLOW_PKT_TOSERVER) {
                     if (tx_progress > HTP_REQUEST_LINE) {
@@ -883,7 +878,7 @@ static inline void DetectMpmPrefilter(DetectEngineCtx *de_ctx,
                         }
                     }
                 } else { /* implied FLOW_PKT_TOCLIENT */
-                    tx_progress = AppLayerGetAlstateProgress(ALPROTO_HTTP, tx, 1);
+                    tx_progress = AppLayerParserGetStateProgress(p->flow->proto, ALPROTO_HTTP, tx, STREAM_TOCLIENT);
 
                     if (tx_progress > HTP_RESPONSE_LINE) {
                         if (det_ctx->sgh->flags & SIG_GROUP_HEAD_MPM_HSMD) {
@@ -929,15 +924,15 @@ static inline void DetectMpmPrefilter(DetectEngineCtx *de_ctx,
             FLOWLOCK_UNLOCK(p->flow);
         }
         /* all dns based mpms */
-        else if (alproto == ALPROTO_DNS_TCP && alstate != NULL) {
+        else if (alproto == ALPROTO_DNS && alstate != NULL) {
             if (p->flowflags & FLOW_PKT_TOSERVER) {
                 if (det_ctx->sgh->flags & SIG_GROUP_HEAD_MPM_DNSQUERY) {
                     FLOWLOCK_RDLOCK(p->flow);
 
-                    uint64_t idx = AppLayerTransactionGetInspectId(p->flow, flags);
-                    uint64_t total_txs = AppLayerGetTxCnt(alproto, alstate);
+                    uint64_t idx = AppLayerParserGetTransactionInspectId(p->flow->alparser, flags);
+                    uint64_t total_txs = AppLayerParserGetTxCnt(p->flow->proto, alproto, alstate);
                     for (; idx < total_txs; idx++) {
-                        void *tx = AppLayerGetTx(alproto, alstate, idx);
+                        void *tx = AppLayerParserGetTx(p->flow->proto, alproto, alstate, idx);
                         if (tx == NULL)
                             continue;
 
@@ -984,15 +979,15 @@ static inline void DetectMpmPrefilter(DetectEngineCtx *de_ctx,
     }
 
     /* UDP DNS inspection is independent of est or not */
-    if (alproto == ALPROTO_DNS_UDP && alstate != NULL) {
+    if (alproto == ALPROTO_DNS && alstate != NULL) {
         if (p->flowflags & FLOW_PKT_TOSERVER) {
             SCLogDebug("mpm inspection");
             if (det_ctx->sgh->flags & SIG_GROUP_HEAD_MPM_DNSQUERY) {
                 FLOWLOCK_RDLOCK(p->flow);
-                uint64_t idx = AppLayerTransactionGetInspectId(p->flow, flags);
-                uint64_t total_txs = AppLayerGetTxCnt(alproto, alstate);
+                uint64_t idx = AppLayerParserGetTransactionInspectId(p->flow->alparser, flags);
+                uint64_t total_txs = AppLayerParserGetTxCnt(p->flow->proto, alproto, alstate);
                 for (; idx < total_txs; idx++) {
-                    void *tx = AppLayerGetTx(alproto, alstate, idx);
+                    void *tx = AppLayerParserGetTx(p->flow->proto, alproto, alstate, idx);
                     if (tx == NULL)
                         continue;
                     SCLogDebug("tx %p",tx);
@@ -1009,18 +1004,11 @@ static inline void DetectMpmPrefilter(DetectEngineCtx *de_ctx,
 #ifdef DEBUG
 static void DebugInspectIds(Packet *p, Flow *f, StreamMsg *smsg)
 {
-    AppLayerParserStateStore *parser_state_store = f->alparser;
-    if (parser_state_store != NULL) {
-        SCLogDebug("pcap_cnt %02"PRIu64", %s, %12s, inspect_id(ts) %"PRIu64
-                   ", inspect_id(tc) %"PRIu64", smsg %s",
-                   p->pcap_cnt, p->flowflags & FLOW_PKT_TOSERVER ? "toserver" : "toclient",
-                   p->flags & PKT_STREAM_EST ? "established" : "stateless",
-                   parser_state_store->inspect_id[0], parser_state_store->inspect_id[1],
-                   smsg?"yes":"no");
-
-        //if (smsg)
-        //    PrintRawDataFp(stdout,smsg->data.data, smsg->data.data_len);
-    }
+    SCLogDebug("pcap_cnt %02"PRIu64", %s, %12s, smsg %s",
+               p->pcap_cnt, p->flowflags & FLOW_PKT_TOSERVER ? "toserver" : "toclient",
+               p->flags & PKT_STREAM_EST ? "established" : "stateless",
+               smsg ? "yes" : "no");
+    AppLayerParserStatePrintDetails(f->alparser);
 }
 #endif
 
@@ -1100,7 +1088,7 @@ int SigMatchSignatures(ThreadVars *th_v, DetectEngineCtx *de_ctx, DetectEngineTh
 {
     uint8_t sms_runflags = 0;   /* function flags */
     uint8_t alert_flags = 0;
-    uint16_t alproto = ALPROTO_UNKNOWN;
+    AppProto alproto = ALPROTO_UNKNOWN;
 #ifdef PROFILING
     int smatch = 0; /* signature match: 1, no match: 0 */
 #endif
@@ -1196,15 +1184,19 @@ int SigMatchSignatures(ThreadVars *th_v, DetectEngineCtx *de_ctx, DetectEngineTh
                 (p->proto == IPPROTO_UDP) ||
                 (p->proto == IPPROTO_SCTP && (p->flowflags & FLOW_PKT_ESTABLISHED)))
             {
-                alstate = AppLayerGetProtoStateFromPacket(p);
-                alproto = AppLayerGetProtoFromPacket(p);
-                alversion = AppLayerGetStateVersion(pflow);
+                alstate = FlowGetAppState(pflow);
+                alproto = FlowGetAppProtocol(pflow);
+                alversion = AppLayerParserGetStateVersion(pflow->alparser);
                 SCLogDebug("alstate %p, alproto %u", alstate, alproto);
             } else {
                 SCLogDebug("packet doesn't have established flag set (proto %d)", p->proto);
             }
 
-            app_decoder_events = AppLayerFlowHasDecoderEvents(pflow, flags);
+            app_decoder_events = AppLayerParserHasDecoderEvents(pflow->proto,
+                                                                pflow->alproto,
+                                                                pflow->alstate,
+                                                                pflow->alparser,
+                                                                flags);
         }
         FLOWLOCK_UNLOCK(pflow);
 
@@ -1318,7 +1310,7 @@ int SigMatchSignatures(ThreadVars *th_v, DetectEngineCtx *de_ctx, DetectEngineTh
     PACKET_PROFILING_DETECT_START(p, PROF_DETECT_RULES);
     /* inspect the sigs against the packet */
     for (idx = 0; idx < det_ctx->match_array_cnt; idx++) {
-        RULE_PROFILING_START;
+        RULE_PROFILING_START(p);
         state_alert = 0;
 #ifdef PROFILING
         smatch = 0;
@@ -1377,6 +1369,9 @@ int SigMatchSignatures(ThreadVars *th_v, DetectEngineCtx *de_ctx, DetectEngineTh
                     goto next;
                 }
             }
+        } else if ((s->flags & (SIG_FLAG_DP_ANY|SIG_FLAG_SP_ANY)) != (SIG_FLAG_DP_ANY|SIG_FLAG_SP_ANY)) {
+            SCLogDebug("port-less protocol and sig needs ports");
+            goto next;
         }
 
         /* check the destination address */
@@ -1420,7 +1415,7 @@ int SigMatchSignatures(ThreadVars *th_v, DetectEngineCtx *de_ctx, DetectEngineTh
                             continue;
                         }
 
-                        if (DetectEngineInspectStreamPayload(de_ctx, det_ctx, s, pflow, smsg_inspect->data.data, smsg_inspect->data.data_len) == 1) {
+                        if (DetectEngineInspectStreamPayload(de_ctx, det_ctx, s, pflow, smsg_inspect->data, smsg_inspect->data_len) == 1) {
                             SCLogDebug("match in smsg %p", smsg);
                             pmatch = 1;
                             det_ctx->flags |= DETECT_ENGINE_THREAD_CTX_STREAM_CONTENT_MATCH;
@@ -1549,7 +1544,7 @@ next:
         DetectFlowvarProcessList(det_ctx, pflow);
         DetectReplaceFree(det_ctx->replist);
         det_ctx->replist = NULL;
-        RULE_PROFILING_END(det_ctx, s, smatch);
+        RULE_PROFILING_END(det_ctx, s, smatch, p);
 
         det_ctx->flags = 0;
         continue;
@@ -1558,7 +1553,7 @@ next:
 
 end:
     /* see if we need to increment the inspect_id and reset the de_state */
-    if (alstate != NULL && AppLayerAlprotoSupportsTxs(alproto)) {
+    if (alstate != NULL && AppLayerParserProtocolSupportsTxs(p->proto, alproto)) {
         PACKET_PROFILING_DETECT_START(p, PROF_DETECT_STATEFUL);
         DeStateUpdateInspectTransactionId(pflow, flags);
         PACKET_PROFILING_DETECT_END(p, PROF_DETECT_STATEFUL);
@@ -2053,7 +2048,7 @@ deonly:
  * SIG_MASK_REQUIRE_HTTP_STATE, SIG_MASK_REQUIRE_DCE_STATE
  */
 static void
-PacketCreateMask(Packet *p, SignatureMask *mask, uint16_t alproto, void *alstate, StreamMsg *smsg,
+PacketCreateMask(Packet *p, SignatureMask *mask, AppProto alproto, void *alstate, StreamMsg *smsg,
         int app_decoder_events)
 {
     /* no payload inspect flag doesn't apply to smsg */
@@ -4591,7 +4586,7 @@ static inline void SigMultilinePrint(int i, char *prefix)
         printf("%sDescription: %s\n", prefix, sigmatch_table[i].desc);
     }
     printf("%sProtocol: %s\n", prefix,
-            AppLayerGetProtoString(sigmatch_table[i].alproto));
+           AppLayerGetProtoName(sigmatch_table[i].alproto));
     printf("%sFeatures: ", prefix);
     PrintFeatureList(sigmatch_table[i].flags, ',');
     if (sigmatch_table[i].url) {
@@ -4630,7 +4625,7 @@ void SigTableList(const char *keyword)
                 }
                 /* Build feature */
                 printf(";%s;",
-                       AppLayerGetProtoString(sigmatch_table[i].alproto));
+                       AppLayerGetProtoName(sigmatch_table[i].alproto));
                 PrintFeatureList(sigmatch_table[i].flags, ':');
                 printf(";");
                 if (sigmatch_table[i].url) {
@@ -4738,8 +4733,8 @@ void SigTableSetup(void) {
     DetectHttpRawUriRegister();
     DetectAsn1Register();
     DetectSshVersionRegister();
-    DetectSslStateRegister();
     DetectSshSoftwareVersionRegister();
+    DetectSslStateRegister();
     DetectHttpStatCodeRegister();
     DetectSslVersionRegister();
     DetectByteExtractRegister();
@@ -4943,7 +4938,7 @@ static int SigTest03Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -5005,7 +5000,7 @@ static int SigTest04Real (int mpm_type) {
 
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -5126,10 +5121,11 @@ static int SigTest06Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     Flow f;
     TcpSession ssn;
     int result = 0;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&th_v, 0, sizeof(th_v));
     memset(&f, 0, sizeof(f));
@@ -5140,6 +5136,7 @@ static int SigTest06Real (int mpm_type) {
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
     f.flags |= FLOW_IPV4;
+    f.proto = IPPROTO_TCP;
     p->flow = &f;
     p->flowflags |= FLOW_PKT_TOSERVER;
     p->flowflags |= FLOW_PKT_ESTABLISHED;
@@ -5172,7 +5169,7 @@ static int SigTest06Real (int mpm_type) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         result = 0;
@@ -5195,6 +5192,8 @@ static int SigTest06Real (int mpm_type) {
     DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
     DetectEngineCtxFree(de_ctx);
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     UTHFreePackets(&p, 1);
     StreamTcpFreeConfig(TRUE);
     FLOW_DESTROY(&f);
@@ -5226,6 +5225,7 @@ static int SigTest07Real (int mpm_type) {
     Flow f;
     TcpSession ssn;
     int result = 0;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&th_v, 0, sizeof(th_v));
     memset(&f, 0, sizeof(f));
@@ -5236,6 +5236,7 @@ static int SigTest07Real (int mpm_type) {
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
     f.flags |= FLOW_IPV4;
+    f.proto = IPPROTO_TCP;
     p->flow = &f;
     p->flowflags |= FLOW_PKT_TOSERVER;
     p->flowflags |= FLOW_PKT_ESTABLISHED;
@@ -5267,7 +5268,7 @@ static int SigTest07Real (int mpm_type) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx,(void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         result = 0;
@@ -5283,10 +5284,11 @@ static int SigTest07Real (int mpm_type) {
         result = 1;
 
 end:
-    SCMutexUnlock(&f.m);
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     UTHFreePackets(&p, 1);
     StreamTcpFreeConfig(TRUE);
-    AppLayerParserCleanupState(&f);
+    FlowCleanupAppLayer(&f);
     FLOW_DESTROY(&f);
     SigGroupCleanup(de_ctx);
     SigCleanSignatures(de_ctx);
@@ -5319,10 +5321,11 @@ static int SigTest08Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     Flow f;
     TcpSession ssn;
     int result = 0;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&f, 0, sizeof(Flow));
     memset(&th_v, 0, sizeof(th_v));
@@ -5333,6 +5336,7 @@ static int SigTest08Real (int mpm_type) {
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
     f.flags |= FLOW_IPV4;
+    f.proto = IPPROTO_TCP;
     p->flow = &f;
     p->flowflags |= FLOW_PKT_TOSERVER;
     p->flowflags |= FLOW_PKT_ESTABLISHED;
@@ -5364,7 +5368,7 @@ static int SigTest08Real (int mpm_type) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx,(void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         result = 0;
@@ -5381,13 +5385,16 @@ static int SigTest08Real (int mpm_type) {
             PacketAlertCheck(p, 1) ? "OK" : "FAIL",
             PacketAlertCheck(p, 2) ? "OK" : "FAIL");
 
-    AppLayerParserCleanupState(&f);
+end:
+    FlowCleanupAppLayer(&f);
     SigGroupCleanup(de_ctx);
     SigCleanSignatures(de_ctx);
 
-    DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
+    if (det_ctx)
+        DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
     DetectEngineCtxFree(de_ctx);
-end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     UTHFreePackets(&p, 1);
     StreamTcpFreeConfig(TRUE);
     FLOW_DESTROY(&f);
@@ -5415,9 +5422,10 @@ static int SigTest09Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     Flow f;
     TcpSession ssn;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -5429,6 +5437,7 @@ static int SigTest09Real (int mpm_type) {
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
     f.flags |= FLOW_IPV4;
+    f.proto = IPPROTO_TCP;
     p->flow = &f;
     p->flowflags |= FLOW_PKT_TOSERVER;
     p->flowflags |= FLOW_PKT_ESTABLISHED;
@@ -5460,7 +5469,7 @@ static int SigTest09Real (int mpm_type) {
     DetectEngineThreadCtxInit(&th_v, (void *)de_ctx,(void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         result = 0;
@@ -5475,12 +5484,15 @@ static int SigTest09Real (int mpm_type) {
     else
         result = 0;
 
-    AppLayerParserCleanupState(&f);
+end:
+    FlowCleanupAppLayer(&f);
     SigGroupCleanup(de_ctx);
     SigCleanSignatures(de_ctx);
-    DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
+    if (det_ctx)
+        DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
     DetectEngineCtxFree(de_ctx);
-end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     UTHFreePackets(&p, 1);
     StreamTcpFreeConfig(TRUE);
     FLOW_DESTROY(&f);
@@ -5503,10 +5515,11 @@ static int SigTest10Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     Flow f;
     TcpSession ssn;
     int result = 0;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&th_v, 0, sizeof(th_v));
     memset(&f, 0, sizeof(f));
@@ -5516,6 +5529,7 @@ static int SigTest10Real (int mpm_type) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     p->flow = &f;
     p->flowflags |= FLOW_PKT_TOSERVER;
@@ -5549,7 +5563,7 @@ static int SigTest10Real (int mpm_type) {
 
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, buf, buflen);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         result = 0;
@@ -5564,12 +5578,15 @@ static int SigTest10Real (int mpm_type) {
     else
         result = 1;
 
-    AppLayerParserCleanupState(&f);
+ end:
+    FlowCleanupAppLayer(&f);
     SigGroupCleanup(de_ctx);
     SigCleanSignatures(de_ctx);
-    DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
+    if (det_ctx)
+        DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
     DetectEngineCtxFree(de_ctx);
-end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     UTHFreePackets(&p, 1);
     StreamTcpFreeConfig(TRUE);
     FLOW_DESTROY(&f);
@@ -5592,7 +5609,7 @@ static int SigTest11Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     Flow f;
     TcpSession ssn;
     int result = 0;
@@ -5605,6 +5622,7 @@ static int SigTest11Real (int mpm_type) {
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
     p->flow = &f;
     p->flowflags |= FLOW_PKT_TOSERVER;
@@ -5637,11 +5655,12 @@ static int SigTest11Real (int mpm_type) {
     if (PacketAlertCheck(p, 1) && PacketAlertCheck(p, 2))
         result = 1;
 
-    AppLayerParserCleanupState(&f);
+ end:
+    FlowCleanupAppLayer(&f);
     SigGroupCleanup(de_ctx);
-    DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
+    if (det_ctx)
+        DetectEngineThreadCtxDeinit(&th_v, (void *)det_ctx);
     DetectEngineCtxFree(de_ctx);
-end:
     UTHFreePackets(&p, 1);
     StreamTcpFreeConfig(TRUE);
     FLOW_DESTROY(&f);
@@ -5664,7 +5683,7 @@ static int SigTest12Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -5729,7 +5748,7 @@ static int SigTest13Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -5791,7 +5810,7 @@ static int SigTest14Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -5848,7 +5867,7 @@ static int SigTest15Real (int mpm_type) {
     if (unlikely(p == NULL))
         return 0;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -5915,7 +5934,7 @@ static int SigTest16Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -6055,7 +6074,7 @@ static int SigTest18Real (int mpm_type) {
     if (unlikely(p == NULL))
         return 0;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -6118,7 +6137,7 @@ int SigTest19Real (int mpm_type) {
     if (unlikely(p == NULL))
         return 0;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -6188,7 +6207,7 @@ static int SigTest20Real (int mpm_type) {
     if (unlikely(p == NULL))
         return 0;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -6346,7 +6365,7 @@ static int SigTest21Wm (void) {
 static int SigTest22Real (int mpm_type) {
     ThreadVars th_v;
     memset(&th_v, 0, sizeof(th_v));
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     Flow f;
@@ -6432,7 +6451,7 @@ static int SigTest22Wm (void) {
 static int SigTest23Real (int mpm_type) {
     ThreadVars th_v;
     memset(&th_v, 0, sizeof(th_v));
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     Flow f;
@@ -6638,7 +6657,7 @@ int SigTest25NegativeIPV4Keyword(void)
         return 0;
     }
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 1;
 
     uint8_t *buf = (uint8_t *)"GET /one/ HTTP/1.0\r\n"
@@ -8073,7 +8092,7 @@ int SigTest35NegativeICMPV4Keyword(void)
         return 0;
     }
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 1;
 
     uint8_t *buf = (uint8_t *)"GET /one/ HTTP/1.0\r\n"
@@ -8995,7 +9014,7 @@ int SigTest40NoPacketInspection01(void) {
     if (unlikely(p == NULL))
     return 0;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     PacketQueue pq;
     Flow f;
     int result = 0;
@@ -9069,7 +9088,7 @@ int SigTest40NoPayloadInspection02(void) {
     if (unlikely(p == NULL))
     return 0;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 1;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -9130,7 +9149,7 @@ static int SigTestMemory01 (void) {
     if (unlikely(p == NULL))
         return 0;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -9267,7 +9286,7 @@ end:
 static int SigTestSgh01 (void) {
     ThreadVars th_v;
     int result = 0;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     memset(&th_v, 0, sizeof(th_v));
 
     Packet *p = NULL;
@@ -9408,7 +9427,7 @@ end:
 static int SigTestSgh02 (void) {
     ThreadVars th_v;
     int result = 0;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     Packet *p = NULL;
     p = UTHBuildPacketSrcDstPorts((uint8_t *)"a", 1, IPPROTO_TCP, 12345, 80);
 
@@ -9598,7 +9617,7 @@ static int SigTestSgh03 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
 
     memset(&th_v, 0, sizeof(th_v));
     memset(p, 0, SIZE_OF_PACKET);
@@ -9769,7 +9788,7 @@ static int SigTestSgh04 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
 
     memset(&th_v, 0, sizeof(th_v));
     memset(p, 0, SIZE_OF_PACKET);
@@ -9961,7 +9980,7 @@ static int SigTestSgh05 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
 
     memset(&th_v, 0, sizeof(th_v));
     memset(p, 0, SIZE_OF_PACKET);
@@ -10027,7 +10046,7 @@ static int SigTestContent01Real (int mpm_type) {
     uint8_t *buf = (uint8_t *)"01234567890123456789012345678901";
     uint16_t buflen = strlen((char *)buf);
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -10081,7 +10100,7 @@ static int SigTestContent02Real (int mpm_type) {
     uint8_t *buf = (uint8_t *)"01234567890123456789012345678901";
     uint16_t buflen = strlen((char *)buf);
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -10144,7 +10163,7 @@ static int SigTestContent03Real (int mpm_type) {
     uint8_t *buf = (uint8_t *)"01234567890123456789012345678901abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     uint16_t buflen = strlen((char *)buf);
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -10197,7 +10216,7 @@ static int SigTestContent04Real (int mpm_type) {
     uint8_t *buf = (uint8_t *)"01234567890123456789012345678901abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     uint16_t buflen = strlen((char *)buf);
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -10322,7 +10341,7 @@ static int SigTestContent06Real (int mpm_type) {
     uint8_t *buf = (uint8_t *)"01234567890123456789012345678901abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     uint16_t buflen = strlen((char *)buf);
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -10613,7 +10632,7 @@ static int SigTestDepthOffset01Real (int mpm_type) {
     uint16_t buflen = strlen((char *)buf);
     Packet *p = NULL;
     ThreadVars th_v;
-    DetectEngineThreadCtx *det_ctx;
+    DetectEngineThreadCtx *det_ctx = NULL;
     int result = 0;
 
     memset(&th_v, 0, sizeof(th_v));
@@ -10735,6 +10754,7 @@ static int SigTestDropFlow01(void)
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -10744,6 +10764,7 @@ static int SigTestDropFlow01(void)
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
 
     p->flow = &f;
@@ -10772,7 +10793,7 @@ static int SigTestDropFlow01(void)
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -10804,6 +10825,8 @@ static int SigTestDropFlow01(void)
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -10834,6 +10857,7 @@ static int SigTestDropFlow02(void)
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -10843,6 +10867,7 @@ static int SigTestDropFlow02(void)
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
 
     p->flow = &f;
@@ -10871,7 +10896,7 @@ static int SigTestDropFlow02(void)
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -10904,6 +10929,8 @@ static int SigTestDropFlow02(void)
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -10945,6 +10972,7 @@ static int SigTestDropFlow03(void)
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -10955,6 +10983,7 @@ static int SigTestDropFlow03(void)
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
 
     p1->flow = &f;
@@ -10998,7 +11027,7 @@ static int SigTestDropFlow03(void)
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -11043,7 +11072,7 @@ static int SigTestDropFlow03(void)
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
     if (r != 0) {
         printf("toserver chunk 2 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -11072,6 +11101,8 @@ static int SigTestDropFlow03(void)
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -11114,6 +11145,7 @@ static int SigTestDropFlow04(void)
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -11124,6 +11156,7 @@ static int SigTestDropFlow04(void)
 
     FLOW_INITIALIZE(&f);
     f.protoctx = (void *)&ssn;
+    f.proto = IPPROTO_TCP;
     f.flags |= FLOW_IPV4;
 
     p1->flow = &f;
@@ -11166,7 +11199,7 @@ static int SigTestDropFlow04(void)
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf1, http_buf1_len);
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -11221,7 +11254,7 @@ static int SigTestDropFlow04(void)
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_HTTP, STREAM_TOSERVER, http_buf2, http_buf2_len);
     if (r != 0) {
         printf("toserver chunk 2 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -11252,6 +11285,8 @@ static int SigTestDropFlow04(void)
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -11265,6 +11300,58 @@ end:
     UTHFreePackets(&p1, 1);
     UTHFreePackets(&p2, 1);
 
+    return result;
+}
+
+/** \test ICMP packet shouldn't be matching port based sig
+ *        Bug #611 */
+static int SigTestPorts01(void)
+{
+    int result = 0;
+    Packet *p1 = NULL;
+    Signature *s = NULL;
+    ThreadVars tv;
+    DetectEngineThreadCtx *det_ctx = NULL;
+    uint8_t payload[] = "AAAAAAAAAAAAAAAAAA";
+
+    memset(&tv, 0, sizeof(ThreadVars));
+
+    p1 = UTHBuildPacket(payload, sizeof(payload), IPPROTO_ICMP);
+
+    DetectEngineCtx *de_ctx = DetectEngineCtxInit();
+    if (de_ctx == NULL) {
+        goto end;
+    }
+    de_ctx->mpm_matcher = MPM_B2G;
+    de_ctx->flags |= DE_QUIET;
+
+    s = de_ctx->sig_list = SigInit(de_ctx, "alert ip any any -> any 80 "
+                                   "(content:\"AAA\"; sid:1;)");
+    if (s == NULL) {
+        goto end;
+    }
+
+    SigGroupBuild(de_ctx);
+    DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
+
+    /* do detect */
+    SigMatchSignatures(&tv, de_ctx, det_ctx, p1);
+
+    if (PacketAlertCheck(p1, 1)) {
+        printf("sig 1 alerted on p1, but it should not: ");
+        goto end;
+    }
+
+    result = 1;
+end:
+    if (det_ctx != NULL)
+        DetectEngineThreadCtxDeinit(&tv, det_ctx);
+    if (de_ctx != NULL)
+        SigGroupCleanup(de_ctx);
+    if (de_ctx != NULL)
+        DetectEngineCtxFree(de_ctx);
+
+    UTHFreePackets(&p1, 1);
     return result;
 }
 
@@ -11665,6 +11752,8 @@ void SigRegisterTests(void) {
     UtRegisterTest("DetectAddressYamlParsing02", DetectAddressYamlParsing02, 1);
     UtRegisterTest("DetectAddressYamlParsing03", DetectAddressYamlParsing03, 1);
     UtRegisterTest("DetectAddressYamlParsing04", DetectAddressYamlParsing04, 1);
+
+    UtRegisterTest("SigTestPorts01", SigTestPorts01, 1);
 
     DetectSimdRegisterTests();
 #endif /* UNITTESTS */

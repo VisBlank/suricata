@@ -955,52 +955,31 @@ void IPOnlyMatchPacket(ThreadVars *tv,
                        DetectEngineIPOnlyCtx *io_ctx,
                        DetectEngineIPOnlyThreadCtx *io_tctx, Packet *p)
 {
-    SCRadixNode *srcnode = NULL, *dstnode = NULL;
     SigNumArray *src = NULL;
     SigNumArray *dst = NULL;
+    void *user_data_src = NULL, *user_data_dst = NULL;
 
     if (p->src.family == AF_INET) {
-        srcnode = SCRadixFindKeyIPV4BestMatch((uint8_t *)&GET_IPV4_SRC_ADDR_U32(p),
-                                              io_ctx->tree_ipv4src);
+        (void)SCRadixFindKeyIPV4BestMatch((uint8_t *)&GET_IPV4_SRC_ADDR_U32(p),
+                                              io_ctx->tree_ipv4src, &user_data_src);
     } else if (p->src.family == AF_INET6) {
-        srcnode = SCRadixFindKeyIPV6BestMatch((uint8_t *)&GET_IPV6_SRC_ADDR(p),
-                                              io_ctx->tree_ipv6src);
+        (void)SCRadixFindKeyIPV6BestMatch((uint8_t *)&GET_IPV6_SRC_ADDR(p),
+                                              io_ctx->tree_ipv6src, &user_data_src);
     }
 
     if (p->dst.family == AF_INET) {
-        dstnode = SCRadixFindKeyIPV4BestMatch((uint8_t *)&GET_IPV4_DST_ADDR_U32(p),
-                                              io_ctx->tree_ipv4dst);
+        (void)SCRadixFindKeyIPV4BestMatch((uint8_t *)&GET_IPV4_DST_ADDR_U32(p),
+                                              io_ctx->tree_ipv4dst, &user_data_dst);
     } else if (p->dst.family == AF_INET6) {
-        dstnode = SCRadixFindKeyIPV6BestMatch((uint8_t *)&GET_IPV6_DST_ADDR(p),
-                                              io_ctx->tree_ipv6dst);
+        (void)SCRadixFindKeyIPV6BestMatch((uint8_t *)&GET_IPV6_DST_ADDR(p),
+                                              io_ctx->tree_ipv6dst, &user_data_dst);
     }
 
+    src = user_data_src;
+    dst = user_data_dst;
 
-    /* The radix trees are printed without our logging format
-       comment this out if you need to debug
-    printf("Src: \n");
-    SCRadixPrintNodeInfo(srcnode, 4, SigNumArrayPrint);
-    printf("Dst: \n");
-    SCRadixPrintNodeInfo(dstnode, 4, SigNumArrayPrint);
-    */
-
-    if (srcnode != NULL && srcnode->prefix != NULL &&
-        srcnode->prefix->user_data_result != NULL) {
-        src = srcnode->prefix->user_data_result;
-    } else {
-        //SCLogError(SC_ERR_IPONLY_RADIX, "Error, no userdata found at the radix"
-        //           " on src node!");
+    if (src == NULL || dst == NULL)
         return;
-    }
-
-    if (dstnode != NULL && dstnode->prefix != NULL &&
-        dstnode->prefix->user_data_result != NULL) {
-        dst = dstnode->prefix->user_data_result;
-    } else {
-        //SCLogError(SC_ERR_IPONLY_RADIX, "Error, no userdata found at the radix"
-        //           " on dst node!");
-        return;
-    }
 
     uint32_t u;
     for (u = 0; u < src->size; u++) {
@@ -1057,6 +1036,9 @@ void IPOnlyMatchPacket(ThreadVars *tv,
                                 continue;
                             }
                         }
+                    } else if ((s->flags & (SIG_FLAG_DP_ANY|SIG_FLAG_SP_ANY)) != (SIG_FLAG_DP_ANY|SIG_FLAG_SP_ANY)) {
+                        SCLogDebug("port-less protocol and sig needs ports");
+                        continue;
                     }
 
                     if (!IPOnlyMatchCompatSMs(tv, det_ctx, s, p)) {
@@ -1124,23 +1106,24 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                         src->signum);
         */
 
+            void *user_data = NULL;
             if (src->netmask == 32)
-                node = SCRadixFindKeyIPV4ExactMatch((uint8_t *)&src->ip[0],
-                                                    (de_ctx->io_ctx).tree_ipv4src);
+                (void)SCRadixFindKeyIPV4ExactMatch((uint8_t *)&src->ip[0],
+                                                    (de_ctx->io_ctx).tree_ipv4src,
+                                                    &user_data);
             else
-                node = SCRadixFindKeyIPV4Netblock((uint8_t *)&src->ip[0],
+                (void)SCRadixFindKeyIPV4Netblock((uint8_t *)&src->ip[0],
                                                   (de_ctx->io_ctx).tree_ipv4src,
-                                                  src->netmask);
-
-            if (node == NULL) {
+                                                  src->netmask, &user_data);
+            if (user_data == NULL) {
                 SCLogDebug("Exact match not found");
 
                 /** Not found, look if there's a subnet of this range with
                  * bigger netmask */
-                node = SCRadixFindKeyIPV4BestMatch((uint8_t *)&src->ip[0],
-                                                   (de_ctx->io_ctx).tree_ipv4src);
-
-                if (node == NULL) {
+                (void)SCRadixFindKeyIPV4BestMatch((uint8_t *)&src->ip[0],
+                                                   (de_ctx->io_ctx).tree_ipv4src,
+                                                   &user_data);
+                if (user_data == NULL) {
                     SCLogDebug("best match not found");
 
                     /* Not found, insert a new one */
@@ -1172,7 +1155,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
 
                     /* Found, copy the sig num table, add this signum and insert */
                     SigNumArray *sna = NULL;
-                    sna = SigNumArrayCopy((SigNumArray *) node->prefix->user_data_result);
+                    sna = SigNumArrayCopy((SigNumArray *) user_data);
 
                     /* Update the sig */
                     uint8_t tmp = 1 << (src->signum % 8);
@@ -1205,7 +1188,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                 SCLogDebug("Exact match found");
 
                 /* it's already inserted. Update it */
-                SigNumArray *sna = (SigNumArray *)node->prefix->user_data_result;
+                SigNumArray *sna = (SigNumArray *)user_data;
 
                 /* Update the sig */
                 uint8_t tmp = 1 << (src->signum % 8);
@@ -1220,20 +1203,23 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
         } else if (src->family == AF_INET6) {
             SCLogDebug("To IPv6");
 
+            void *user_data = NULL;
             if (src->netmask == 128)
-                node = SCRadixFindKeyIPV6ExactMatch((uint8_t *)&src->ip[0],
-                                                    (de_ctx->io_ctx).tree_ipv6src);
+                (void)SCRadixFindKeyIPV6ExactMatch((uint8_t *)&src->ip[0],
+                                                    (de_ctx->io_ctx).tree_ipv6src,
+                                                    &user_data);
             else
-                node = SCRadixFindKeyIPV6Netblock((uint8_t *)&src->ip[0],
+                (void)SCRadixFindKeyIPV6Netblock((uint8_t *)&src->ip[0],
                                                   (de_ctx->io_ctx).tree_ipv6src,
-                                                  src->netmask);
+                                                  src->netmask, &user_data);
 
-            if (node == NULL) {
+            if (user_data == NULL) {
                 /* Not found, look if there's a subnet of this range with bigger netmask */
-                node = SCRadixFindKeyIPV6BestMatch((uint8_t *)&src->ip[0],
-                                                   (de_ctx->io_ctx).tree_ipv6src);
+                (void)SCRadixFindKeyIPV6BestMatch((uint8_t *)&src->ip[0],
+                                                   (de_ctx->io_ctx).tree_ipv6src,
+                                                   &user_data);
 
-                if (node == NULL) {
+                if (user_data == NULL) {
                     /* Not found, insert a new one */
                     SigNumArray *sna = SigNumArrayNew(de_ctx, &de_ctx->io_ctx);
 
@@ -1260,7 +1246,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                 } else {
                     /* Found, copy the sig num table, add this signum and insert */
                     SigNumArray *sna = NULL;
-                    sna = SigNumArrayCopy((SigNumArray *)node->prefix->user_data_result);
+                    sna = SigNumArrayCopy((SigNumArray *)user_data);
 
                     /* Update the sig */
                     uint8_t tmp = 1 << (src->signum % 8);
@@ -1284,7 +1270,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                 }
             } else {
                 /* it's already inserted. Update it */
-                SigNumArray *sna = (SigNumArray *)node->prefix->user_data_result;
+                SigNumArray *sna = (SigNumArray *)user_data;
 
                 /* Update the sig */
                 uint8_t tmp = 1 << (src->signum % 8);
@@ -1312,24 +1298,28 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                        " %"PRIu16"", dst->netmask, (dst->negated)?"yes":"no",
                        inet_ntoa(*(struct in_addr*)&dst->ip[0]), dst->signum);
 
+            void *user_data = NULL;
             if (dst->netmask == 32)
-                node = SCRadixFindKeyIPV4ExactMatch((uint8_t *) &dst->ip[0],
-                                                    (de_ctx->io_ctx).tree_ipv4dst);
+                (void) SCRadixFindKeyIPV4ExactMatch((uint8_t *) &dst->ip[0],
+                                                    (de_ctx->io_ctx).tree_ipv4dst,
+                                                    &user_data);
             else
-                node = SCRadixFindKeyIPV4Netblock((uint8_t *) &dst->ip[0],
+                (void) SCRadixFindKeyIPV4Netblock((uint8_t *) &dst->ip[0],
                                                   (de_ctx->io_ctx).tree_ipv4dst,
-                                                  dst->netmask);
+                                                  dst->netmask,
+                                                  &user_data);
 
-            if (node == NULL) {
+            if (user_data == NULL) {
                 SCLogDebug("Exact match not found");
 
                 /**
                  * Not found, look if there's a subnet of this range
                  * with bigger netmask
                  */
-                node = SCRadixFindKeyIPV4BestMatch((uint8_t *)&dst->ip[0],
-                                                   (de_ctx->io_ctx).tree_ipv4dst);
-                if (node == NULL) {
+                (void) SCRadixFindKeyIPV4BestMatch((uint8_t *)&dst->ip[0],
+                                                   (de_ctx->io_ctx).tree_ipv4dst,
+                                                   &user_data);
+                if (user_data == NULL) {
                     SCLogDebug("Best match not found");
 
                     /** Not found, insert a new one */
@@ -1360,7 +1350,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
 
                     /* Found, copy the sig num table, add this signum and insert */
                     SigNumArray *sna = NULL;
-                    sna = SigNumArrayCopy((SigNumArray *)node->prefix->user_data_result);
+                    sna = SigNumArrayCopy((SigNumArray *) user_data);
 
                     /* Update the sig */
                     uint8_t tmp = 1 << (dst->signum % 8);
@@ -1387,7 +1377,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                 SCLogDebug("Exact match found");
 
                 /* it's already inserted. Update it */
-                SigNumArray *sna = (SigNumArray *)node->prefix->user_data_result;
+                SigNumArray *sna = (SigNumArray *)user_data;
 
                 /* Update the sig */
                 uint8_t tmp = 1 << (dst->signum % 8);
@@ -1401,22 +1391,25 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
         } else if (dst->family == AF_INET6) {
             SCLogDebug("To IPv6");
 
+            void *user_data = NULL;
             if (dst->netmask == 128)
-                node = SCRadixFindKeyIPV6ExactMatch((uint8_t *)&dst->ip[0],
-                                                    (de_ctx->io_ctx).tree_ipv6dst);
+                (void) SCRadixFindKeyIPV6ExactMatch((uint8_t *)&dst->ip[0],
+                                                    (de_ctx->io_ctx).tree_ipv6dst,
+                                                    &user_data);
             else
-                node = SCRadixFindKeyIPV6Netblock((uint8_t *)&dst->ip[0],
+                (void) SCRadixFindKeyIPV6Netblock((uint8_t *)&dst->ip[0],
                                                   (de_ctx->io_ctx).tree_ipv6dst,
-                                                  dst->netmask);
+                                                  dst->netmask, &user_data);
 
-            if (node == NULL) {
+            if (user_data == NULL) {
                 /** Not found, look if there's a subnet of this range with
                  * bigger netmask
                  */
-                node = SCRadixFindKeyIPV6BestMatch((uint8_t *)&dst->ip[0],
-                                                   (de_ctx->io_ctx).tree_ipv6dst);
+                (void) SCRadixFindKeyIPV6BestMatch((uint8_t *)&dst->ip[0],
+                                                   (de_ctx->io_ctx).tree_ipv6dst,
+                                                   &user_data);
 
-                if (node == NULL) {
+                if (user_data == NULL) {
                     /* Not found, insert a new one */
                     SigNumArray *sna = SigNumArrayNew(de_ctx, &de_ctx->io_ctx);
 
@@ -1443,7 +1436,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                 } else {
                     /* Found, copy the sig num table, add this signum and insert */
                     SigNumArray *sna = NULL;
-                    sna = SigNumArrayCopy((SigNumArray *)node->prefix->user_data_result);
+                    sna = SigNumArrayCopy((SigNumArray *)user_data);
 
                     /* Update the sig */
                     uint8_t tmp = 1 << (dst->signum % 8);
@@ -1468,7 +1461,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
                 }
             } else {
                 /* it's already inserted. Update it */
-                SigNumArray *sna = (SigNumArray *)node->prefix->user_data_result;
+                SigNumArray *sna = (SigNumArray *)user_data;
 
                 /* Update the sig */
                 uint8_t tmp = 1 << (dst->signum % 8);
@@ -2220,6 +2213,36 @@ int IPOnlyTestSig16(void)
     return result;
 }
 
+/**
+ * \brief Unittest to show #611. Ports on portless protocols.
+ */
+int IPOnlyTestSig17(void)
+{
+    int result = 0;
+    uint8_t *buf = (uint8_t *)"Hi all!";
+    uint16_t buflen = strlen((char *)buf);
+
+    uint8_t numpkts = 1;
+    uint8_t numsigs = 2;
+
+    Packet *p[1];
+
+    p[0] = UTHBuildPacketSrcDst((uint8_t *)buf, buflen, IPPROTO_ICMP, "100.100.0.0", "50.0.0.0");
+
+    char *sigs[numsigs];
+    sigs[0]= "alert ip 100.100.0.0 80 -> any any (msg:\"Testing src ip (sid 1)\"; sid:1;)";
+    sigs[1]= "alert ip any any -> 50.0.0.0 123 (msg:\"Testing dst ip (sid 2)\"; sid:2;)";
+
+    uint32_t sid[2] = { 1, 2};
+    uint32_t results[2] = { 0, 0}; /* neither should match */
+
+    result = UTHGenericTest(p, numpkts, sigs, sid, (uint32_t *) results, numsigs);
+
+    UTHFreePackets(p, numpkts);
+
+    return result;
+}
+
 #endif /* UNITTESTS */
 
 void IPOnlyRegisterTests(void) {
@@ -2252,6 +2275,8 @@ void IPOnlyRegisterTests(void) {
     UtRegisterTest("IPOnlyTestSig14", IPOnlyTestSig14, 1);
     UtRegisterTest("IPOnlyTestSig15", IPOnlyTestSig15, 1);
     UtRegisterTest("IPOnlyTestSig16", IPOnlyTestSig16, 1);
+
+    UtRegisterTest("IPOnlyTestSig17", IPOnlyTestSig17, 1);
 #endif
 
     return;

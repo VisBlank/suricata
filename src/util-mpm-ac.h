@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2010 Open Information Security Foundation
+/* Copyright (C) 2007-2014 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -29,9 +29,13 @@
 #define SC_AC_STATE_TYPE_U32 uint32_t
 
 #ifdef __SC_CUDA_SUPPORT__
+#include "suricata-common.h"
 #include "util-cuda.h"
 #include "util-cuda-vars.h"
 #include "decode.h"
+#include "util-cuda-buffer.h"
+#include "util-mpm.h"
+#include "flow.h"
 #endif /* __SC_CUDA_SUPPORT__ */
 
 typedef struct SCACPattern_ {
@@ -54,7 +58,6 @@ typedef struct SCACPattern_ {
 typedef struct SCACPatternList_ {
     uint8_t *cs;
     uint16_t patlen;
-    uint16_t case_state;
 } SCACPatternList;
 
 typedef struct SCACOutputTable_ {

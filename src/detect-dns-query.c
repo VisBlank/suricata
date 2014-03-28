@@ -49,6 +49,8 @@
 #include "util-spm.h"
 #include "util-print.h"
 
+#include "stream-tcp.h"
+
 #include "app-layer.h"
 #include "app-layer-dns-common.h"
 #include "detect-dns-query.h"
@@ -145,6 +147,7 @@ static int DetectDnsQueryTest01(void) {
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -156,11 +159,12 @@ static int DetectDnsQueryTest01(void) {
     FLOW_INITIALIZE(&f);
     f.flags |= FLOW_IPV4;
     f.proto = IPPROTO_UDP;
+    f.protomap = FlowGetProtoMapping(f.proto);
 
     p->flow = &f;
     p->flags |= PKT_HAS_FLOW;
     p->flowflags |= FLOW_PKT_TOSERVER;
-    f.alproto = ALPROTO_DNS_UDP;
+    f.alproto = ALPROTO_DNS;
 
     DetectEngineCtx *de_ctx = DetectEngineCtxInit();
     if (de_ctx == NULL) {
@@ -180,7 +184,7 @@ static int DetectDnsQueryTest01(void) {
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf, sizeof(buf));
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf, sizeof(buf));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -205,6 +209,8 @@ static int DetectDnsQueryTest01(void) {
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -255,6 +261,7 @@ static int DetectDnsQueryTest02(void) {
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -272,7 +279,8 @@ static int DetectDnsQueryTest02(void) {
     FLOW_INITIALIZE(&f);
     f.flags |= FLOW_IPV4;
     f.proto = IPPROTO_UDP;
-    f.alproto = ALPROTO_DNS_UDP;
+    f.protomap = FlowGetProtoMapping(f.proto);
+    f.alproto = ALPROTO_DNS;
 
     p1->flow = &f;
     p1->flags |= PKT_HAS_FLOW;
@@ -297,14 +305,14 @@ static int DetectDnsQueryTest02(void) {
     de_ctx->flags |= DE_QUIET;
 
     s = DetectEngineAppendSig(de_ctx, "alert dns any any -> any any "
-                                   "(msg:\"Test dns_query option\"; "
-                                   "dns_query; content:\"google.com\"; nocase; sid:1;)");
+                              "(msg:\"Test dns_query option\"; "
+                              "dns_query; content:\"google.com\"; nocase; sid:1;)");
     if (s == NULL) {
         goto end;
     }
     s = DetectEngineAppendSig(de_ctx, "alert dns any any -> any any "
-                                   "(msg:\"Test dns_query option\"; "
-                                   "dns_query; content:\"google.net\"; nocase; sid:2;)");
+                              "(msg:\"Test dns_query option\"; "
+                              "dns_query; content:\"google.net\"; nocase; sid:2;)");
     if (s == NULL) {
         goto end;
     }
@@ -313,7 +321,7 @@ static int DetectDnsQueryTest02(void) {
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf1, sizeof(buf1));
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf1, sizeof(buf1));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -340,7 +348,7 @@ static int DetectDnsQueryTest02(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOCLIENT, buf2, sizeof(buf2));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOCLIENT, buf2, sizeof(buf2));
     if (r != 0) {
         printf("toserver client 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -361,7 +369,7 @@ static int DetectDnsQueryTest02(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf3, sizeof(buf3));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf3, sizeof(buf3));
     if (r != 0) {
         printf("toserver chunk 3 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -384,6 +392,8 @@ static int DetectDnsQueryTest02(void) {
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -415,6 +425,7 @@ static int DetectDnsQueryTest03(void) {
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
     TcpSession ssn;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -428,11 +439,12 @@ static int DetectDnsQueryTest03(void) {
     f.protoctx = (void *)&ssn;
     f.flags |= FLOW_IPV4;
     f.proto = IPPROTO_TCP;
+    f.protomap = FlowGetProtoMapping(f.proto);
 
     p->flow = &f;
     p->flags |= PKT_HAS_FLOW|PKT_STREAM_EST;
     p->flowflags |= FLOW_PKT_TOSERVER|FLOW_PKT_ESTABLISHED;
-    f.alproto = ALPROTO_DNS_TCP;
+    f.alproto = ALPROTO_DNS;
 
     StreamTcpInitConfig(TRUE);
 
@@ -443,9 +455,9 @@ static int DetectDnsQueryTest03(void) {
     de_ctx->mpm_matcher = DEFAULT_MPM;
     de_ctx->flags |= DE_QUIET;
 
-    s = DetectEngineAppendSig(de_ctx, "alert dnstcp any any -> any any "
-                                   "(msg:\"Test dns_query option\"; "
-                                   "content:\"google\"; nocase; dns_query; sid:1;)");
+    s = DetectEngineAppendSig(de_ctx, "alert dns any any -> any any "
+                              "(msg:\"Test dns_query option\"; "
+                              "content:\"google\"; nocase; dns_query; sid:1;)");
     if (s == NULL) {
         goto end;
     }
@@ -454,7 +466,7 @@ static int DetectDnsQueryTest03(void) {
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf, sizeof(buf));
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf, sizeof(buf));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -479,6 +491,8 @@ static int DetectDnsQueryTest03(void) {
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -509,6 +523,7 @@ static int DetectDnsQueryTest04(void) {
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
     TcpSession ssn;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -525,7 +540,8 @@ static int DetectDnsQueryTest04(void) {
     f.protoctx = (void *)&ssn;
     f.flags |= FLOW_IPV4;
     f.proto = IPPROTO_TCP;
-    f.alproto = ALPROTO_DNS_TCP;
+    f.protomap = FlowGetProtoMapping(f.proto);
+    f.alproto = ALPROTO_DNS;
 
     p1->flow = &f;
     p1->flags |= PKT_HAS_FLOW|PKT_STREAM_EST;
@@ -544,9 +560,9 @@ static int DetectDnsQueryTest04(void) {
     de_ctx->mpm_matcher = DEFAULT_MPM;
     de_ctx->flags |= DE_QUIET;
 
-    s = DetectEngineAppendSig(de_ctx, "alert dnstcp any any -> any any "
-                                   "(msg:\"Test dns_query option\"; "
-                                   "dns_query; content:\"google\"; nocase; sid:1;)");
+    s = DetectEngineAppendSig(de_ctx, "alert dns any any -> any any "
+                              "(msg:\"Test dns_query option\"; "
+                              "dns_query; content:\"google\"; nocase; sid:1;)");
     if (s == NULL) {
         goto end;
     }
@@ -555,7 +571,7 @@ static int DetectDnsQueryTest04(void) {
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf1, sizeof(buf1));
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf1, sizeof(buf1));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -578,7 +594,7 @@ static int DetectDnsQueryTest04(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf2, sizeof(buf2));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf2, sizeof(buf2));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -597,6 +613,8 @@ static int DetectDnsQueryTest04(void) {
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -654,6 +672,7 @@ static int DetectDnsQueryTest05(void) {
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
     TcpSession ssn;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -676,7 +695,8 @@ static int DetectDnsQueryTest05(void) {
     f.protoctx = (void *)&ssn;
     f.flags |= FLOW_IPV4;
     f.proto = IPPROTO_TCP;
-    f.alproto = ALPROTO_DNS_TCP;
+    f.protomap = FlowGetProtoMapping(f.proto);
+    f.alproto = ALPROTO_DNS;
 
     p1->flow = &f;
     p1->flags |= PKT_HAS_FLOW|PKT_STREAM_EST;
@@ -703,15 +723,15 @@ static int DetectDnsQueryTest05(void) {
     de_ctx->mpm_matcher = DEFAULT_MPM;
     de_ctx->flags |= DE_QUIET;
 
-    s = DetectEngineAppendSig(de_ctx, "alert dnstcp any any -> any any "
-                                      "(msg:\"Test dns_query option\"; "
-                                      "dns_query; content:\"google.com\"; nocase; sid:1;)");
+    s = DetectEngineAppendSig(de_ctx, "alert dns any any -> any any "
+                              "(msg:\"Test dns_query option\"; "
+                              "dns_query; content:\"google.com\"; nocase; sid:1;)");
     if (s == NULL) {
         goto end;
     }
-    s = DetectEngineAppendSig(de_ctx, "alert dnstcp any any -> any any "
-                                      "(msg:\"Test dns_query option\"; "
-                                      "dns_query; content:\"google.net\"; nocase; sid:2;)");
+    s = DetectEngineAppendSig(de_ctx, "alert dns any any -> any any "
+                              "(msg:\"Test dns_query option\"; "
+                              "dns_query; content:\"google.net\"; nocase; sid:2;)");
     if (s == NULL) {
         goto end;
     }
@@ -720,7 +740,7 @@ static int DetectDnsQueryTest05(void) {
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf1, sizeof(buf1));
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf1, sizeof(buf1));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -747,7 +767,7 @@ static int DetectDnsQueryTest05(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf2, sizeof(buf2));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf2, sizeof(buf2));
     if (r != 0) {
         printf("toserver chunk 2 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -768,7 +788,7 @@ static int DetectDnsQueryTest05(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOCLIENT, buf3, sizeof(buf3));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOCLIENT, buf3, sizeof(buf3));
     if (r != 0) {
         printf("toclient chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -789,7 +809,7 @@ static int DetectDnsQueryTest05(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_TCP, STREAM_TOSERVER, buf4, sizeof(buf4));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf4, sizeof(buf4));
     if (r != 0) {
         printf("toserver chunk 3 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -812,6 +832,8 @@ static int DetectDnsQueryTest05(void) {
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -843,6 +865,7 @@ static int DetectDnsQueryTest06(void) {
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -854,11 +877,12 @@ static int DetectDnsQueryTest06(void) {
     FLOW_INITIALIZE(&f);
     f.flags |= FLOW_IPV4;
     f.proto = IPPROTO_UDP;
+    f.protomap = FlowGetProtoMapping(f.proto);
 
     p->flow = &f;
     p->flags |= PKT_HAS_FLOW;
     p->flowflags |= FLOW_PKT_TOSERVER;
-    f.alproto = ALPROTO_DNS_UDP;
+    f.alproto = ALPROTO_DNS;
 
     DetectEngineCtx *de_ctx = DetectEngineCtxInit();
     if (de_ctx == NULL) {
@@ -868,9 +892,9 @@ static int DetectDnsQueryTest06(void) {
     de_ctx->flags |= DE_QUIET;
 
     s = DetectEngineAppendSig(de_ctx, "alert dns any any -> any any "
-                                      "(msg:\"Test dns_query option\"; "
-                                      "dns_query; content:\"google\"; nocase; "
-                                      "pcre:\"/google\\.com$/i\"; sid:1;)");
+                              "(msg:\"Test dns_query option\"; "
+                              "dns_query; content:\"google\"; nocase; "
+                              "pcre:\"/google\\.com$/i\"; sid:1;)");
     if (s == NULL) {
         goto end;
     }
@@ -887,7 +911,7 @@ static int DetectDnsQueryTest06(void) {
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf, sizeof(buf));
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf, sizeof(buf));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -916,6 +940,8 @@ static int DetectDnsQueryTest06(void) {
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)
@@ -967,6 +993,7 @@ static int DetectDnsQueryTest07(void) {
     Signature *s = NULL;
     ThreadVars tv;
     DetectEngineThreadCtx *det_ctx = NULL;
+    AppLayerParserThreadCtx *alp_tctx = AppLayerParserThreadCtxAlloc();
 
     memset(&tv, 0, sizeof(ThreadVars));
     memset(&f, 0, sizeof(Flow));
@@ -984,7 +1011,8 @@ static int DetectDnsQueryTest07(void) {
     FLOW_INITIALIZE(&f);
     f.flags |= FLOW_IPV4;
     f.proto = IPPROTO_UDP;
-    f.alproto = ALPROTO_DNS_UDP;
+    f.protomap = FlowGetProtoMapping(f.proto);
+    f.alproto = ALPROTO_DNS;
 
     p1->flow = &f;
     p1->flags |= PKT_HAS_FLOW;
@@ -1031,7 +1059,7 @@ static int DetectDnsQueryTest07(void) {
     DetectEngineThreadCtxInit(&tv, (void *)de_ctx, (void *)&det_ctx);
 
     SCMutexLock(&f.m);
-    int r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf1, sizeof(buf1));
+    int r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf1, sizeof(buf1));
     if (r != 0) {
         printf("toserver chunk 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1058,7 +1086,7 @@ static int DetectDnsQueryTest07(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOCLIENT, buf2, sizeof(buf2));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOCLIENT, buf2, sizeof(buf2));
     if (r != -1) {
         printf("toserver client 1 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1083,7 +1111,7 @@ static int DetectDnsQueryTest07(void) {
     }
 
     SCMutexLock(&f.m);
-    r = AppLayerParse(NULL, &f, ALPROTO_DNS_UDP, STREAM_TOSERVER, buf3, sizeof(buf3));
+    r = AppLayerParserParse(alp_tctx, &f, ALPROTO_DNS, STREAM_TOSERVER, buf3, sizeof(buf3));
     if (r != 0) {
         printf("toserver chunk 3 returned %" PRId32 ", expected 0: ", r);
         SCMutexUnlock(&f.m);
@@ -1111,6 +1139,8 @@ static int DetectDnsQueryTest07(void) {
     result = 1;
 
 end:
+    if (alp_tctx != NULL)
+        AppLayerParserThreadCtxFree(alp_tctx);
     if (det_ctx != NULL)
         DetectEngineThreadCtxDeinit(&tv, det_ctx);
     if (de_ctx != NULL)

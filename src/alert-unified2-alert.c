@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2013 Open Information Security Foundation
+/* Copyright (C) 2007-2014 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -42,6 +42,8 @@
 #include "alert-unified2-alert.h"
 #include "decode-ipv4.h"
 
+#include "flow.h"
+
 #include "host.h"
 #include "util-profiling.h"
 #include "decode.h"
@@ -51,7 +53,9 @@
 #include "util-time.h"
 #include "util-byte.h"
 #include "util-misc.h"
+#include "util-logopenfile.h"
 
+#include "app-layer-parser.h"
 #include "app-layer-htp.h"
 #include "app-layer.h"
 
@@ -230,27 +234,34 @@ typedef struct Unified2AlertThread_ {
 SC_ATOMIC_DECLARE(unsigned int, unified2_event_id);  /**< Atomic counter, to link relative event */
 
 /** prototypes */
-TmEcode Unified2Alert (ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *);
+//TmEcode Unified2Alert (ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *);
 TmEcode Unified2AlertThreadInit(ThreadVars *, void *, void **);
 TmEcode Unified2AlertThreadDeinit(ThreadVars *, void *);
-int Unified2IPv4TypeAlert(ThreadVars *, Packet *, void *, PacketQueue *);
-int Unified2IPv6TypeAlert(ThreadVars *, Packet *, void *, PacketQueue *);
-int Unified2PacketTypeAlert(Unified2AlertThread *, Packet *, uint32_t, int);
-void Unified2RegisterTests();
+static int Unified2IPv4TypeAlert(ThreadVars *, const Packet *, void *);
+static int Unified2IPv6TypeAlert(ThreadVars *, const Packet *, void *);
+static int Unified2PacketTypeAlert(Unified2AlertThread *, const Packet *, uint32_t, int);
+void Unified2RegisterTests(void);
 int Unified2AlertOpenFileCtx(LogFileCtx *, const char *);
 static void Unified2AlertDeInitCtx(OutputCtx *);
 
+int Unified2Condition(ThreadVars *tv, const Packet *p);
+int Unified2Logger(ThreadVars *tv, void *data, const Packet *p);
+
 #define MODULE_NAME "Unified2Alert"
 
-void TmModuleUnified2AlertRegister (void) {
+void TmModuleUnified2AlertRegister(void)
+{
     tmm_modules[TMM_ALERTUNIFIED2ALERT].name = MODULE_NAME;
     tmm_modules[TMM_ALERTUNIFIED2ALERT].ThreadInit = Unified2AlertThreadInit;
-    tmm_modules[TMM_ALERTUNIFIED2ALERT].Func = Unified2Alert;
+//    tmm_modules[TMM_ALERTUNIFIED2ALERT].Func = Unified2Alert;
     tmm_modules[TMM_ALERTUNIFIED2ALERT].ThreadDeinit = Unified2AlertThreadDeinit;
     tmm_modules[TMM_ALERTUNIFIED2ALERT].RegisterTests = Unified2RegisterTests;
     tmm_modules[TMM_ALERTUNIFIED2ALERT].cap_flags = 0;
+    tmm_modules[TMM_ALERTUNIFIED2ALERT].flags = TM_FLAG_LOGAPI_TM;
 
-    OutputRegisterModule(MODULE_NAME, "unified2-alert", Unified2AlertInitCtx);
+    //OutputRegisterModule(MODULE_NAME, "unified2-alert", Unified2AlertInitCtx);
+    OutputRegisterPacketModule(MODULE_NAME, "unified2-alert",
+            Unified2AlertInitCtx, Unified2Logger, Unified2Condition);
 }
 
 /**
@@ -260,7 +271,8 @@ void TmModuleUnified2AlertRegister (void) {
  *  \param aun Unified2 thread variable.
  */
 
-int Unified2AlertCloseFile(ThreadVars *t, Unified2AlertThread *aun) {
+int Unified2AlertCloseFile(ThreadVars *t, Unified2AlertThread *aun)
+{
     if (aun->unified2alert_ctx->file_ctx->fp != NULL) {
         fclose(aun->unified2alert_ctx->file_ctx->fp);
     }
@@ -278,7 +290,8 @@ int Unified2AlertCloseFile(ThreadVars *t, Unified2AlertThread *aun) {
  *  \retval -1 on failure
  */
 
-int Unified2AlertRotateFile(ThreadVars *t, Unified2AlertThread *aun) {
+int Unified2AlertRotateFile(ThreadVars *t, Unified2AlertThread *aun)
+{
     if (Unified2AlertCloseFile(t,aun) < 0) {
         SCLogError(SC_ERR_UNIFIED2_ALERT_GENERIC,
                    "Error: Unified2AlertCloseFile failed");
@@ -315,25 +328,25 @@ static int Unified2Write(Unified2AlertThread *aun)
     return 1;
 }
 
-static int GetXFFIPFromTx (Packet *p, uint64_t tx_id, char *xff_header, char *dstbuf, int dstbuflen)
+static int GetXFFIPFromTx(const Packet *p, uint64_t tx_id, char *xff_header, char *dstbuf, int dstbuflen)
 {
     uint8_t xff_chain[UNIFIED2_ALERT_XFF_CHAIN_MAXLEN];
     HtpState *htp_state = NULL;
     htp_tx_t *tx = NULL;
     uint64_t total_txs = 0;
 
-    htp_state = (HtpState *)AppLayerGetProtoStateFromPacket(p);
+    htp_state = (HtpState *)FlowGetAppState(p->flow);
 
     if (htp_state == NULL) {
         SCLogDebug("no http state, XFF IP cannot be retrieved");
         return 0;
     }
 
-    total_txs = AppLayerGetTxCnt(ALPROTO_HTTP, htp_state);
+    total_txs = AppLayerParserGetTxCnt(p->flow->proto, ALPROTO_HTTP, htp_state);
     if (tx_id >= total_txs)
         return 0;
 
-    tx = AppLayerGetTx(ALPROTO_HTTP, htp_state, tx_id);
+    tx = AppLayerParserGetTx(p->flow->proto, ALPROTO_HTTP, htp_state, tx_id);
     if (tx == NULL) {
         SCLogDebug("tx is NULL, XFF cannot be retrieved");
         return 0;
@@ -372,19 +385,19 @@ static int GetXFFIPFromTx (Packet *p, uint64_t tx_id, char *xff_header, char *ds
  *  \retval 1 if the IP has been found and returned in dstbuf
  *  \retval 0 if the IP has not being found or error
  */
-static int GetXFFIP (Packet *p, char *xff_header, char *dstbuf, int dstbuflen)
+static int GetXFFIP(const Packet *p, char *xff_header, char *dstbuf, int dstbuflen)
 {
     HtpState *htp_state = NULL;
     uint64_t tx_id = 0;
     uint64_t total_txs = 0;
 
-    htp_state = (HtpState *)AppLayerGetProtoStateFromPacket(p);
+    htp_state = (HtpState *)FlowGetAppState(p->flow);
     if (htp_state == NULL) {
         SCLogDebug("no http state, XFF IP cannot be retrieved");
         goto end;
     }
 
-    total_txs = AppLayerGetTxCnt(ALPROTO_HTTP, htp_state);
+    total_txs = AppLayerParserGetTxCnt(p->flow->proto, ALPROTO_HTTP, htp_state);
     for (; tx_id < total_txs; tx_id++) {
         if (GetXFFIPFromTx(p, tx_id, xff_header, dstbuf, dstbuflen) == 1)
             return 1;
@@ -394,27 +407,30 @@ end:
     return 0; // Not found
 }
 
+int Unified2Condition(ThreadVars *tv, const Packet *p) {
+    if (likely(p->alerts.cnt == 0 && !(p->flags & PKT_HAS_TAG)))
+        return FALSE;
+    return TRUE;
+}
+
 /**
  *  \brief Unified2 main entry function
  *
  *  \retval TM_ECODE_OK all is good
  *  \retval TM_ECODE_FAILED serious error
  */
-TmEcode Unified2Alert (ThreadVars *t, Packet *p, void *data, PacketQueue *pq, PacketQueue *postpq)
+int Unified2Logger(ThreadVars *t, void *data, const Packet *p)
 {
     int ret = 0;
     Unified2AlertThread *aun = (Unified2AlertThread *)data;
     aun->xff_flags = UNIFIED2_ALERT_XFF_DISABLED;
-
-    if (likely(p->alerts.cnt == 0 && !(p->flags & PKT_HAS_TAG)))
-        return TM_ECODE_OK;
 
     /* overwrite mode can only work per u2 block, not per individual
      * alert. So we'll look for an XFF record once */
     if ((aun->unified2alert_ctx->xff_mode & UNIFIED2_ALERT_XFF_OVERWRITE) && p->flow != NULL) {
         FLOWLOCK_RDLOCK(p->flow);
 
-        if (AppLayerGetProtoFromPacket(p) == ALPROTO_HTTP) {
+        if (FlowGetAppProtocol(p->flow) == ALPROTO_HTTP) {
             char buffer[UNIFIED2_ALERT_XFF_MAXLEN];
 
             if (GetXFFIP(p, aun->unified2alert_ctx->xff_header, buffer, UNIFIED2_ALERT_XFF_MAXLEN) == 1) {
@@ -443,9 +459,9 @@ TmEcode Unified2Alert (ThreadVars *t, Packet *p, void *data, PacketQueue *pq, Pa
     }
 
     if (PKT_IS_IPV4(p)) {
-        ret = Unified2IPv4TypeAlert (t, p, data, pq);
+        ret = Unified2IPv4TypeAlert (t, p, data);
     } else if(PKT_IS_IPV6(p)) {
-        ret = Unified2IPv6TypeAlert (t, p, data, pq);
+        ret = Unified2IPv6TypeAlert (t, p, data);
     } else {
         /* we're only supporting IPv4 and IPv6 */
         return TM_ECODE_OK;
@@ -463,7 +479,7 @@ typedef struct _FakeIPv4Hdr {
     TCPHdr tcph;
 } FakeIPv4Hdr;
 
-static int Unified2ForgeFakeIPv4Header(FakeIPv4Hdr *fakehdr, Packet *p, int pkt_len, char invert)
+static int Unified2ForgeFakeIPv4Header(FakeIPv4Hdr *fakehdr, const Packet *p, int pkt_len, char invert)
 {
     fakehdr->ip4h.ip_verhl = p->ip4h->ip_verhl;
     fakehdr->ip4h.ip_proto = p->ip4h->ip_proto;
@@ -496,7 +512,7 @@ typedef struct _FakeIPv6Hdr {
 /**
  *  \param payload_len length of the payload
  */
-static int Unified2ForgeFakeIPv6Header(FakeIPv6Hdr *fakehdr, Packet *p, int payload_len, char invert)
+static int Unified2ForgeFakeIPv6Header(FakeIPv6Hdr *fakehdr, const Packet *p, int payload_len, char invert)
 {
     fakehdr->ip6h.s_ip6_vfc = p->ip6h->s_ip6_vfc;
     fakehdr->ip6h.s_ip6_nxt = IPPROTO_TCP;
@@ -522,7 +538,7 @@ static int Unified2ForgeFakeIPv6Header(FakeIPv6Hdr *fakehdr, Packet *p, int payl
 /**
  * \brief Write a faked Packet in unified2 file for each stream segment.
  */
-static int Unified2PrintStreamSegmentCallback(Packet *p, void *data, uint8_t *buf, uint32_t buflen)
+static int Unified2PrintStreamSegmentCallback(const Packet *p, void *data, uint8_t *buf, uint32_t buflen)
 {
     int ret = 1;
     Unified2AlertThread *aun = (Unified2AlertThread *)data;
@@ -769,7 +785,7 @@ error:
  *  \retval 0 on succces
  *  \retval -1 on failure
  */
-int Unified2PacketTypeAlert (Unified2AlertThread *aun, Packet *p, uint32_t event_id, int stream)
+static int Unified2PacketTypeAlert(Unified2AlertThread *aun, const Packet *p, uint32_t event_id, int stream)
 {
     int ret = 0;
 
@@ -869,18 +885,17 @@ int Unified2PacketTypeAlert (Unified2AlertThread *aun, Packet *p, uint32_t event
  *  \param t Thread Variable containing  input/output queue, cpu affinity etc.
  *  \param p Packet struct used to decide for ipv4 or ipv6
  *  \param data Unified2 thread data.
- *  \param pq Packet queue
  *
  *  \retval 0 on succces
  *  \retval -1 on failure
  */
-int Unified2IPv6TypeAlert (ThreadVars *t, Packet *p, void *data, PacketQueue *pq)
+static int Unified2IPv6TypeAlert(ThreadVars *t, const Packet *p, void *data)
 {
     Unified2AlertThread *aun = (Unified2AlertThread *)data;
     Unified2AlertFileHeader hdr;
     AlertIPv6Unified2 *phdr;
     AlertIPv6Unified2 gphdr;
-    PacketAlert *pa;
+    const PacketAlert *pa;
     int offset, length;
     int ret;
     unsigned int event_id;
@@ -970,7 +985,7 @@ int Unified2IPv6TypeAlert (ThreadVars *t, Packet *p, void *data, PacketQueue *pq
 
         if ((aun->unified2alert_ctx->xff_mode & UNIFIED2_ALERT_XFF_EXTRADATA) && p->flow != NULL) {
             FLOWLOCK_RDLOCK(p->flow);
-            if (AppLayerGetProtoFromPacket(p) == ALPROTO_HTTP) {
+            if (FlowGetAppProtocol(p->flow) == ALPROTO_HTTP) {
                 char buffer[UNIFIED2_ALERT_XFF_MAXLEN];
                 int have_xff_ip = 0;
 
@@ -1055,18 +1070,17 @@ int Unified2IPv6TypeAlert (ThreadVars *t, Packet *p, void *data, PacketQueue *pq
  *  \param t Thread Variable containing  input/output queue, cpu affinity etc.
  *  \param p Packet struct used to decide for ipv4 or ipv6
  *  \param data Unified2 thread data.
- *  \param pq Packet queue
  *  \retval 0 on succces
  *  \retval -1 on failure
  */
 
-int Unified2IPv4TypeAlert (ThreadVars *tv, Packet *p, void *data, PacketQueue *pq)
+static int Unified2IPv4TypeAlert (ThreadVars *tv, const Packet *p, void *data)
 {
     Unified2AlertThread *aun = (Unified2AlertThread *)data;
     Unified2AlertFileHeader hdr;
     AlertIPv4Unified2 *phdr;
     AlertIPv4Unified2 gphdr;
-    PacketAlert *pa;
+    const PacketAlert *pa;
     int offset, length;
     int ret;
     unsigned int event_id;
@@ -1146,7 +1160,7 @@ int Unified2IPv4TypeAlert (ThreadVars *tv, Packet *p, void *data, PacketQueue *p
 
         if ((aun->unified2alert_ctx->xff_mode & UNIFIED2_ALERT_XFF_EXTRADATA) && p->flow != NULL) {
             FLOWLOCK_RDLOCK(p->flow);
-            if (AppLayerGetProtoFromPacket(p) == ALPROTO_HTTP) {
+            if (FlowGetAppProtocol(p->flow) == ALPROTO_HTTP) {
                 char buffer[UNIFIED2_ALERT_XFF_MAXLEN];
                 int have_xff_ip = 0;
 
@@ -1510,7 +1524,8 @@ int Unified2AlertOpenFileCtx(LogFileCtx *file_ctx, const char *prefix)
  *  \retval 0 on failure
  */
 
-static int Unified2Test01 (void)   {
+static int Unified2Test01(void)
+{
     ThreadVars tv;
     DecodeThreadVars dtv;
     PacketQueue pq;
@@ -1568,7 +1583,7 @@ static int Unified2Test01 (void)   {
     if(ret == TM_ECODE_FAILED) {
         goto end;
     }
-    ret = Unified2Alert(&tv, p, data, &pq, NULL);
+    ret = Unified2Logger(&tv, data, p);
     if(ret == TM_ECODE_FAILED) {
         goto end;
     }
@@ -1598,7 +1613,8 @@ end:
  *  \retval 0 on failure
  */
 
-static int Unified2Test02 (void)   {
+static int Unified2Test02(void)
+{
     ThreadVars tv;
     DecodeThreadVars dtv;
     PacketQueue pq;
@@ -1657,7 +1673,7 @@ static int Unified2Test02 (void)   {
     if(ret == -1) {
         goto end;
     }
-    ret = Unified2Alert(&tv, p, data, &pq, NULL);
+    ret = Unified2Logger(&tv, data, p);
     if(ret == TM_ECODE_FAILED) {
         goto end;
     }
@@ -1688,7 +1704,8 @@ end:
  *  \retval 0 on failure
  */
 
-static int Unified2Test03 (void) {
+static int Unified2Test03(void)
+{
     ThreadVars tv;
     DecodeThreadVars dtv;
     PacketQueue pq;
@@ -1753,7 +1770,7 @@ static int Unified2Test03 (void) {
     if(ret == -1) {
         goto end;
     }
-    ret = Unified2Alert(&tv, p, data, &pq, NULL);
+    ret = Unified2Logger(&tv, data, p);
     if(ret == TM_ECODE_FAILED) {
         goto end;
     }
@@ -1796,7 +1813,8 @@ end:
  *  \retval 0 on failure
  */
 
-static int Unified2Test04 (void)   {
+static int Unified2Test04(void)
+{
     ThreadVars tv;
     DecodeThreadVars dtv;
     PacketQueue pq;
@@ -1849,7 +1867,7 @@ static int Unified2Test04 (void)   {
     if(ret == -1) {
         goto end;
     }
-    ret = Unified2Alert(&tv, p, data, &pq, NULL);
+    ret = Unified2Logger(&tv, data, p);
     if(ret == TM_ECODE_FAILED) {
         goto end;
     }
@@ -1879,7 +1897,8 @@ end:
  *  \retval 0 on failure
  */
 
-static int Unified2Test05 (void)   {
+static int Unified2Test05(void)
+{
     ThreadVars tv;
     DecodeThreadVars dtv;
     PacketQueue pq;
@@ -1938,7 +1957,7 @@ static int Unified2Test05 (void)   {
     if(ret == -1) {
         goto end;
     }
-    ret = Unified2Alert(&tv, p, data, &pq, NULL);
+    ret = Unified2Logger(&tv, data, p);
     if(ret == TM_ECODE_FAILED) {
         goto end;
     }
@@ -2031,7 +2050,8 @@ error:
 /**
  * \brief this function registers unit tests for Unified2
  */
-void Unified2RegisterTests (void) {
+void Unified2RegisterTests(void)
+{
 #ifdef UNITTESTS
     UtRegisterTest("Unified2Test01 -- Ipv4 test", Unified2Test01, 1);
     UtRegisterTest("Unified2Test02 -- Ipv6 test", Unified2Test02, 1);
