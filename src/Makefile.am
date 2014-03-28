@@ -41,6 +41,8 @@ app-layer-tds-common.c app-layer-tds-common.h \
 app-layer-tds.c app-layer-tds.h \
 app-layer-tns.c app-layer-tns.h \
 app-layer-drda.c app-layer-drda.h \
+app-layer-drda-common.c app-layer-drda-common.h \
+app-layer-tns11g-common.c app-layer-tns11g-common.h \
 conf.c conf.h \
 conf-yaml-loader.c conf-yaml-loader.h \
 counters.c counters.h \

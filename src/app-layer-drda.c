@@ -7,47 +7,48 @@
 
 #include "app-layer-drda-common.h"
 #include "app-layer-drda.h"
+#include "stream.h"
 
 static uint16_t DRDAProbingParser(uint8_t *in, uint32_t len,
         uint32_t *offset) {
     /* do nothing on @in checking */
-    (void)in;
-    (void)len;
-    (void)offset;
+	if (len == 0)
+		return ALPROTO_UNKNOWN;
     return ALPROTO_DRDA;
 }
 
 void RegisterDRDAParsers(void) {
-#if 0
     char *proto_name = "drda";
-    static const int drda_hdr_len = 0; /* FIXME */
-    if (AppLayerProtoDetectionEnabled(proto_name)) {
-        if (RunmodeIsUnittests()) {
-            AppLayerRegisterProbingParser(&alp_proto_ctx,
-                    IPPROTO_TCP, "50000", proto_name,
-                    ALPROTO_DRDA, 0, drda_hdr_len,
-                    STREAM_TOSERVER, DRDAProbingParser);
-        } else {
-            AppLayerRegisterParserAcceptableDataDirection(ALPROTO_DRDA,
-                    STREAM_TOSERVER | STREAM_TOCLIENT);
-        } else {
-            SCLogInfo("Protocol detection and parser disabled for %s protocol", proto_name);
-            return;
-        }
-    }
+	if (AppLayerProtoDetectConfProtoDetectionEnabled("tcp", proto_name)) {
+		AppLayerProtoDetectRegisterProtocol(ALPROTO_DRDA, proto_name);
+		if (RunmodeIsUnittests()) {
+			AppLayerProtoDetectPPRegister(IPPROTO_TCP, "50000",
+					ALPROTO_DRDA, 0, 0, STREAM_TOSERVER, DRDAProbingParser);
+		} else {
+			int have_cfg = AppLayerProtoDetectPPParseConfPorts("tcp", IPPROTO_TCP,
+					proto_name, ALPROTO_DRDA, 0, 0, DRDAProbingParser);
+			if (!have_cfg) {
+				SCLogWarning(SC_ERR_DRDA_CONFIG, "no DRDA config found, "
+						"enabling DRDA detection on port 50000");
+				AppLayerProtoDetectPPRegister(IPPROTO_TCP, "50000",
+						ALPROTO_DRDA, 0, 0, STREAM_TOSERVER, DRDAProbingParser);
+			}
+		}
+		AppLayerParserRegisterParserAcceptableDataDirection(IPPROTO_TCP, ALPROTO_DRDA,
+				STREAM_TOSERVER | STREAM_TOCLIENT);
+	} else {
+		SCLogInfo("Protocol detection and parser disabled for %s protocol", proto_name);
+		return ;
+	}
 
-    if (AppLayerParserEnabled(proto_name)) {
-        AppLayerRegisterProto(proto_name,
-                ALPROTO_DRDA, STREAM_TOSERVER, DRDAParseClientRecord);
-        AppLayerRegisterProto(proto_name,
-                ALPROTO_DRDA, STREAM_TOCLIENT, DRDAParseServerRecord);
-        AppLayerRegisterStateFuncs(ALPROTO_DRDA,
-                DRDAStateAlloc, DRDAStateFree);
-    }
-
+	if (AppLayerParserConfParserEnabled("tcp", proto_name)) {
+		AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_DRDA, STREAM_TOSERVER, DRDAParseClientRecord);
+		AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_DRDA, STREAM_TOCLIENT, NULL); /* do not parse server response */
+		AppLayerParserRegisterStateFuncs(IPPROTO_TCP, ALPROTO_DRDA, DRDAStateAlloc, DRDAStateFree);
+	}
+	
 #ifdef UNITTESTS
     AppLayerParserRegisterUnittests(ALPROTO_DRDA, DRDAParserRegisterTests);
-#endif
 #endif
     return;
 }

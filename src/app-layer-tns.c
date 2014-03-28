@@ -5,24 +5,18 @@
  */
 
 #include "suricata-common.h"
-#include "app-layer-tns-common.h"
+#include "app-layer-tns11g-common.h"
 #include "app-layer-tns.h"
 
 static uint16_t TNSProbingParser(uint8_t *input, uint32_t ilen, uint32_t *offset) {
-#if 0
-    if (ilen == 0 || ilen < sizeof(TNSPktHeader)) {
+    if (ilen == 0) {
         return ALPROTO_UNKNOWN;
     }
 
-    if (TNSRequestParse(input, ilen) == -1) {
-        return ALPROTO_FAILED;
-    }
-
-#endif
     return ALPROTO_TDS;
 }
 
-void RegisterTNSParsers(void) {
+void RegisterTNS11gParsers(void) {
 #if 0
     char *proto_name = "tns";
     if (AppLayerProtoDetectionEnabled(proto_name)) {

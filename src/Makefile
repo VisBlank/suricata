@@ -114,7 +114,9 @@ am_suricata_OBJECTS = alert-debuglog.$(OBJEXT) alert-fastlog.$(OBJEXT) \
 	app-layer-ssl.$(OBJEXT) app-layer-tls-handshake.$(OBJEXT) \
 	app-layer-tds-common.$(OBJEXT) app-layer-tds.$(OBJEXT) \
 	app-layer-tns.$(OBJEXT) app-layer-drda.$(OBJEXT) \
-	conf.$(OBJEXT) conf-yaml-loader.$(OBJEXT) counters.$(OBJEXT) \
+	app-layer-drda-common.$(OBJEXT) \
+	app-layer-tns11g-common.$(OBJEXT) conf.$(OBJEXT) \
+	conf-yaml-loader.$(OBJEXT) counters.$(OBJEXT) \
 	data-queue.$(OBJEXT) decode.$(OBJEXT) \
 	decode-ethernet.$(OBJEXT) decode-events.$(OBJEXT) \
 	decode-gre.$(OBJEXT) decode-icmpv4.$(OBJEXT) \
@@ -554,6 +556,8 @@ app-layer-tds-common.c app-layer-tds-common.h \
 app-layer-tds.c app-layer-tds.h \
 app-layer-tns.c app-layer-tns.h \
 app-layer-drda.c app-layer-drda.h \
+app-layer-drda-common.c app-layer-drda-common.h \
+app-layer-tns11g-common.c app-layer-tns11g-common.h \
 conf.c conf.h \
 conf-yaml-loader.c conf-yaml-loader.h \
 counters.c counters.h \
@@ -1040,6 +1044,7 @@ include ./$(DEPDIR)/app-layer-detect-proto.Po
 include ./$(DEPDIR)/app-layer-dns-common.Po
 include ./$(DEPDIR)/app-layer-dns-tcp.Po
 include ./$(DEPDIR)/app-layer-dns-udp.Po
+include ./$(DEPDIR)/app-layer-drda-common.Po
 include ./$(DEPDIR)/app-layer-drda.Po
 include ./$(DEPDIR)/app-layer-events.Po
 include ./$(DEPDIR)/app-layer-ftp.Po
@@ -1061,6 +1066,7 @@ include ./$(DEPDIR)/app-layer-tds-common.Po
 include ./$(DEPDIR)/app-layer-tds.Po
 include ./$(DEPDIR)/app-layer-tls-handshake.Po
 include ./$(DEPDIR)/app-layer-tns.Po
+include ./$(DEPDIR)/app-layer-tns11g-common.Po
 include ./$(DEPDIR)/app-layer.Po
 include ./$(DEPDIR)/conf-yaml-loader.Po
 include ./$(DEPDIR)/conf.Po

@@ -7,7 +7,7 @@
 #ifndef __APP_LAYER_TNS_H__
 #define __APP_LAYER_TNS_H__
 
-void TNSParserRegisterTests(void);
-void RegisterTNSParsers(void);
+void TNS11gParserRegisterTests(void);
+void RegisterTNS11gParsers(void);
 
 #endif /* __APP_LAYER_MYSQL_H__ */

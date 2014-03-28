@@ -182,7 +182,7 @@
 #define DRDA_CP_SRVLST        0x244E
 #define DRDA_CP_SQLATTR       0x2450
 
-static const value_string drda_opcode_vals[] = {
+static const DRDAValueString drda_opcode_vals[] = {
     { DRDA_CP_DATA,         "Data" },
     { DRDA_CP_CODPNT,       "Code Point" },
     { DRDA_CP_FDODSC,       "FD:OCA Data Descriptor" },
@@ -366,7 +366,7 @@ static const value_string drda_opcode_vals[] = {
     { 0,          NULL }
 };
 
-static const value_string drda_opcode_abbr[] = {
+static const DRDAValueString drda_opcode_abbr[] = {
     { DRDA_CP_DATA,         "DATA" },
     { DRDA_CP_CODPNT,       "CODPNT" },
     { DRDA_CP_FDODSC,       "FDODSC" },
