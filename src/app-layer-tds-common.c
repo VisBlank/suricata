@@ -28,7 +28,7 @@ int TDSRequestParse(uint8_t *input, uint32_t ilen) {
 
 int TDSParseClientRecord(Flow *f, void *alstate,
         AppLayerParserState *pstate, uint8_t *input,
-        uint32_t input_len, void *local_data, AppLayerParserResult *output) {
+        uint32_t input_len, void *local_data) {
     TDSState *s = alstate;
     SCEnter();
 
@@ -100,7 +100,7 @@ int TDSParseClientRecord(Flow *f, void *alstate,
 
 int TDSParseServerRecord(Flow *f, void *alstate,
         AppLayerParserState *pstate, uint8_t *input,
-        uint32_t input_len, void *local_data, AppLayerParserResult *output) {
+        uint32_t input_len, void *local_data) {
     TDSState *s = alstate;
     SCEnter();
 

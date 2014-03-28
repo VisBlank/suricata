@@ -111,7 +111,7 @@ OutputCtx *LogTDSLogInitCtx(ConfNode *conf) {
   
     SCLogDebug("TDS log output initialized");
 
-    AppLayerRegisterLogger(ALPROTO_TDS);
+    AppLayerParserRegisterLogger(IPPROTO_TCP, ALPROTO_TDS);
     return output_ctx;
 }
 
@@ -170,11 +170,11 @@ TmEcode LogTDSLogIPWrapper(ThreadVars *tv, Packet *p,
         SCReturnInt(TM_ECODE_OK);
 
     FLOWLOCK_WRLOCK(p->flow); /* write lock before update flow log id */
-    uint16_t proto = AppLayerGetProtoFromPacket(p);
+    uint16_t proto = FlowGetAppProtocol(p->flow);
     if (proto != ALPROTO_TDS)
         goto end;
 
-    s = (TDSState *)AppLayerGetProtoStateFromPacket(p);
+    s = (TDSState *)FlowGetAppState(p->flow);
     if (s == NULL) {
         SCLogDebug("no TDS state, so no request logging");
         goto end;
@@ -182,7 +182,6 @@ TmEcode LogTDSLogIPWrapper(ThreadVars *tv, Packet *p,
     
     char timebuf[64];
     char srcip[46], dstip[46];
-    Port sp = 0, dp = 0;
 
     CreateTimeString(&p->ts, timebuf, sizeof(timebuf));
     if ((PKT_IS_TOSERVER(p))) {
@@ -198,8 +197,6 @@ TmEcode LogTDSLogIPWrapper(ThreadVars *tv, Packet *p,
             default:
                 goto end;
         }
-        sp = p->sp;
-        dp = p->dp;
     } else {
         goto end; /* do not log server response */
 #if 0
@@ -218,8 +215,9 @@ TmEcode LogTDSLogIPWrapper(ThreadVars *tv, Packet *p,
 #endif
     }
 
+#if 0
     uint8_t *json_sql;
-    uint8_t *sql = s->cur_tx->cmd.sql;
+    uint8_t *sql = (uint8_t *)s->cur_tx->cmd.sql;
     if (sql == NULL)
         json_sql = NULL;
     else
@@ -252,6 +250,7 @@ TmEcode LogTDSLogIPWrapper(ThreadVars *tv, Packet *p,
         SCFree(json_sql);
 
     /* TODO : add pending packages */
+#endif
 
 end:
     FLOWLOCK_UNLOCK(p->flow);

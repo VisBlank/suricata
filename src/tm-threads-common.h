@@ -91,6 +91,13 @@ typedef enum {
     TMM_JSONSSHLOG,
     TMM_JSONTLSLOG,
     TMM_JSONFILELOG,
+
+	/* json output log for various db */
+	TMM_JSON_MYSQL_LOG,
+	TMM_JSON_TNS_LOG,
+	TMM_JSON_TDS_LOG,
+	TMM_JSON_DRDA_LOG,
+
     TMM_SIZE,
 } TmmId;
 

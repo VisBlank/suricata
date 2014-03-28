@@ -8,15 +8,17 @@
 
 int TDSRequestParse(uint8_t *input, uint32_t ilen);
 
-int TDSParseClientRecord(Flow *f, void *alstate,
-        AppLayerParserState *pstate, uint8_t *input,
-        uint32_t input_len, void *local_data, AppLayerParserResult *output);
-int TDSParseServerRecord(Flow *f, void *alstate,
-        AppLayerParserState *pstate, uint8_t *input,
-        uint32_t input_len, void *local_data, AppLayerParserResult *output);
 void TDSStateFree(void *ms);
 void *TDSStateAlloc(void);
 const uint8_t *TDSCmdStr(size_t cmd);
+
+int TDSParseClientRecord(Flow *f, void *alstate,
+        AppLayerParserState *pstate, uint8_t *input,
+        uint32_t input_len, void *local_data);
+
+int TDSParseServerRecord(Flow *f, void *alstate,
+        AppLayerParserState *pstate, uint8_t *input,
+        uint32_t input_len, void *local_data);
 
 enum pkt_status {
     /* bit 0~4 */

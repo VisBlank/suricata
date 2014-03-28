@@ -123,10 +123,11 @@ typedef struct MysqlClient_ {
     char *username;
     int client_attr; /* attributes the client support */
     int max_pkt_len;
-    char *src_ip; /* TODO: only support IPv4 */
-    char *dst_ip; /* TODO: only support IPv4 */
-    uint16_t src_port;
-    uint16_t dst_port;
+
+	/* TODO: only support IPv4 */
+    char *src_ip, *dst_ip;
+    uint16_t src_port, dst_port;
+
     char *db_name;
     char *password; /* crypted, in hex bytes */
     char charset;
@@ -144,7 +145,7 @@ typedef struct PendingPkt_ {
     uint32_t pkt_len;
     uint32_t cur_len;
     uint8_t *pkt;
-    uint8_t flags; /* */
+    uint8_t flags;
     TAILQ_ENTRY(PendingPkt_) next;
 } PendingPkt;
 

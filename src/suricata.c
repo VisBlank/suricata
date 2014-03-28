@@ -796,11 +796,15 @@ void RegisterAllModules()
     /* respond-reject */
     TmModuleRespondRejectRegister();
 
+#if 0
+	/* do not use them, we have json output */
     /* mysql log */
     TmModuleLogMysqlRegister();
 
     /* TDS log */
     TmModuleLogTDSRegister();
+#endif
+
 #if 1
     /* fast log */
     TmModuleAlertFastLogRegister();

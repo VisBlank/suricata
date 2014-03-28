@@ -58,6 +58,9 @@
 #include "app-layer-dns-udp.h"
 #include "app-layer-dns-tcp.h"
 #include "app-layer-mysql.h"
+#include "app-layer-tns.h"
+#include "app-layer-tds.h"
+#include "app-layer-drda.h"
 #include "app-layer-tds.h"
 
 #include "conf.h"
@@ -999,6 +1002,11 @@ void AppLayerParserRegisterProtocolParsers(void)
     RegisterSMTPParsers();
     RegisterDNSUDPParsers();
     RegisterDNSTCPParsers();
+
+	RegisterMysqlParsers();
+	RegisterTNS11gParsers();
+	RegisterDRDAParsers();
+	RegisterTDSParsers();
 
     /** IMAP */
     AppLayerProtoDetectRegisterProtocol(ALPROTO_IMAP, "imap");
