@@ -1044,6 +1044,13 @@ app-layer:
       detection-ports:
         tcp:
           toserver: 3306
+
+    tns11g:
+      enabled: yes
+      detection-ports:
+        tcp:
+          toserver: 1521
+
     tls:
       enabled: no
       detection-ports:

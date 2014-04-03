@@ -43,11 +43,11 @@ enum {
     ALPROTO_DNS,
     ALPROTO_DNS_UDP,
     ALPROTO_DNS_TCP,
-    ALPROTO_MYSQL,
 
+    ALPROTO_MYSQL,
     ALPROTO_TDS,
     ALPROTO_DRDA,
-    ALPROTO_TNS,
+    ALPROTO_TNS11G,
 
     /* used by the probing parser when alproto detection fails
      * permanently for that particular stream */

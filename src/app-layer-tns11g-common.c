@@ -65,6 +65,7 @@ static memstr(char *mem, const char *str, uint32_t mem_size, uint32_t str_len) {
 				return p;
 			}
 		}
+		++p;
 	}
 	return NULL;
 }
@@ -143,6 +144,12 @@ static int TNS11gParseLogin(TNS11gState *s, uint8_t *in, uint32_t len) {
 
 	s->cur_tx->meta_info = SCStrdup(meta_info);
 	SCReturnInt(0);
+}
+
+int TNS11gParseServerRecord(Flow *f, void *alstate,
+        AppLayerParserState *alps, uint8_t *in,
+        uint32_t in_len, void *local_data) {
+	return 0;
 }
 
 int TNS11gParseClientRecord(Flow *f, void *alstate,

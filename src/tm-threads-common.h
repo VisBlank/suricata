@@ -94,7 +94,7 @@ typedef enum {
 
 	/* json output log for various db */
 	TMM_JSON_MYSQL_LOG,
-	TMM_JSON_TNS_LOG,
+	TMM_JSON_TNS11G_LOG,
 	TMM_JSON_TDS_LOG,
 	TMM_JSON_DRDA_LOG,
 

@@ -129,8 +129,8 @@ static OutputCtx *MysqlInitCtx(ConfNode *conf) {
 	return InitCtx(conf, ALPROTO_MYSQL, "mysql.json");
 }
 
-static OutputCtx *TNSInitCtx(ConfNode *conf) {
-	return InitCtx(conf, ALPROTO_TNS, "oracle-tns.json");
+static OutputCtx *TNS11gInitCtx(ConfNode *conf) {
+	return InitCtx(conf, ALPROTO_TNS11G, "oracle-tns.json");
 }
 
 static OutputCtx *TDSInitCtx(ConfNode *conf) {
@@ -143,7 +143,7 @@ static OutputCtx *DRDAInitCtx(ConfNode *conf) {
 
 static void DBLogAlState(void *alstate, AppProto proto,
 		const Packet *p, json_t *js, const char *name) {
-    if ((PKT_IS_TOCLIENT(p))) {
+    if ((PKT_IS_TOCLIENT(p))) { /* drop server -> client log */ 
 		return;
 	}
 
@@ -209,7 +209,7 @@ static int Logger(ThreadVars *t, void *thread_data, const Packet *p,
 	switch (f->alproto) {
 		case ALPROTO_MYSQL:
 			name = "mysql";
-		case ALPROTO_TNS:
+		case ALPROTO_TNS11G:
 			name = "oracle-tns";
 		case ALPROTO_TDS:
 			name = "mssql-tds";
@@ -244,16 +244,16 @@ void TmModuleJsonMysqlLogRegister (void) {
 	OutputRegisterTxModule(module_name, "mysql-json-log", MysqlInitCtx, ALPROTO_MYSQL, Logger);
 }
 
-void TmModuleJsonTNSLogRegister (void) {
-	static char module_name[] = "JsonTNSLog";
-	tmm_modules[TMM_JSON_TNS_LOG].name = module_name;
-	tmm_modules[TMM_JSON_TNS_LOG].ThreadInit = ThreadInit;
-	tmm_modules[TMM_JSON_TNS_LOG].ThreadDeinit = ThreadDeinit;
-	tmm_modules[TMM_JSON_TNS_LOG].RegisterTests = NULL;
-	tmm_modules[TMM_JSON_TNS_LOG].cap_flags = 0;
-	tmm_modules[TMM_JSON_TNS_LOG].flags = TM_FLAG_LOGAPI_TM;
+void TmModuleJsonTNS11gLogRegister (void) {
+	static char module_name[] = "JsonTNS11gLog";
+	tmm_modules[TMM_JSON_TNS11G_LOG].name = module_name;
+	tmm_modules[TMM_JSON_TNS11G_LOG].ThreadInit = ThreadInit;
+	tmm_modules[TMM_JSON_TNS11G_LOG].ThreadDeinit = ThreadDeinit;
+	tmm_modules[TMM_JSON_TNS11G_LOG].RegisterTests = NULL;
+	tmm_modules[TMM_JSON_TNS11G_LOG].cap_flags = 0;
+	tmm_modules[TMM_JSON_TNS11G_LOG].flags = TM_FLAG_LOGAPI_TM;
 
-	OutputRegisterTxModule(module_name, "tns-json-log", TNSInitCtx, ALPROTO_TNS, Logger);
+	OutputRegisterTxModule(module_name, "tns-json-log", TNS11gInitCtx, ALPROTO_TNS11G, Logger);
 }
 
 void TmModuleJsonTDSLogRegister (void) {

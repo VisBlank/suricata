@@ -1,12 +1,23 @@
 file ./src/suricata
 #b main
-
+#
+#------------ oracle protocol ------------
+#b RegisterTNS11gParsers
+#b TNS11gProbingParser
+#b TNS11gParseClientRecord
+#b DecodeIPV4
+b AppLayerParserParse
+#b AppLayerHandleTCPData
+#b FlowHandlePacket
+#b AppLayerParserRegisterParser
+#b StreamTcpReassembleInlineAppLayer
 #--------------------
 #b RegisterMySqlParsers
-#b MySqlParseServerRecord
-#b RegisterSSHParsers
-#b SSHParseServerRecord
-#b SSHParseClientRecord
+
+b MySqlParseServerRecord
+#b RegisterMysqlParsers
+#b MysqlParseServerRecord
+b MysqlParseClientRecord
 #b DetectFlowMatch 
 #--------------------
 #b DecodeEnthernet
@@ -15,7 +26,7 @@ file ./src/suricata
 #b AppLayerParse
 #b AppLayerHandleTCPData 
 #--------------------
-#b   TmqhInputPacketpool
+#b TmqhInputPacketpool
 #b TmModuleDetectRegister
 #b DetectThreadInit
 
@@ -251,7 +262,7 @@ file ./src/suricata
 #b LogTDSLogThreadInit
 #b TDSParseClientRecord
 #b TDSParseServerRecord
-b log-tdslog.c:226
+#b log-tdslog.c:226
 #b app-layer-tds-common.c:61
 
 #r -c suricata.yaml -i wlan0

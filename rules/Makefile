@@ -111,19 +111,19 @@ am__can_run_installinfo = \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/coanor/git/suricata/missing aclocal-1.13
+ACLOCAL = ${SHELL} /home/coanor/git/github-sc/suricata/missing aclocal-1.13
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /home/coanor/git/suricata/missing autoconf
-AUTOHEADER = ${SHELL} /home/coanor/git/suricata/missing autoheader
-AUTOMAKE = ${SHELL} /home/coanor/git/suricata/missing automake-1.13
-AWK = gawk
+AUTOCONF = ${SHELL} /home/coanor/git/github-sc/suricata/missing autoconf
+AUTOHEADER = ${SHELL} /home/coanor/git/github-sc/suricata/missing autoheader
+AUTOMAKE = ${SHELL} /home/coanor/git/github-sc/suricata/missing automake-1.13
+AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="9d0c6c4"
+CFLAGS = -O0 -g -g3 -Wextra -Werror-implicit-function-declaration -fno-tree-pre -Wall -fno-strict-aliasing -Wno-unused-parameter -std=gnu99 -march=native -DDEBUG -DNFQ -DHAVE_LIBNET11 -D_BSD_SOURCE -D__BSD_SOURCE -D__FAVOR_BSD -DHAVE_NET_ETHERNET_H -DHAVE_LIBNET_ICMPV6_UNREACH  -I/usr/include -DLIBPCAP_VERSION_MAJOR=1 -DHAVE_PCAP_SET_BUFF -DHAVE_LIBCAP_NG -DREVISION="6729d82"
 CPP = gcc -std=gnu99 -E
-CPPFLAGS = -I/usr/local/include/htp  -I/usr/local/include
+CPPFLAGS = -I/usr/local/include/htp 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -137,7 +137,7 @@ EGREP = /bin/grep -E
 EXEEXT = 
 FGREP = /bin/grep -F
 GREP = /bin/grep
-HAVE_COCCINELLE_CONFIG = no
+HAVE_COCCINELLE_CONFIG = /usr/bin/spatch
 HAVE_CURL = 
 HAVE_GETCONF_CMD = /usr/bin/getconf
 HAVE_GIT_CMD = /usr/bin/git
@@ -153,7 +153,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld
-LDFLAGS =   -L/usr/local/lib -L/usr/local/lib
+LDFLAGS =  -L/usr/local/lib
 LIBHTPDEVVERSION_CFLAGS = 
 LIBHTPDEVVERSION_LIBS = 
 LIBHTPMINVERSION_CFLAGS = -I/usr/local/include/htp -I/usr/local/lib/htp/include  
@@ -166,14 +166,14 @@ LIBPRELUDE_LDFLAGS =
 LIBPRELUDE_LIBS = 
 LIBPRELUDE_PREFIX = 
 LIBPRELUDE_PTHREAD_CFLAGS = 
-LIBS = -lmagic -lcap-ng -lhtp -lpcap -lnet -lnetfilter_queue -lnfnetlink -ljansson -lpthread -lyaml -lpcre 
+LIBS = -lmagic -lcap-ng -lhtp -lpcap -lnet -lnetfilter_queue -lnfnetlink -lpthread -lyaml -lpcre 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
 LUAJIT_CFLAGS = 
 LUAJIT_LIBS = 
-MAKEINFO = ${SHELL} /home/coanor/git/suricata/missing makeinfo
+MAKEINFO = ${SHELL} /home/coanor/git/github-sc/suricata/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -205,10 +205,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 2.0dev
-abs_builddir = /home/coanor/git/suricata/rules
-abs_srcdir = /home/coanor/git/suricata/rules
-abs_top_builddir = /home/coanor/git/suricata
-abs_top_srcdir = /home/coanor/git/suricata
+abs_builddir = /home/coanor/git/github-sc/suricata/rules
+abs_srcdir = /home/coanor/git/github-sc/suricata/rules
+abs_top_builddir = /home/coanor/git/github-sc/suricata
+abs_top_srcdir = /home/coanor/git/github-sc/suricata
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
@@ -245,7 +245,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/coanor/git/suricata/install-sh
+install_sh = ${SHELL} /home/coanor/git/github-sc/suricata/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 libnspr_CFLAGS = 
@@ -280,7 +280,6 @@ stream-events.rules \
 smtp-events.rules \
 http-events.rules \
 dns-events.rules \
-tls-events.rules \
 files.rules
 
 all: all-am
@@ -295,9 +294,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign rules/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu rules/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign rules/Makefile
+	  $(AUTOMAKE) --gnu rules/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

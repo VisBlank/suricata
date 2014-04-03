@@ -1003,8 +1003,8 @@ void AppLayerParserRegisterProtocolParsers(void)
     RegisterDNSUDPParsers();
     RegisterDNSTCPParsers();
 
-	RegisterMysqlParsers();
 	RegisterTNS11gParsers();
+	RegisterMysqlParsers();
 	RegisterDRDAParsers();
 	RegisterTDSParsers();
 

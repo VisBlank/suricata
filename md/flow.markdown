@@ -6,7 +6,7 @@
 
     ...
 
-    [StreamTcpReassembleInlineAppLayer |StreamTcpReassembleAppLayer] -> AppLayerHandleTCPData -> AppLayerParse ->
+    [StreamTcpReassembleInlineAppLayer |StreamTcpReassembleAppLayer] -> AppLayerHandleTCPData -> AppLayerParserParse ->
     AppLayerDoParse -> al_parser_table[parser_idx].AppLayerParser()
 
     StreamTcpReassembleHandleSegment -> StreamTcpReassembleInlineAppLayer
