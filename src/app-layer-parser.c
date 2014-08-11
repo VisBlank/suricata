@@ -194,8 +194,8 @@ AppLayerParserThreadCtx *AppLayerParserThreadCtxAlloc(void)
 {
     SCEnter();
 
-    AppProto i = 0;
-    int j = 0;
+    AppProto alproto = 0;
+    int flow_proto = 0;
     AppLayerParserThreadCtx *tctx;
 
     tctx = SCMalloc(sizeof(*tctx));
@@ -203,10 +203,12 @@ AppLayerParserThreadCtx *AppLayerParserThreadCtxAlloc(void)
         goto end;
     memset(tctx, 0, sizeof(*tctx));
 
-    for (i = 0; i < FLOW_PROTO_DEFAULT; i++) {
-        for (j = 0; j < ALPROTO_MAX; j++) {
-            tctx->alproto_local_storage[i][j] =
-                AppLayerParserGetProtocolParserLocalStorage(FlowGetReverseProtoMapping(i), j);
+    for (flow_proto = 0; flow_proto < FLOW_PROTO_DEFAULT; flow_proto++) {
+        for (alproto = 0; alproto < ALPROTO_MAX; alproto++) {
+            uint8_t ipproto = FlowGetReverseProtoMapping(flow_proto);
+
+            tctx->alproto_local_storage[flow_proto][alproto] =
+                AppLayerParserGetProtocolParserLocalStorage(ipproto, alproto);
         }
     }
 
@@ -218,14 +220,15 @@ void AppLayerParserThreadCtxFree(AppLayerParserThreadCtx *tctx)
 {
     SCEnter();
 
-    AppProto i = 0;
-    int j = 0;
+    AppProto alproto = 0;
+    int flow_proto = 0;
 
-    for (i = 0; i < FLOW_PROTO_DEFAULT; i++) {
-        for (j = 0; j < ALPROTO_MAX; j++) {
-            AppLayerParserDestroyProtocolParserLocalStorage(FlowGetReverseProtoMapping(i),
-                                                            j,
-                                                            tctx->alproto_local_storage[i][j]);
+    for (flow_proto = 0; flow_proto < FLOW_PROTO_DEFAULT; flow_proto++) {
+        for (alproto = 0; alproto < ALPROTO_MAX; alproto++) {
+            uint8_t ipproto = FlowGetReverseProtoMapping(flow_proto);
+
+            AppLayerParserDestroyProtocolParserLocalStorage(ipproto, alproto,
+                                                            tctx->alproto_local_storage[flow_proto][alproto]);
         }
     }
 
@@ -474,15 +477,16 @@ void AppLayerParserRegisterGetEventInfo(uint8_t ipproto, AppProto alproto,
 void *AppLayerParserGetProtocolParserLocalStorage(uint8_t ipproto, AppProto alproto)
 {
     SCEnter();
+    void * r = NULL;
 
     if (alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
         LocalStorageAlloc != NULL)
     {
-        SCReturnPtr(alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
-                    LocalStorageAlloc(), "void *");
+        r = alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
+                    LocalStorageAlloc();
     }
 
-    SCReturnPtr(NULL, "void *");
+    SCReturnPtr(r, "void *");
 }
 
 void AppLayerParserDestroyProtocolParserLocalStorage(uint8_t ipproto, AppProto alproto,
@@ -504,14 +508,15 @@ uint64_t AppLayerParserGetTransactionLogId(AppLayerParserState *pstate)
 {
     SCEnter();
 
-    SCReturnCT(pstate->log_id, "uint64_t");
+    SCReturnCT((pstate == NULL) ? 0 : pstate->log_id, "uint64_t");
 }
 
 void AppLayerParserSetTransactionLogId(AppLayerParserState *pstate)
 {
     SCEnter();
 
-    pstate->log_id++;
+    if (pstate != NULL)
+        pstate->log_id++;
 
     SCReturn;
 }
@@ -519,6 +524,9 @@ void AppLayerParserSetTransactionLogId(AppLayerParserState *pstate)
 uint64_t AppLayerParserGetTransactionInspectId(AppLayerParserState *pstate, uint8_t direction)
 {
     SCEnter();
+
+    if (pstate == NULL)
+        SCReturnCT(0ULL, "uint64_t");
 
     SCReturnCT(pstate->inspect_id[direction & STREAM_TOSERVER ? 0 : 1], "uint64_t");
 }
@@ -607,7 +615,8 @@ FileContainer *AppLayerParserGetFiles(uint8_t ipproto, AppProto alproto,
 /** \brief active TX retrieval for normal ops: so with detection and logging
  *
  *  \retval tx_id lowest tx_id that still needs work */
-uint64_t AppLayerTransactionGetActiveDetectLog(Flow *f, uint8_t flags) {
+uint64_t AppLayerTransactionGetActiveDetectLog(Flow *f, uint8_t flags)
+{
     AppLayerParserProtoCtx *p = &alp_ctx.ctxs[FlowGetProtoMapping(f->proto)][f->alproto];
     uint64_t log_id = f->alparser->log_id;
     uint64_t inspect_id = f->alparser->inspect_id[flags & STREAM_TOSERVER ? 0 : 1];
@@ -626,7 +635,8 @@ uint64_t AppLayerTransactionGetActiveDetectLog(Flow *f, uint8_t flags) {
  *  in running this function in that case though. With no detection
  *  and no logging, why run a parser in the first place?
  **/
-uint64_t AppLayerTransactionGetActiveLogOnly(Flow *f, uint8_t flags) {
+uint64_t AppLayerTransactionGetActiveLogOnly(Flow *f, uint8_t flags)
+{
     AppLayerParserProtoCtx *p = &alp_ctx.ctxs[f->protomap][f->alproto];
 
     if (p->logger == TRUE) {
@@ -657,7 +667,8 @@ uint64_t AppLayerTransactionGetActiveLogOnly(Flow *f, uint8_t flags) {
     return idx;
 }
 
-void RegisterAppLayerGetActiveTxIdFunc(GetActiveTxIdFunc FuncPtr) {
+void RegisterAppLayerGetActiveTxIdFunc(GetActiveTxIdFunc FuncPtr)
+{
     //BUG_ON(AppLayerGetActiveTxIdFuncPtr != NULL);
     AppLayerGetActiveTxIdFuncPtr = FuncPtr;
     SCLogDebug("AppLayerGetActiveTxIdFuncPtr is now %p", AppLayerGetActiveTxIdFuncPtr);
@@ -668,7 +679,8 @@ void RegisterAppLayerGetActiveTxIdFunc(GetActiveTxIdFunc FuncPtr) {
  *
  *  \retval id tx id
  */
-static uint64_t AppLayerTransactionGetActive(Flow *f, uint8_t flags) {
+static uint64_t AppLayerTransactionGetActive(Flow *f, uint8_t flags)
+{
     BUG_ON(AppLayerGetActiveTxIdFuncPtr == NULL);
 
     return AppLayerGetActiveTxIdFuncPtr(f, flags);
@@ -703,30 +715,38 @@ int AppLayerParserGetStateProgress(uint8_t ipproto, AppProto alproto,
                         void *alstate, uint8_t direction)
 {
     SCEnter();
-    SCReturnInt(alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
-                StateGetProgress(alstate, direction));
+    int r = 0;
+    r = alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
+                StateGetProgress(alstate, direction);
+    SCReturnInt(r);
 }
 
 uint64_t AppLayerParserGetTxCnt(uint8_t ipproto, AppProto alproto, void *alstate)
 {
     SCEnter();
-    SCReturnCT(alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
-               StateGetTxCnt(alstate), "uint64_t");
+    uint64_t r = 0;
+    r = alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
+               StateGetTxCnt(alstate);
+    SCReturnCT(r, "uint64_t");
 }
 
 void *AppLayerParserGetTx(uint8_t ipproto, AppProto alproto, void *alstate, uint64_t tx_id)
 {
     SCEnter();
-    SCReturnPtr(alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
-                StateGetTx(alstate, tx_id), "void *");
+    void * r = NULL;
+    r = alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
+                StateGetTx(alstate, tx_id);
+    SCReturnPtr(r, "void *");
 }
 
 int AppLayerParserGetStateProgressCompletionStatus(uint8_t ipproto, AppProto alproto,
                                         uint8_t direction)
 {
     SCEnter();
-    SCReturnInt(alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
-                StateGetProgressCompletionStatus(direction));
+    int r = 0;
+    r = alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
+                StateGetProgressCompletionStatus(direction);
+    SCReturnInt(r);
 }
 
 int AppLayerParserGetEventInfo(uint8_t ipproto, AppProto alproto, const char *event_name,
@@ -742,8 +762,10 @@ int AppLayerParserGetEventInfo(uint8_t ipproto, AppProto alproto, const char *ev
 uint8_t AppLayerParserGetFirstDataDir(uint8_t ipproto, AppProto alproto)
 {
     SCEnter();
-    SCReturnCT(alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
-               first_data_dir, "uint8_t");
+    uint8_t r = 0;
+    r = alp_ctx.ctxs[FlowGetProtoMapping(ipproto)][alproto].
+               first_data_dir;
+    SCReturnCT(r, "uint8_t");
 }
 
 uint64_t AppLayerParserGetTransactionActive(uint8_t ipproto, AppProto alproto,
@@ -843,6 +865,20 @@ int AppLayerParserParse(AppLayerParserThreadCtx *alp_tctx, Flow *f, AppProto alp
                                                     flags & STREAM_TOCLIENT ? 1 : 0);
                 StreamTcpSetSessionNoReassemblyFlag(ssn,
                                                     flags & STREAM_TOSERVER ? 1 : 0);
+            }
+        }
+    }
+
+    /* In cases like HeartBleed for TLS we need to inspect AppLayer but not Payload */
+    if (!(f->flags & FLOW_NOPAYLOAD_INSPECTION) && pstate->flags & APP_LAYER_PARSER_NO_INSPECTION_PAYLOAD) {
+        FlowSetNoPayloadInspectionFlag(f);
+        /* Set the no reassembly flag for both the stream in this TcpSession */
+        if (f->proto == IPPROTO_TCP) {
+            /* Used only if it's TCP */
+            TcpSession *ssn = f->protoctx;
+            if (ssn != NULL) {
+                StreamTcpSetDisableRawReassemblyFlag(ssn, 0);
+                StreamTcpSetDisableRawReassemblyFlag(ssn, 1);
             }
         }
     }

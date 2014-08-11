@@ -1,4 +1,4 @@
-/* Copyright (C) 2012 Open Information Security Foundation
+/* Copyright (C) 2012-2014 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -42,7 +42,8 @@
 TmEcode NoNapatechSupportExit(ThreadVars *, void *, void **);
 
 
-void TmModuleNapatechStreamRegister (void) {
+void TmModuleNapatechStreamRegister (void)
+{
     tmm_modules[TMM_RECEIVENAPATECH].name = "NapatechStream";
     tmm_modules[TMM_RECEIVENAPATECH].ThreadInit = NoNapatechSupportExit;
     tmm_modules[TMM_RECEIVENAPATECH].Func = NULL;
@@ -52,7 +53,8 @@ void TmModuleNapatechStreamRegister (void) {
     tmm_modules[TMM_RECEIVENAPATECH].cap_flags = SC_CAP_NET_ADMIN;
 }
 
-void TmModuleNapatechDecodeRegister (void) {
+void TmModuleNapatechDecodeRegister (void)
+{
     tmm_modules[TMM_DECODENAPATECH].name = "NapatechDecode";
     tmm_modules[TMM_DECODENAPATECH].ThreadInit = NoNapatechSupportExit;
     tmm_modules[TMM_DECODENAPATECH].Func = NULL;
@@ -97,6 +99,7 @@ void NapatechStreamThreadExitStats(ThreadVars *, void *);
 TmEcode NapatechStreamLoop(ThreadVars *tv, void *data, void *slot);
 
 TmEcode NapatechDecodeThreadInit(ThreadVars *, void *, void **);
+TmEcode NapatechDecodeThreadDeinit(ThreadVars *tv, void *data);
 TmEcode NapatechDecode(ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *);
 
 /**
@@ -124,7 +127,7 @@ void TmModuleNapatechDecodeRegister(void)
     tmm_modules[TMM_DECODENAPATECH].ThreadInit = NapatechDecodeThreadInit;
     tmm_modules[TMM_DECODENAPATECH].Func = NapatechDecode;
     tmm_modules[TMM_DECODENAPATECH].ThreadExitPrintStats = NULL;
-    tmm_modules[TMM_DECODENAPATECH].ThreadDeinit = NULL;
+    tmm_modules[TMM_DECODENAPATECH].ThreadDeinit = NapatechDecodeThreadDeinit;
     tmm_modules[TMM_DECODENAPATECH].RegisterTests = NULL;
     tmm_modules[TMM_DECODENAPATECH].cap_flags = 0;
     tmm_modules[TMM_DECODENAPATECH].flags = TM_FLAG_DECODE_TM;
@@ -182,7 +185,6 @@ TmEcode NapatechStreamLoop(ThreadVars *tv, void *data, void *slot)
 
     int32_t status;
     char errbuf[100];
-    uint16_t packet_q_len = 0;
     uint64_t pkt_ts;
     NtNetBuf_t packet_buffer;
     NapatechThreadVars *ntv = (NapatechThreadVars *)data;
@@ -207,12 +209,7 @@ TmEcode NapatechStreamLoop(ThreadVars *tv, void *data, void *slot)
     while (!(suricata_ctl_flags & (SURICATA_STOP | SURICATA_KILL))) {
         /* make sure we have at least one packet in the packet pool, to prevent
          * us from alloc'ing packets at line rate */
-        do {
-            packet_q_len = PacketPoolSize();
-            if (unlikely(packet_q_len == 0)) {
-                PacketPoolWait();
-            }
-        } while (packet_q_len == 0);
+        PacketPoolWait();
 
         /*
          * Napatech returns packets 1 at a time
@@ -397,6 +394,13 @@ TmEcode NapatechDecodeThreadInit(ThreadVars *tv, void *initdata, void **data)
 
     *data = (void *)dtv;
 
+    SCReturnInt(TM_ECODE_OK);
+}
+
+TmEcode NapatechDecodeThreadDeinit(ThreadVars *tv, void *data)
+{
+    if (data != NULL)
+        DecodeThreadVarsFree(tv, data);
     SCReturnInt(TM_ECODE_OK);
 }
 

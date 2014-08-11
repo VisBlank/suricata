@@ -134,13 +134,13 @@ void StreamTcpReassembleConfigEnableOverlapCheck(void);
   * \retval 1 if we must drop this stream
   * \retval 0 if the stream still legal
   */
-static inline int StreamTcpCheckFlowDrops(Packet *p) {
-    extern uint8_t engine_mode;
+static inline int StreamTcpCheckFlowDrops(Packet *p)
+{
     /* If we are on IPS mode, and got a drop action triggered from
      * the IP only module, or from a reassembled msg and/or from an
      * applayer detection, then drop the rest of the packets of the
      * same stream and avoid inspecting it any further */
-    if (IS_ENGINE_MODE_IPS(engine_mode) && (p->flow->flags & FLOW_ACTION_DROP))
+    if (EngineModeIsIPS() && (p->flow->flags & FLOW_ACTION_DROP))
         return 1;
 
     return 0;

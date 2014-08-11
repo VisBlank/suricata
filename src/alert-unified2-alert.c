@@ -1465,6 +1465,7 @@ static void Unified2AlertDeInitCtx(OutputCtx *output_ctx)
             }
             SCFree(unified2alert_ctx);
         }
+        SCFree(output_ctx);
     }
 }
 
@@ -2052,6 +2053,7 @@ error:
  */
 void Unified2RegisterTests(void)
 {
+  PacketPoolInit();
 #ifdef UNITTESTS
     UtRegisterTest("Unified2Test01 -- Ipv4 test", Unified2Test01, 1);
     UtRegisterTest("Unified2Test02 -- Ipv6 test", Unified2Test02, 1);

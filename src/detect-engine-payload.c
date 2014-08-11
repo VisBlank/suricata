@@ -46,16 +46,13 @@
  *  \param det_ctx Detection engine thread context
  *  \param s Signature to inspect
  *  \param f flow (for pcre flowvar storage)
- *  \param flags app layer flags
- *  \param state App layer state
  *  \param p Packet
  *
  *  \retval 0 no match
  *  \retval 1 match
  */
 int DetectEngineInspectPacketPayload(DetectEngineCtx *de_ctx,
-        DetectEngineThreadCtx *det_ctx, Signature *s, Flow *f, uint8_t flags,
-        void *alstate, Packet *p)
+        DetectEngineThreadCtx *det_ctx, Signature *s, Flow *f, Packet *p)
 {
     SCEnter();
     int r = 0;
@@ -131,7 +128,8 @@ int DetectEngineInspectStreamPayload(DetectEngineCtx *de_ctx,
 
 /** \test Not the first but the second occurence of "abc" should be used
   *       for the 2nd match */
-static int PayloadTestSig01 (void) {
+static int PayloadTestSig01 (void)
+{
     uint8_t *buf = (uint8_t *)
                     "abcabcd";
     uint16_t buflen = strlen((char *)buf);
@@ -152,7 +150,8 @@ end:
 }
 
 /** \test Nocase matching */
-static int PayloadTestSig02 (void) {
+static int PayloadTestSig02 (void)
+{
     uint8_t *buf = (uint8_t *)
                     "abcaBcd";
     uint16_t buflen = strlen((char *)buf);
@@ -173,7 +172,8 @@ end:
 }
 
 /** \test Negative distance matching */
-static int PayloadTestSig03 (void) {
+static int PayloadTestSig03 (void)
+{
     uint8_t *buf = (uint8_t *)
                     "abcaBcd";
     uint16_t buflen = strlen((char *)buf);
@@ -505,7 +505,7 @@ static int PayloadTestSig13(void)
     tv_diff.tv_sec = tv_end.tv_sec - tv_start.tv_sec;
     tv_diff.tv_usec = tv_end.tv_usec - tv_start.tv_usec;
 
-    printf("%ld.%06ld\n", tv_diff.tv_sec, (long int)tv_diff.tv_usec);
+    printf("%ld.%06ld\n", (long int)tv_diff.tv_sec, (long int)tv_diff.tv_usec);
 
     result = 1;
 
@@ -1068,7 +1068,8 @@ end:
 
 #endif /* UNITTESTS */
 
-void PayloadRegisterTests(void) {
+void PayloadRegisterTests(void)
+{
 #ifdef UNITTESTS
     UtRegisterTest("PayloadTestSig01", PayloadTestSig01, 1);
     UtRegisterTest("PayloadTestSig02", PayloadTestSig02, 1);

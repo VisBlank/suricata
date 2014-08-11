@@ -1,4 +1,4 @@
-/* Copyright (C) 2010 Open Information Security Foundation
+/* Copyright (C) 2010-2014 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -68,6 +68,7 @@ void ReceiveErfFileThreadExitStats(ThreadVars *, void *);
 TmEcode ReceiveErfFileThreadDeinit(ThreadVars *, void *);
 
 TmEcode DecodeErfFileThreadInit(ThreadVars *, void *, void **);
+TmEcode DecodeErfFileThreadDeinit(ThreadVars *tv, void *data);
 TmEcode DecodeErfFile(ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *);
 
 /**
@@ -98,7 +99,7 @@ TmModuleDecodeErfFileRegister(void)
     tmm_modules[TMM_DECODEERFFILE].ThreadInit = DecodeErfFileThreadInit;
     tmm_modules[TMM_DECODEERFFILE].Func = DecodeErfFile;
     tmm_modules[TMM_DECODEERFFILE].ThreadExitPrintStats = NULL;
-    tmm_modules[TMM_DECODEERFFILE].ThreadDeinit = NULL;
+    tmm_modules[TMM_DECODEERFFILE].ThreadDeinit = DecodeErfFileThreadDeinit;
     tmm_modules[TMM_DECODEERFFILE].RegisterTests = NULL;
     tmm_modules[TMM_DECODEERFFILE].cap_flags = 0;
     tmm_modules[TMM_DECODEERFFILE].flags = TM_FLAG_DECODE_TM;
@@ -110,7 +111,6 @@ TmModuleDecodeErfFileRegister(void)
 TmEcode ReceiveErfFileLoop(ThreadVars *tv, void *data, void *slot)
 {
     Packet *p = NULL;
-    uint16_t packet_q_len = 0;
     ErfFileThreadVars *etv = (ErfFileThreadVars *)data;
 
     etv->slot = ((TmSlot *)slot)->slot_next;
@@ -122,12 +122,7 @@ TmEcode ReceiveErfFileLoop(ThreadVars *tv, void *data, void *slot)
 
         /* Make sure we have at least one packet in the packet pool,
          * to prevent us from alloc'ing packets at line rate. */
-        do {
-            packet_q_len = PacketPoolSize();
-            if (unlikely(packet_q_len == 0)) {
-                PacketPoolWait();
-            }
-        } while (packet_q_len == 0);
+        PacketPoolWait();
 
         p = PacketGetFromQueueOrAlloc();
         if (unlikely(p == NULL)) {
@@ -261,6 +256,13 @@ DecodeErfFileThreadInit(ThreadVars *tv, void *initdata, void **data)
 
     *data = (void *)dtv;
 
+    SCReturnInt(TM_ECODE_OK);
+}
+
+TmEcode DecodeErfFileThreadDeinit(ThreadVars *tv, void *data)
+{
+    if (data != NULL)
+        DecodeThreadVarsFree(tv, data);
     SCReturnInt(TM_ECODE_OK);
 }
 

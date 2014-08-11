@@ -91,7 +91,8 @@ static int DetectTlsStoreMatch (ThreadVars *, DetectEngineThreadCtx *, Flow *, u
 /**
  * \brief Registration function for keyword: tls.version
  */
-void DetectTlsRegister (void) {
+void DetectTlsRegister (void)
+{
     sigmatch_table[DETECT_AL_TLS_SUBJECT].name = "tls.subject";
     sigmatch_table[DETECT_AL_TLS_SUBJECT].desc = "match TLS/SSL certificate Subject field";
     sigmatch_table[DETECT_AL_TLS_SUBJECT].url = "https://redmine.openinfosecfoundation.org/projects/suricata/wiki/TLS-keywords#tlssubject";
@@ -210,7 +211,6 @@ static int DetectTlsSubjectMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx,
     }
 
     int ret = 0;
-    FLOWLOCK_RDLOCK(f);
 
     SSLStateConnp *connp = NULL;
     if (flags & STREAM_TOSERVER) {
@@ -239,8 +239,6 @@ static int DetectTlsSubjectMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx,
     } else {
         ret = 0;
     }
-
-    FLOWLOCK_UNLOCK(f);
 
     SCReturnInt(ret);
 }
@@ -380,7 +378,8 @@ error:
  *
  * \param id_d pointer to DetectTlsData
  */
-static void DetectTlsSubjectFree(void *ptr) {
+static void DetectTlsSubjectFree(void *ptr)
+{
     DetectTlsData *id_d = (DetectTlsData *)ptr;
     if (ptr == NULL)
         return;
@@ -392,7 +391,8 @@ static void DetectTlsSubjectFree(void *ptr) {
 /**
  * \brief this function registers unit tests for DetectTlsSubject
  */
-static void DetectTlsSubjectRegisterTests(void) {
+static void DetectTlsSubjectRegisterTests(void)
+{
 }
 
 /**
@@ -418,7 +418,6 @@ static int DetectTlsIssuerDNMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx
     }
 
     int ret = 0;
-    FLOWLOCK_RDLOCK(f);
 
     SSLStateConnp *connp = NULL;
     if (flags & STREAM_TOSERVER) {
@@ -447,8 +446,6 @@ static int DetectTlsIssuerDNMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx
     } else {
         ret = 0;
     }
-
-    FLOWLOCK_UNLOCK(f);
 
     SCReturnInt(ret);
 }
@@ -696,7 +693,6 @@ static int DetectTlsFingerprintMatch (ThreadVars *t, DetectEngineThreadCtx *det_
     }
 
     int ret = 0;
-    FLOWLOCK_RDLOCK(f);
 
     if (ssl_state->server_connp.cert0_fingerprint != NULL) {
         SCLogDebug("TLS: Fingerprint is [%s], looking for [%s]\n",
@@ -722,8 +718,6 @@ static int DetectTlsFingerprintMatch (ThreadVars *t, DetectEngineThreadCtx *det_
     } else {
         ret = 0;
     }
-
-    FLOWLOCK_UNLOCK(f);
 
     SCReturnInt(ret);
 }
@@ -783,7 +777,8 @@ error:
  *
  * \param pointer to DetectTlsData
  */
-static void DetectTlsFingerprintFree(void *ptr) {
+static void DetectTlsFingerprintFree(void *ptr)
+{
     DetectTlsData *id_d = (DetectTlsData *)ptr;
     if (id_d->fingerprint)
         SCFree(id_d->fingerprint);
@@ -831,6 +826,7 @@ error:
 
 }
 
+/** \warning modifies state */
 static int DetectTlsStoreMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, Flow *f, uint8_t flags, void *state, Signature *s, SigMatch *m)
 {
     SCEnter();
@@ -841,12 +837,10 @@ static int DetectTlsStoreMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, F
         SCReturnInt(1);
     }
 
-    FLOWLOCK_WRLOCK(f);
     if (s->flags & SIG_FLAG_TLSSTORE) {
         ssl_state->server_connp.cert_log_flag |= SSL_TLS_LOG_PEM;
     }
 
-    FLOWLOCK_UNLOCK(f);
     SCReturnInt(1);
 }
 

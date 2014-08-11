@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2013 Open Information Security Foundation
+/* Copyright (C) 2007-2014 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -77,9 +77,10 @@
 #include "alert-debuglog.h"
 #include "alert-prelude.h"
 #include "alert-syslog.h"
-#include "alert-pcapinfo.h"
 #include "output-json-alert.h"
 
+#include "output-json-flow.h"
+#include "output-json-netflow.h"
 #include "log-droplog.h"
 #include "output-json-drop.h"
 #include "log-httplog.h"
@@ -102,6 +103,8 @@
 
 #include "source-nfq.h"
 #include "source-nfq-prototypes.h"
+
+#include "source-nflog.h"
 
 #include "source-ipfw.h"
 
@@ -188,12 +191,12 @@ volatile sig_atomic_t sigterm_count = 0;
 
 /*
  * Flag to indicate if the engine is at the initialization
- * or already processing packets. 2 stages: SURICATA_INIT,
+ * or already processing packets. 3 stages: SURICATA_INIT,
  * SURICATA_RUNTIME and SURICATA_FINALIZE
  */
 SC_ATOMIC_DECLARE(unsigned int, engine_stage);
 
-/* Max packets processed simultaniously. */
+/* Max packets processed simultaniously per thread. */
 #define DEFAULT_MAX_PENDING_PACKETS 1024
 
 /** suricata engine control flags */
@@ -204,7 +207,7 @@ int run_mode = RUNMODE_UNKNOWN;
 
 /** Engine mode: inline (ENGINE_MODE_IPS) or just
   * detection mode (ENGINE_MODE_IDS by default) */
-uint8_t engine_mode = ENGINE_MODE_IDS;
+static enum EngineMode g_engine_mode = ENGINE_MODE_IDS;
 
 /** Host mode: set if box is sniffing only
  * or is a router */
@@ -221,7 +224,28 @@ int sc_set_caps;
 
 char *conf_filename = NULL;
 
-int RunmodeIsUnittests(void) {
+int EngineModeIsIPS(void)
+{
+    return (g_engine_mode == ENGINE_MODE_IPS);
+}
+
+int EngineModeIsIDS(void)
+{
+    return (g_engine_mode == ENGINE_MODE_IDS);
+}
+
+void EngineModeSetIPS(void)
+{
+    g_engine_mode = ENGINE_MODE_IPS;
+}
+
+void EngineModeSetIDS(void)
+{
+    g_engine_mode = ENGINE_MODE_IDS;
+}
+
+int RunmodeIsUnittests(void)
+{
     if (run_mode == RUNMODE_UNITTEST)
         return 1;
 
@@ -233,11 +257,13 @@ int RunmodeGetCurrent(void)
     return run_mode;
 }
 
-static void SignalHandlerSigint(/*@unused@*/ int sig) {
+static void SignalHandlerSigint(/*@unused@*/ int sig)
+{
     sigint_count = 1;
     suricata_ctl_flags |= SURICATA_STOP;
 }
-static void SignalHandlerSigterm(/*@unused@*/ int sig) {
+static void SignalHandlerSigterm(/*@unused@*/ int sig)
+{
     sigterm_count = 1;
     suricata_ctl_flags |= SURICATA_KILL;
 }
@@ -245,6 +271,13 @@ static void SignalHandlerSigterm(/*@unused@*/ int sig) {
 void SignalHandlerSigusr2Disabled(int sig)
 {
     SCLogInfo("Live rule reload not enabled in config.");
+
+    return;
+}
+
+void SignalHandlerSigusr2StartingUp(int sig)
+{
+    SCLogInfo("Live rule reload only possible after engine completely started.");
 
     return;
 }
@@ -293,6 +326,15 @@ void SignalHandlerSigusr2(int sig)
     return;
 }
 
+/**
+ * SIGHUP handler.  Just set sighup_count.  The main loop will act on
+ * it.
+ */
+static void SignalHandlerSigHup(/*@unused@*/ int sig)
+{
+    sighup_count = 1;
+}
+
 #ifdef DBG_MEM_ALLOC
 #ifndef _GLOBAL_MEM_
 #define _GLOBAL_MEM_
@@ -311,9 +353,9 @@ void CreateLowercaseTable()
 {
     /* create table for O(1) lowercase conversion lookup.  It was removed, but
      * we still need it for cuda.  So resintalling it back into the codebase */
-    uint8_t c = 0;
+    int c = 0;
     memset(g_u8_lowercasetable, 0x00, sizeof(g_u8_lowercasetable));
-    for ( ; c < 255; c++) {
+    for ( ; c < 256; c++) {
         if (c >= 'A' && c <= 'Z')
             g_u8_lowercasetable[c] = (c + ('a' - 'A'));
         else
@@ -348,11 +390,13 @@ void GlobalInits()
 /* XXX hack: make sure threads can stop the engine by calling this
    function. Purpose: pcap file mode needs to be able to tell the
    engine the file eof is reached. */
-void EngineStop(void) {
+void EngineStop(void)
+{
     suricata_ctl_flags |= SURICATA_STOP;
 }
 
-void EngineKill(void) {
+void EngineKill(void)
+{
     suricata_ctl_flags |= SURICATA_KILL;
 }
 
@@ -362,11 +406,13 @@ void EngineKill(void) {
  * This is mainly used by pcap-file to tell it has finished
  * to treat a pcap files when running in unix-socket mode.
  */
-void EngineDone(void) {
+void EngineDone(void)
+{
     suricata_ctl_flags |= SURICATA_DONE;
 }
 
-static int SetBpfString(int optind, char *argv[]) {
+static int SetBpfString(int optind, char *argv[])
+{
     char *bpf_filter = NULL;
     uint32_t bpf_len = 0;
     int tmpindex = 0;
@@ -381,7 +427,7 @@ static int SetBpfString(int optind, char *argv[]) {
     if (bpf_len == 0)
         return TM_ECODE_OK;
 
-    if (IS_ENGINE_MODE_IPS(engine_mode)) {
+    if (EngineModeIsIPS()) {
         SCLogError(SC_ERR_NOT_SUPPORTED,
                    "BPF filter not available in IPS mode."
                    " Use firewall filtering if possible.");
@@ -413,7 +459,8 @@ static int SetBpfString(int optind, char *argv[]) {
     return TM_ECODE_OK;
 }
 
-static void SetBpfStringFromFile(char *filename) {
+static void SetBpfStringFromFile(char *filename)
+{
     char *bpf_filter = NULL;
     char *bpf_comment_tmp = NULL;
     char *bpf_comment_start =  NULL;
@@ -426,7 +473,7 @@ static void SetBpfStringFromFile(char *filename) {
     FILE *fp = NULL;
     size_t nm = 0;
 
-    if (IS_ENGINE_MODE_IPS(engine_mode)) {
+    if (EngineModeIsIPS()) {
         SCLogError(SC_ERR_NOT_SUPPORTED,
                    "BPF filter not available in IPS mode."
                    " Use firewall filtering if possible.");
@@ -540,7 +587,7 @@ void usage(const char *progname)
     printf("\t--engine-analysis                    : print reports on analysis of different sections in the engine and exit.\n"
            "\t                                       Please have a look at the conf parameter engine-analysis on what reports\n"
            "\t                                       can be printed\n");
-    printf("\t--pidfile <file>                     : write pid to this file (only for daemon mode)\n");
+    printf("\t--pidfile <file>                     : write pid to this file\n");
     printf("\t--init-errors-fatal                  : enable fatal failure on signature init error\n");
     printf("\t--disable-detection                  : disable detection engine\n");
     printf("\t--dump-config                        : show the running configuration\n");
@@ -583,7 +630,8 @@ void usage(const char *progname)
             progname);
 }
 
-void SCPrintBuildInfo(void) {
+void SCPrintBuildInfo(void)
+{
     char *bits = "<unknown>-bits";
     char *endian = "<unknown>-endian";
     char features[2048] = "";
@@ -648,6 +696,9 @@ void SCPrintBuildInfo(void) {
 #endif
 #ifdef HAVE_NSS
     strlcat(features, "HAVE_NSS ", sizeof(features));
+#endif
+#ifdef HAVE_LUA
+    strlcat(features, "HAVE_LUA ", sizeof(features));
 #endif
 #ifdef HAVE_LUAJIT
     strlcat(features, "HAVE_LUAJIT ", sizeof(features));
@@ -754,6 +805,9 @@ int g_ut_covered;
 
 void RegisterAllModules()
 {
+    /* managers */
+    TmModuleFlowManagerRegister();
+    TmModuleFlowRecyclerRegister();
     /* nfq */
     TmModuleReceiveNFQRegister();
     TmModuleVerdictNFQRegister();
@@ -796,16 +850,6 @@ void RegisterAllModules()
     /* respond-reject */
     TmModuleRespondRejectRegister();
 
-#if 0
-	/* do not use them, we have json output */
-    /* mysql log */
-    TmModuleLogMysqlRegister();
-
-    /* TDS log */
-    TmModuleLogTDSRegister();
-#endif
-
-#if 1
     /* fast log */
     TmModuleAlertFastLogRegister();
     /* debug log */
@@ -816,8 +860,6 @@ void RegisterAllModules()
     TmModuleAlertSyslogRegister();
     /* unified2 log */
     TmModuleUnified2AlertRegister();
-    /* pcap info log */
-    TmModuleAlertPcapInfoRegister();
     /* drop log */
     TmModuleLogDropLogRegister();
     TmModuleJsonDropLogRegister();
@@ -842,6 +884,9 @@ void RegisterAllModules()
     TmModuleJsonDnsLogRegister();
 
     TmModuleJsonAlertLogRegister();
+    /* flow/netflow */
+    TmModuleJsonFlowLogRegister();
+    TmModuleJsonNetFlowLogRegister();
 
     /* log api */
     TmModulePacketLoggerRegister();
@@ -849,10 +894,14 @@ void RegisterAllModules()
     TmModuleFileLoggerRegister();
     TmModuleFiledataLoggerRegister();
     TmModuleDebugList();
-#endif
+
+    /* nflog */
+    TmModuleReceiveNFLOGRegister();
+    TmModuleDecodeNFLOGRegister();
 }
 
-TmEcode LoadYamlConfig(char *conf_filename) {
+TmEcode LoadYamlConfig(char *conf_filename)
+{
     SCEnter();
 
     if (conf_filename == NULL)
@@ -939,6 +988,14 @@ static TmEcode ParseInterfacesList(int run_mode, char *pcap_dev)
                 SCReturnInt(TM_ECODE_FAILED);
             }
         }
+#ifdef HAVE_NFLOG
+    } else if (run_mode == RUNMODE_NFLOG) {
+        int ret = LiveBuildDeviceListCustom("nflog", "group");
+        if (ret == 0) {
+            SCLogError(SC_ERR_INITIALIZATION, "No group found in config for nflog");
+            SCReturnInt(TM_ECODE_FAILED);
+        }
+#endif
     }
 
     SCReturnInt(TM_ECODE_OK);
@@ -1078,6 +1135,9 @@ static TmEcode ParseCommandLine(int argc, char** argv, SCInstance *suri)
         {"mpipe", optional_argument, 0, 0},
 #endif
         {"set", required_argument, 0, 0},
+#ifdef HAVE_NFLOG
+        {"nflog", optional_argument, 0, 0},
+#endif
         {NULL, 0, NULL, 0}
     };
 
@@ -1162,6 +1222,16 @@ static TmEcode ParseCommandLine(int argc, char** argv, SCInstance *suri)
                         "configure when building.");
                 return TM_ECODE_FAILED;
 #endif
+            } else if (strcmp((long_opts[option_index]).name, "nflog") == 0) {
+#ifdef HAVE_NFLOG
+                if (suri->run_mode == RUNMODE_UNKNOWN) {
+                    suri->run_mode = RUNMODE_NFLOG;
+                    LiveBuildDeviceListCustom("nflog", "group");
+                }
+#else
+                SCLogError(SC_ERR_NFLOG_NOSUPPORT, "NFLOG not enabled.");
+                return TM_ECODE_FAILED;
+#endif /* HAVE_NFLOG */
             } else if (strcmp((long_opts[option_index]).name , "pcap") == 0) {
                 if (suri->run_mode == RUNMODE_UNKNOWN) {
                     suri->run_mode = RUNMODE_PCAP_DEV;
@@ -1463,7 +1533,7 @@ static TmEcode ParseCommandLine(int argc, char** argv, SCInstance *suri)
 #ifdef NFQ
             if (suri->run_mode == RUNMODE_UNKNOWN) {
                 suri->run_mode = RUNMODE_NFQ;
-                SET_ENGINE_MODE_IPS(engine_mode);
+                EngineModeSetIPS();
                 if (NFQRegisterQueue(optarg) == -1)
                     return TM_ECODE_FAILED;
             } else if (suri->run_mode == RUNMODE_NFQ) {
@@ -1484,7 +1554,7 @@ static TmEcode ParseCommandLine(int argc, char** argv, SCInstance *suri)
 #ifdef IPFW
             if (suri->run_mode == RUNMODE_UNKNOWN) {
                 suri->run_mode = RUNMODE_IPFW;
-                SET_ENGINE_MODE_IPS(engine_mode);
+                EngineModeSetIPS();
                 if (IPFWRegisterQueue(optarg) == -1)
                     return TM_ECODE_FAILED;
             } else if (suri->run_mode == RUNMODE_IPFW) {
@@ -1646,19 +1716,24 @@ static int WindowsInitService(int argc, char **argv)
 
 static int MayDaemonize(SCInstance *suri)
 {
+    if (suri->daemon == 1 && suri->pid_filename == NULL) {
+        if (ConfGet("pid-file", &suri->pid_filename) == 1) {
+            SCLogInfo("Use pid file %s from config file.", suri->pid_filename);
+        } else {
+            suri->pid_filename = DEFAULT_PID_FILENAME;
+        }
+    }
+
+    if (suri->pid_filename != NULL && SCPidfileTestRunning(suri->pid_filename) != 0) {
+        suri->pid_filename = NULL;
+        return TM_ECODE_FAILED;
+    }
+
     if (suri->daemon == 1) {
-        if (suri->pid_filename == NULL) {
-            if (ConfGet("pid-file", &suri->pid_filename) == 1) {
-                SCLogInfo("Use pid file %s from config file.", suri->pid_filename);
-            } else {
-                suri->pid_filename = DEFAULT_PID_FILENAME;
-            }
-        }
-        if (SCPidfileTestRunning(suri->pid_filename) != 0) {
-            suri->pid_filename = NULL;
-            return TM_ECODE_FAILED;
-        }
         Daemonize();
+    }
+
+    if (suri->pid_filename != NULL) {
         if (SCPidfileCreate(suri->pid_filename) != 0) {
             suri->pid_filename = NULL;
             SCLogError(SC_ERR_PIDFILE_DAEMON,
@@ -1667,13 +1742,6 @@ static int MayDaemonize(SCInstance *suri)
             SCLogError(SC_ERR_PIDFILE_DAEMON,
                     "PID file creation WILL be mandatory for daemon mode"
                     " in future version");
-        }
-    } else {
-        if (suri->pid_filename != NULL) {
-            SCLogError(SC_ERR_PIDFILE_DAEMON, "The pidfile file option applies "
-                    "only to the daemon modes");
-            suri->pid_filename = NULL;
-            return TM_ECODE_FAILED;
         }
     }
 
@@ -1690,7 +1758,7 @@ static int InitSignalHandler(SCInstance *suri)
 
 #ifndef OS_WIN32
     /* SIGHUP is not implemented on WIN32 */
-    UtilSignalHandlerSetup(SIGHUP, SIG_IGN);
+    UtilSignalHandlerSetup(SIGHUP, SignalHandlerSigHup);
 
     /* Try to get user/group to run suricata as if
        command line as not decide of that */
@@ -1755,13 +1823,7 @@ int StartInternalRunMode(SCInstance *suri, int argc, char **argv)
             RunModeListRunmodes();
             return TM_ECODE_DONE;
         case RUNMODE_LIST_UNITTEST:
-            {
-                int ret = RunUnittests(1, suri->regex_arg);
-                if (ret == TM_ECODE_OK)
-                    return TM_ECODE_DONE;
-                else
-                    return ret;
-            }
+            RunUnittests(1, suri->regex_arg);
 #ifdef OS_WIN32
         case RUNMODE_INSTALL_SERVICE:
             if (SCServiceInstall(argc, argv)) {
@@ -1945,14 +2007,14 @@ static int PostConfLoadedSetup(SCInstance *suri)
             if (strcmp(hostmode, "auto") != 0) {
                 WarnInvalidConfEntry("host-mode", "%s", "auto");
             }
-            if (IS_ENGINE_MODE_IPS(engine_mode)) {
+            if (EngineModeIsIPS()) {
                 host_mode = SURI_HOST_IS_ROUTER;
             } else {
                 host_mode = SURI_HOST_IS_SNIFFER_ONLY;
             }
         }
     } else {
-        if (IS_ENGINE_MODE_IPS(engine_mode)) {
+        if (EngineModeIsIPS()) {
             host_mode = SURI_HOST_IS_ROUTER;
             SCLogInfo("No 'host-mode': suricata is in IPS mode, using "
                       "default setting 'router'");
@@ -2028,7 +2090,7 @@ static int PostConfLoadedSetup(SCInstance *suri)
         if (suri->sig_file != NULL)
             UtilSignalHandlerSetup(SIGUSR2, SignalHandlerSigusr2SigFileStartup);
         else
-            UtilSignalHandlerSetup(SIGUSR2, SignalHandlerSigusr2Idle);
+            UtilSignalHandlerSetup(SIGUSR2, SignalHandlerSigusr2StartingUp);
     } else {
         UtilSignalHandlerSetup(SIGUSR2, SignalHandlerSigusr2Disabled);
     }
@@ -2037,6 +2099,7 @@ static int PostConfLoadedSetup(SCInstance *suri)
 
     TmModuleRunInit();
 
+    PcapLogProfileSetup();
     SCReturnInt(TM_ECODE_OK);
 }
 
@@ -2063,7 +2126,7 @@ int main(int argc, char **argv)
 
     /* By default use IDS mode, but if nfq or ipfw
      * are specified, IPS mode will overwrite this */
-    SET_ENGINE_MODE_IDS(engine_mode);
+    EngineModeSetIDS();
 
 
 #ifdef OS_WIN32
@@ -2092,7 +2155,7 @@ int main(int argc, char **argv)
     }
 
     if (suri.run_mode == RUNMODE_UNITTEST)
-        return RunUnittests(0, suri.regex_arg);
+        RunUnittests(0, suri.regex_arg);
 
 #ifdef __SC_CUDA_SUPPORT__
     /* Init the CUDA environment */
@@ -2147,7 +2210,6 @@ int main(int argc, char **argv)
     NSS_NoDB_Init(NULL);
 #endif
 
-    PacketPoolInit(max_pending_packets);
     HostInitConfig(HOST_VERBOSE);
     if (suri.run_mode != RUNMODE_UNIX_SOCKET) {
         FlowInitConfig(FLOW_VERBOSE);
@@ -2194,11 +2256,6 @@ int main(int argc, char **argv)
                 exit(EXIT_SUCCESS);
             }
         }
-
-        /* registering singal handlers we use.  We register usr2 here, so that one
-         * can't call it during the first sig load phase */
-        if (suri.sig_file == NULL && suri.rule_reload == 1 && suri.delayed_detect == 0)
-            UtilSignalHandlerSetup(SIGUSR2, SignalHandlerSigusr2);
     }
 
     SCAsn1LoadConfig();
@@ -2240,6 +2297,7 @@ int main(int argc, char **argv)
         }
         /* Spawn the flow manager thread */
         FlowManagerThreadSpawn();
+        FlowRecyclerThreadSpawn();
         StreamTcpInitConfig(STREAM_VERBOSE);
 
         SCPerfSpawnThreads();
@@ -2264,6 +2322,12 @@ int main(int argc, char **argv)
 
     /* Un-pause all the paused threads */
     TmThreadContinueThreads();
+    /* registering singal handlers we use.  We register usr2 here, so that one
+     * can't call it during the first sig load phase or while threads are still
+     * starting up. */
+    if (de_ctx != NULL && suri.sig_file == NULL && suri.rule_reload == 1 &&
+            suri.delayed_detect == 0)
+        UtilSignalHandlerSetup(SIGUSR2, SignalHandlerSigusr2);
 
     if (de_ctx != NULL && suri.delayed_detect) {
         if (LoadSignatures(de_ctx, &suri) != TM_ECODE_OK)
@@ -2297,6 +2361,11 @@ int main(int argc, char **argv)
         }
 
         TmThreadCheckThreadState();
+
+        if (sighup_count > 0) {
+            OutputNotifyFileRotation();
+            sighup_count--;
+        }
 
         usleep(10* 1000);
     }
@@ -2341,6 +2410,12 @@ int main(int argc, char **argv)
     DetectEngineCtx *global_de_ctx = DetectEngineGetGlobalDeCtx();
     if (suri.run_mode != RUNMODE_UNIX_SOCKET && de_ctx != NULL) {
         BUG_ON(global_de_ctx == NULL);
+    }
+
+    /* before TmThreadKillThreads, as otherwise that kills it
+     * but more slowly */
+    if (suri.run_mode != RUNMODE_UNIX_SOCKET) {
+        FlowKillFlowRecyclerThread();
     }
 
     TmThreadKillThreads();

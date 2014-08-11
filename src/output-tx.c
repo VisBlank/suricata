@@ -85,7 +85,8 @@ int OutputRegisterTxLogger(const char *name, AppProto alproto, TxLogger LogFunc,
     return 0;
 }
 
-static TmEcode OutputTxLog(ThreadVars *tv, Packet *p, void *thread_data, PacketQueue *pq, PacketQueue *postpq) {
+static TmEcode OutputTxLog(ThreadVars *tv, Packet *p, void *thread_data, PacketQueue *pq, PacketQueue *postpq)
+{
     BUG_ON(thread_data == NULL);
     BUG_ON(list == NULL);
 
@@ -183,7 +184,8 @@ end:
 /** \brief thread init for the tx logger
  *  This will run the thread init functions for the individual registered
  *  loggers */
-static TmEcode OutputTxLogThreadInit(ThreadVars *tv, void *initdata, void **data) {
+static TmEcode OutputTxLogThreadInit(ThreadVars *tv, void *initdata, void **data)
+{
     OutputLoggerThreadData *td = SCMalloc(sizeof(*td));
     if (td == NULL)
         return TM_ECODE_FAILED;
@@ -231,7 +233,8 @@ static TmEcode OutputTxLogThreadInit(ThreadVars *tv, void *initdata, void **data
     return TM_ECODE_OK;
 }
 
-static TmEcode OutputTxLogThreadDeinit(ThreadVars *tv, void *thread_data) {
+static TmEcode OutputTxLogThreadDeinit(ThreadVars *tv, void *thread_data)
+{
     OutputLoggerThreadData *op_thread_data = (OutputLoggerThreadData *)thread_data;
     OutputLoggerThreadStore *store = op_thread_data->store;
     OutputTxLogger *logger = list;
@@ -248,13 +251,16 @@ static TmEcode OutputTxLogThreadDeinit(ThreadVars *tv, void *thread_data) {
             tm_module->ThreadDeinit(tv, store->thread_data);
         }
 
+        OutputLoggerThreadStore *next_store = store->next;
+        SCFree(store);
+        store = next_store;
         logger = logger->next;
-        store = store->next;
     }
     return TM_ECODE_OK;
 }
 
-static void OutputTxLogExitPrintStats(ThreadVars *tv, void *thread_data) {
+static void OutputTxLogExitPrintStats(ThreadVars *tv, void *thread_data)
+{
     OutputLoggerThreadData *op_thread_data = (OutputLoggerThreadData *)thread_data;
     OutputLoggerThreadStore *store = op_thread_data->store;
     OutputTxLogger *logger = list;
@@ -276,11 +282,23 @@ static void OutputTxLogExitPrintStats(ThreadVars *tv, void *thread_data) {
     }
 }
 
-void TmModuleTxLoggerRegister (void) {
+void TmModuleTxLoggerRegister (void)
+{
     tmm_modules[TMM_TXLOGGER].name = "__tx_logger__";
     tmm_modules[TMM_TXLOGGER].ThreadInit = OutputTxLogThreadInit;
     tmm_modules[TMM_TXLOGGER].Func = OutputTxLog;
     tmm_modules[TMM_TXLOGGER].ThreadExitPrintStats = OutputTxLogExitPrintStats;
     tmm_modules[TMM_TXLOGGER].ThreadDeinit = OutputTxLogThreadDeinit;
     tmm_modules[TMM_TXLOGGER].cap_flags = 0;
+}
+
+void OutputTxShutdown(void)
+{
+    OutputTxLogger *logger = list;
+    while (logger) {
+        OutputTxLogger *next_logger = logger->next;
+        SCFree(logger);
+        logger = next_logger;
+    }
+    list = NULL;
 }

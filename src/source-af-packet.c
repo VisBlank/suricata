@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Open Information Security Foundation
+/* Copyright (C) 2011-2014 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -103,7 +103,8 @@ extern int max_pending_packets;
 
 TmEcode NoAFPSupportExit(ThreadVars *, void *, void **);
 
-void TmModuleReceiveAFPRegister (void) {
+void TmModuleReceiveAFPRegister (void)
+{
     tmm_modules[TMM_RECEIVEAFP].name = "ReceiveAFP";
     tmm_modules[TMM_RECEIVEAFP].ThreadInit = NoAFPSupportExit;
     tmm_modules[TMM_RECEIVEAFP].Func = NULL;
@@ -118,7 +119,8 @@ void TmModuleReceiveAFPRegister (void) {
  * \brief Registration Function for DecodeAFP.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleDecodeAFPRegister (void) {
+void TmModuleDecodeAFPRegister (void)
+{
     tmm_modules[TMM_DECODEAFP].name = "DecodeAFP";
     tmm_modules[TMM_DECODEAFP].ThreadInit = NoAFPSupportExit;
     tmm_modules[TMM_DECODEAFP].Func = NULL;
@@ -169,6 +171,11 @@ enum {
     AFP_READ_FAILURE,
     AFP_FAILURE,
     AFP_KERNEL_DROP,
+};
+
+enum {
+    AFP_FATAL_ERROR = 1,
+    AFP_RECOVERABLE_ERROR,
 };
 
 union thdr {
@@ -246,6 +253,7 @@ TmEcode ReceiveAFPThreadDeinit(ThreadVars *, void *);
 TmEcode ReceiveAFPLoop(ThreadVars *tv, void *data, void *slot);
 
 TmEcode DecodeAFPThreadInit(ThreadVars *, void *, void **);
+TmEcode DecodeAFPThreadDeinit(ThreadVars *tv, void *data);
 TmEcode DecodeAFP(ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *);
 
 TmEcode AFPSetBPFFilter(AFPThreadVars *ptv);
@@ -258,7 +266,8 @@ static int AFPRefSocket(AFPPeer* peer);
  * \brief Registration Function for RecieveAFP.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleReceiveAFPRegister (void) {
+void TmModuleReceiveAFPRegister (void)
+{
     tmm_modules[TMM_RECEIVEAFP].name = "ReceiveAFP";
     tmm_modules[TMM_RECEIVEAFP].ThreadInit = ReceiveAFPThreadInit;
     tmm_modules[TMM_RECEIVEAFP].Func = NULL;
@@ -478,12 +487,13 @@ void AFPPeersListClean()
  * \brief Registration Function for DecodeAFP.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleDecodeAFPRegister (void) {
+void TmModuleDecodeAFPRegister (void)
+{
     tmm_modules[TMM_DECODEAFP].name = "DecodeAFP";
     tmm_modules[TMM_DECODEAFP].ThreadInit = DecodeAFPThreadInit;
     tmm_modules[TMM_DECODEAFP].Func = DecodeAFP;
     tmm_modules[TMM_DECODEAFP].ThreadExitPrintStats = NULL;
-    tmm_modules[TMM_DECODEAFP].ThreadDeinit = NULL;
+    tmm_modules[TMM_DECODEAFP].ThreadDeinit = DecodeAFPThreadDeinit;
     tmm_modules[TMM_DECODEAFP].RegisterTests = NULL;
     tmm_modules[TMM_DECODEAFP].cap_flags = 0;
     tmm_modules[TMM_DECODEAFP].flags = TM_FLAG_DECODE_TM;
@@ -1066,7 +1076,7 @@ static int AFPSynchronizeStart(AFPThreadVars *ptv)
         } else if (r == 0 && AFPPeersListStarted()) {
             SCLogInfo("Starting to read on %s", ptv->tv->name);
             return 1;
-        } else {
+        } else if (r < 0) { /* only exit on error */
             SCLogWarning(SC_ERR_AFP_READ, "poll failed with retval %d", r);
             return 0;
         }
@@ -1112,7 +1122,6 @@ TmEcode ReceiveAFPLoop(ThreadVars *tv, void *data, void *slot)
 {
     SCEnter();
 
-    uint16_t packet_q_len = 0;
     AFPThreadVars *ptv = (AFPThreadVars *)data;
     struct pollfd fds;
     int r;
@@ -1126,10 +1135,22 @@ TmEcode ReceiveAFPLoop(ThreadVars *tv, void *data, void *slot)
         /* Wait for our turn, threads before us must have opened the socket */
         while (AFPPeersListWaitTurn(ptv->mpeer)) {
             usleep(1000);
+            if (suricata_ctl_flags != 0) {
+                break;
+            }
         }
         r = AFPCreateSocket(ptv, ptv->iface, 1);
         if (r < 0) {
-            SCLogError(SC_ERR_AFP_CREATE, "Couldn't init AF_PACKET socket");
+            switch (-r) {
+                case AFP_FATAL_ERROR:
+                    SCLogError(SC_ERR_AFP_CREATE, "Couldn't init AF_PACKET socket, fatal error");
+                    /* fatal is fatal, we want suri to exit */
+                    EngineKill();
+                    //tv->aof = THV_ENGINE_EXIT;
+                    SCReturnInt(TM_ECODE_FAILED);
+                case AFP_RECOVERABLE_ERROR:
+                    SCLogWarning(SC_ERR_AFP_CREATE, "Couldn't init AF_PACKET socket, retrying soon");
+            }
         }
         AFPPeersListReachedInc();
     }
@@ -1161,12 +1182,7 @@ TmEcode ReceiveAFPLoop(ThreadVars *tv, void *data, void *slot)
 
         /* make sure we have at least one packet in the packet pool, to prevent
          * us from alloc'ing packets at line rate */
-        do {
-            packet_q_len = PacketPoolSize();
-            if (unlikely(packet_q_len == 0)) {
-                PacketPoolWait();
-            }
-        } while (packet_q_len == 0);
+        PacketPoolWait();
 
         r = poll(&fds, 1, POLL_TIMEOUT);
 
@@ -1345,6 +1361,7 @@ frame size: TPACKET_ALIGN(snaplen + TPACKET_ALIGN(TPACKET_ALIGN(tp_hdrlen) + siz
 static int AFPCreateSocket(AFPThreadVars *ptv, char *devname, int verbose)
 {
     int r;
+    int ret = AFP_FATAL_ERROR;
     struct packet_mreq sock_params;
     struct sockaddr_ll bind_address;
     int order;
@@ -1366,6 +1383,7 @@ static int AFPCreateSocket(AFPThreadVars *ptv, char *devname, int verbose)
     if (bind_address.sll_ifindex == -1) {
         if (verbose)
             SCLogError(SC_ERR_AFP_CREATE, "Couldn't find iface %s", devname);
+        ret = AFP_RECOVERABLE_ERROR;
         goto socket_err;
     }
 
@@ -1422,6 +1440,7 @@ static int AFPCreateSocket(AFPThreadVars *ptv, char *devname, int verbose)
                         devname, strerror(errno));
             }
         }
+        ret = AFP_RECOVERABLE_ERROR;
         goto frame_err;
     }
 
@@ -1449,6 +1468,7 @@ static int AFPCreateSocket(AFPThreadVars *ptv, char *devname, int verbose)
                     "Can not acces to interface '%s'",
                     ptv->iface);
         }
+        ret = AFP_RECOVERABLE_ERROR;
         goto frame_err;
     }
     if ((if_flags & IFF_UP) == 0) {
@@ -1457,6 +1477,7 @@ static int AFPCreateSocket(AFPThreadVars *ptv, char *devname, int verbose)
                     "Interface '%s' is down",
                     ptv->iface);
         }
+        ret = AFP_RECOVERABLE_ERROR;
         goto frame_err;
     }
 
@@ -1577,7 +1598,7 @@ socket_err:
     close(ptv->socket);
     ptv->socket = -1;
 error:
-    return -1;
+    return -ret;
 }
 
 TmEcode AFPSetBPFFilter(AFPThreadVars *ptv)
@@ -1636,7 +1657,8 @@ TmEcode AFPSetBPFFilter(AFPThreadVars *ptv)
  *
  * \todo Create a general AFP setup function.
  */
-TmEcode ReceiveAFPThreadInit(ThreadVars *tv, void *initdata, void **data) {
+TmEcode ReceiveAFPThreadInit(ThreadVars *tv, void *initdata, void **data)
+{
     SCEnter();
     AFPIfaceConfig *afpconfig = initdata;
 
@@ -1772,7 +1794,8 @@ TmEcode ReceiveAFPThreadInit(ThreadVars *tv, void *initdata, void **data) {
  * \param tv pointer to ThreadVars
  * \param data pointer that gets cast into AFPThreadVars for ptv
  */
-void ReceiveAFPThreadExitStats(ThreadVars *tv, void *data) {
+void ReceiveAFPThreadExitStats(ThreadVars *tv, void *data)
+{
     SCEnter();
     AFPThreadVars *ptv = (AFPThreadVars *)data;
 
@@ -1792,7 +1815,8 @@ void ReceiveAFPThreadExitStats(ThreadVars *tv, void *data) {
  * \param tv pointer to ThreadVars
  * \param data pointer that gets cast into AFPThreadVars for ptv
  */
-TmEcode ReceiveAFPThreadDeinit(ThreadVars *tv, void *data) {
+TmEcode ReceiveAFPThreadDeinit(ThreadVars *tv, void *data)
+{
     AFPThreadVars *ptv = (AFPThreadVars *)data;
 
     AFPSwitchState(ptv, AFP_STATE_DOWN);
@@ -1891,6 +1915,13 @@ TmEcode DecodeAFPThreadInit(ThreadVars *tv, void *initdata, void **data)
         SCReturnInt(TM_ECODE_FAILED);
 #endif
 
+    SCReturnInt(TM_ECODE_OK);
+}
+
+TmEcode DecodeAFPThreadDeinit(ThreadVars *tv, void *data)
+{
+    if (data != NULL)
+        DecodeThreadVarsFree(tv, data);
     SCReturnInt(TM_ECODE_OK);
 }
 

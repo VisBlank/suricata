@@ -92,11 +92,19 @@ typedef enum {
     TMM_JSONTLSLOG,
     TMM_JSONFILELOG,
 
-	/* json output log for various db */
-	TMM_JSON_MYSQL_LOG,
-	TMM_JSON_TNS11G_LOG,
-	TMM_JSON_TDS_LOG,
-	TMM_JSON_DRDA_LOG,
+    /* json output log for various db */
+    TMM_JSON_MYSQL_LOG,
+    TMM_JSON_TNS11G_LOG,
+    TMM_JSON_TDS_LOG,
+    TMM_JSON_DRDA_LOG,
+
+    TMM_RECEIVENFLOG,
+    TMM_DECODENFLOG,
+    TMM_JSONFLOWLOG,
+    TMM_JSONNETFLOWLOG,
+
+    TMM_FLOWMANAGER,
+    TMM_FLOWRECYCLER,
 
     TMM_SIZE,
 } TmmId;

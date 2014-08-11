@@ -180,14 +180,12 @@ int DetectFtpbounceALMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,
     }
 
     int ret = 0;
-    FLOWLOCK_RDLOCK(f);
 
     if (ftp_state->command == FTP_COMMAND_PORT) {
         ret = DetectFtpbounceMatchArgs(ftp_state->port_line,
                   ftp_state->port_line_len, f->src.address.address_un_data32[0],
                   ftp_state->arg_offset);
     }
-    FLOWLOCK_UNLOCK(f);
 
     SCReturnInt(ret);
 }
@@ -275,7 +273,8 @@ int DetectFtpbounceTestSetup01(void)
  * \brief This test tests the ftpbounce condition match, based on the
  *   ftp layer parser
  */
-static int DetectFtpbounceTestALMatch02(void) {
+static int DetectFtpbounceTestALMatch02(void)
+{
     int result = 0;
 
     uint8_t ftpbuf1[] = { 'P','O' };
@@ -407,7 +406,8 @@ end:
  * \brief This test tests the ftpbounce condition match, based on
  *  the ftp layer parser
  */
-static int DetectFtpbounceTestALMatch03(void) {
+static int DetectFtpbounceTestALMatch03(void)
+{
     int result = 0;
 
     uint8_t ftpbuf1[] = { 'P','O' };

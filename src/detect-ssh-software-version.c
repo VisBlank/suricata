@@ -75,7 +75,8 @@ void DetectSshSoftwareVersionRegister(void);
 /**
  * \brief Registration function for keyword: ssh.softwareversion
  */
-void DetectSshSoftwareVersionRegister(void) {
+void DetectSshSoftwareVersionRegister(void)
+{
     sigmatch_table[DETECT_AL_SSH_SOFTWAREVERSION].name = "ssh.softwareversion";
     sigmatch_table[DETECT_AL_SSH_SOFTWAREVERSION].Match = NULL;
     sigmatch_table[DETECT_AL_SSH_SOFTWAREVERSION].AppLayerMatch = DetectSshSoftwareVersionMatch;
@@ -131,7 +132,6 @@ int DetectSshSoftwareVersionMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx
     }
 
     int ret = 0;
-    FLOWLOCK_RDLOCK(f);
     if ((flags & STREAM_TOCLIENT) && (ssh_state->srv_hdr.flags & SSH_FLAG_VERSION_PARSED)) {
         SCLogDebug("looking for ssh server softwareversion %s length %"PRIu16" on %s", ssh->software_ver, ssh->len, ssh_state->srv_hdr.software_version);
         ret = (strncmp((char *) ssh_state->srv_hdr.software_version, (char *) ssh->software_ver, ssh->len) == 0)? 1 : 0;
@@ -139,7 +139,6 @@ int DetectSshSoftwareVersionMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx
         SCLogDebug("looking for ssh client softwareversion %s length %"PRIu16" on %s", ssh->software_ver, ssh->len, ssh_state->cli_hdr.software_version);
         ret = (strncmp((char *) ssh_state->cli_hdr.software_version, (char *) ssh->software_ver, ssh->len) == 0)? 1 : 0;
     }
-    FLOWLOCK_UNLOCK(f);
     SCReturnInt(ret);
 }
 
@@ -254,7 +253,8 @@ error:
  *
  * \param id_d pointer to DetectSshSoftwareVersionData
  */
-void DetectSshSoftwareVersionFree(void *ptr) {
+void DetectSshSoftwareVersionFree(void *ptr)
+{
     if (ptr == NULL)
         return;
 
@@ -270,7 +270,8 @@ void DetectSshSoftwareVersionFree(void *ptr) {
  * \test DetectSshSoftwareVersionTestParse01 is a test to make sure that we parse
  *       a software version correctly
  */
-int DetectSshSoftwareVersionTestParse01 (void) {
+int DetectSshSoftwareVersionTestParse01 (void)
+{
     DetectSshSoftwareVersionData *ssh = NULL;
     ssh = DetectSshSoftwareVersionParse("PuTTY_1.0");
     if (ssh != NULL && strncmp((char *) ssh->software_ver, "PuTTY_1.0", 9) == 0) {
@@ -285,7 +286,8 @@ int DetectSshSoftwareVersionTestParse01 (void) {
  * \test DetectSshSoftwareVersionTestParse02 is a test to make sure that we parse
  *       the software version correctly
  */
-int DetectSshSoftwareVersionTestParse02 (void) {
+int DetectSshSoftwareVersionTestParse02 (void)
+{
     DetectSshSoftwareVersionData *ssh = NULL;
     ssh = DetectSshSoftwareVersionParse("\"SecureCRT-4.0\"");
     if (ssh != NULL && strncmp((char *) ssh->software_ver, "SecureCRT-4.0", 13) == 0) {
@@ -300,7 +302,8 @@ int DetectSshSoftwareVersionTestParse02 (void) {
  * \test DetectSshSoftwareVersionTestParse03 is a test to make sure that we
  *       don't return a ssh_data with an empty value specified
  */
-int DetectSshSoftwareVersionTestParse03 (void) {
+int DetectSshSoftwareVersionTestParse03 (void)
+{
     DetectSshSoftwareVersionData *ssh = NULL;
     ssh = DetectSshSoftwareVersionParse("");
     if (ssh != NULL) {
@@ -315,7 +318,8 @@ int DetectSshSoftwareVersionTestParse03 (void) {
 #include "stream-tcp-reassemble.h"
 
 /** \test Send a get request in three chunks + more data. */
-static int DetectSshSoftwareVersionTestDetect01(void) {
+static int DetectSshSoftwareVersionTestDetect01(void)
+{
     int result = 0;
     Flow f;
     uint8_t sshbuf1[] = "SSH-1.";
@@ -427,7 +431,8 @@ end:
 }
 
 /** \test Send a get request in three chunks + more data. */
-static int DetectSshSoftwareVersionTestDetect02(void) {
+static int DetectSshSoftwareVersionTestDetect02(void)
+{
     int result = 0;
     Flow f;
     uint8_t sshbuf1[] = "SSH-1.99-Pu";
@@ -538,7 +543,8 @@ end:
 }
 
 /** \test Send a get request in three chunks + more data. */
-static int DetectSshSoftwareVersionTestDetect03(void) {
+static int DetectSshSoftwareVersionTestDetect03(void)
+{
     int result = 0;
     Flow f;
     uint8_t sshbuf1[] = "SSH-1.";
@@ -653,7 +659,8 @@ end:
 /**
  * \brief this function registers unit tests for DetectSshSoftwareVersion
  */
-void DetectSshSoftwareVersionRegisterTests(void) {
+void DetectSshSoftwareVersionRegisterTests(void)
+{
 #ifdef UNITTESTS /* UNITTESTS */
     UtRegisterTest("DetectSshSoftwareVersionTestParse01", DetectSshSoftwareVersionTestParse01, 1);
     UtRegisterTest("DetectSshSoftwareVersionTestParse02", DetectSshSoftwareVersionTestParse02, 1);
