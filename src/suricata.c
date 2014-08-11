@@ -2034,8 +2034,20 @@ static int PostConfLoadedSetup(SCInstance *suri)
     SCReturnInt(TM_ECODE_OK);
 }
 
+static void test_3rd_party_lib(void) {
+#include <libinjection.h>
+    /* test to import libinjection into suricata */
+    const char *inj_version = libinjection_version();
+    printf("libinjection version: %s\n", inj_version);
+
+#include <ndpi_main.h>
+    const char *ndpi_rev = ndpi_revision();
+    printf("libndpi revison %s\n", ndpi_rev);
+}
+
 int main(int argc, char **argv)
 {
+    test_3rd_party_lib();
     SCInstance suri;
 
     SCInstanceInit(&suri);

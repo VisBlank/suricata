@@ -572,6 +572,37 @@
         echo
         exit 1
     fi
+
+  ###############################################################3
+  # libndpi
+  ###############################################################3
+    enable_libndpi="no"
+    AC_ARG_WITH(libndpi_includes,
+                [  --with-libndpi-includes=DIR  libndpi include directory],
+                [with_libndpi_includes="$withval"],[with_libndpi_includes=no])
+    AC_ARG_WITH(libndpi_libraries,
+                [  --with-libndpi-libraries=DIR  libndpi library directory],
+                [with_libndpi_libraries="$withval"],[with_libndpi_libraries="no"])
+    if test "$with_libndpi_includes" != "no"; then
+        CPPFLAGS="${CPPFLAGS} -I${with_libndpi_includes}"
+    fi
+
+    enable_libndpi="no"
+    AC_CHECK_HEADER(ndpi_main.h,LIBNDPI="yes",LIBNDPI="no")
+    if test "$LIBNDPI" = "yes"; then
+        if test "$with_libndpi_includes" != "no"; then
+            LDFLAGS="${LDFLAGS} -L${with_libndpi_libraries}"
+        fi
+
+        AC_CHECK_LIB(ndpi, ndpi_revision,, LIBNDPI="no")
+        enable_libndpi="yes"
+        if test "$LIBNDPI" = "no"; then
+            echo
+            echo " libndpi missing"
+            echo
+	    enable_libndpi="no"
+        fi
+    fi
   
   ###############################################################3
   # libinjection
@@ -588,17 +619,17 @@
     fi
 
     enable_libinjection="no"
-    AC_CHECK_HEADER(libinjection.h,INJECTION="yes",INJECTION="no")
-    if test "$INJECTION" = "yes"; then
+    AC_CHECK_HEADER(libinjection.h,LIBINJECTION="yes",LIBINJECTION="no")
+    if test "$LIBINJECTION" = "yes"; then
         if test "$with_libinjection_includes" != "no"; then
             LDFLAGS="${LDFLAGS} -L${with_libinjection_libraries}"
         fi
 
-        AC_CHECK_LIB(injection, libinjection_version,, INJECTION="no")
+        AC_CHECK_LIB(injection, libinjection_version,, LIBINJECTION="no")
         enable_libinjection="yes"
-        if test "$INJECTION" = "no"; then
+        if test "$LIBINJECTION" = "no"; then
             echo
-            echo " libinjection is required"
+            echo " libinjection missing"
             echo
 	    enable_libinjection="no"
         fi
@@ -1653,7 +1684,11 @@ AC_SUBST(e_magic_file)
 
 AC_OUTPUT(Makefile src/Makefile qa/Makefile qa/coccinelle/Makefile rules/Makefile doc/Makefile contrib/Makefile contrib/file_processor/Makefile contrib/file_processor/Action/Makefile contrib/file_processor/Processor/Makefile contrib/tile_pcie_logd/Makefile suricata.yaml scripts/Makefile scripts/suricatasc/Makefile scripts/suricatasc/suricatasc)
 
+# we put the newest added support top to easy see its configure results
 SURICATA_BUILD_CONF="Suricata Configuration:
+  libinjection support:                    ${enable_libinjection}
+  libndpi support:                         ${enable_libndpi}
+
   AF_PACKET support:                       ${enable_af_packet}
   PF_RING support:                         ${enable_pfring}
   NFQueue support:                         ${enable_nfqueue}
@@ -1666,7 +1701,6 @@ SURICATA_BUILD_CONF="Suricata Configuration:
   libnss support:                          ${enable_nss}
   libnspr support:                         ${enable_nspr}
   libjansson support:                      ${enable_jansson}
-  libinjection support:                    ${enable_libinjection}
   Prelude support:                         ${enable_prelude}
   PCRE jit:                                ${pcre_jit_available}
   libluajit:                               ${enable_luajit}

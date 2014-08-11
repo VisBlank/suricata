@@ -3,9 +3,6 @@
  * author: tanb
  * date: Fri May 16 09:57:05 CST 2014
  */
-
-#include <libinjection.h>
-
 #include "suricata-common.h"
 #include "app-layer-oracle11g-common.h"
 #include "detect.h"
@@ -44,10 +41,6 @@ void DetectOracleKeywordsRegister(void) {
     sigmatch_table[DETECT_AL_ORACLE11G_SID].Setup = SidSetup;
     sigmatch_table[DETECT_AL_ORACLE11G_SID].Free = KeywordsFree;
     sigmatch_table[DETECT_AL_ORACLE11G_SID].flags |= SIGMATCH_PAYLOAD;
-    
-    /* test to import libinjection into suricata */
-    const char *inj_version = libinjection_version();
-    printf("libinjection version: %s\n", inj_version);
 }
 
 static int UserMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx, Flow *f,
