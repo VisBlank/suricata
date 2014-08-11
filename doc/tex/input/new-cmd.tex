@@ -1,0 +1,58 @@
+
+% add new font
+\newfontfamily{\lc}[Scale=MatchLowercase]{Verdana}
+\newfontfamily{\uc}[Scale=MatchUppercase]{Arial}
+
+%\newcommand{\cf}{\footnotesize\tt}
+\newcommand{\lcf}{\small\tt}
+\newcommand{\fem}{\footnotesize\em}
+\newcommand{\fsf}{\footnotesize\sf}
+\newcommand{\hsf}{\huge\sf}
+\newcommand{\hbf}{\Huge\bf}
+\newcommand{\fit}{\footnotesize\it\hfill}
+% emph font
+\newcommand{\ef}{\it\uc}
+% reference font
+\newcommand{\rf}{\footnotesize\lc}
+% new word font
+\newcommand{\nf}{\sf}
+% section font
+\newcommand{\secf}{\normalsize\sf}
+% file name font
+\newcommand{\ff}{\scriptsize\lc}
+% cf in chinese env
+\newcommand{\ccf}{\footnotesize\tt\color{magenta}~}
+% font for commands
+\newcommand{\cmdf}{\footnotesize\sf}
+% font for caption
+\newcommand{\capf}{\footnotesize\lc}
+% string in code
+\newcommand{\str}[1]{``{\footnotesize #1}''}
+
+% marginpar redefinition
+\newcommand{\fmp}[1]{\marginpar{\scriptsize #1}}
+
+% important words
+\newcommand{\iw}[1]{\uwave{#1}}
+\newcommand{\bif}[1]{\textbf{\textit{#1}}}
+
+\newcommand{\hreff}[1]{\small\bfseries\sffamily{#1}}
+
+% URL reference
+%\newcommand{\uref}[2]{\href{#1}{\small\bfseries\textsl{#2}}}
+\newcommand{\uref}[2]{\href{#1}{\small\sffamily{#2}}}
+
+% table column font
+\newcommand{\tcf}{\scriptsize}
+
+%\makeatletter
+%\renewcommand\@seccntformat[1]{\secf}
+%\makeatother
+
+\usepackage{titlesec}
+%\titleformat*{\section}{\normalsize\bfseries\sffamily\color{blue}}
+%\titleformat*{\subsection}{\small\bfseries\sffamily\color{blue}}
+%\titleformat*{\subsubsection}{\footnotesize\bfseries\sffamily\color{blue}}
+\titleformat*{\section}{\bfseries\sffamily\color{blue}}
+\titleformat*{\subsection}{\bfseries\sffamily\color{blue}}
+\titleformat*{\subsubsection}{\bfseries\sffamily\color{blue}}

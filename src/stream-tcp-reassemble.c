@@ -106,8 +106,7 @@ void StreamTcpReassemblePseudoPacketCreate(TcpStream *, Packet *, PacketQueue *)
 static int StreamTcpSegmentDataCompare(TcpSegment *dst_seg, TcpSegment *src_seg,
                                  uint32_t start_point, uint16_t len);
 
-void StreamTcpReassembleConfigEnableOverlapCheck(void)
-{
+void StreamTcpReassembleConfigEnableOverlapCheck(void) {
     check_overlap_different_data = 1;
 }
 
@@ -117,8 +116,7 @@ void StreamTcpReassembleConfigEnableOverlapCheck(void)
  *
  *  \param  size Size of the TCP segment and its payload length memory allocated
  */
-void StreamTcpReassembleIncrMemuse(uint64_t size)
-{
+void StreamTcpReassembleIncrMemuse(uint64_t size) {
     (void) SC_ATOMIC_ADD(ra_memuse, size);
     return;
 }
@@ -129,14 +127,12 @@ void StreamTcpReassembleIncrMemuse(uint64_t size)
  *
  *  \param  size Size of the TCP segment and its payload length memory allocated
  */
-void StreamTcpReassembleDecrMemuse(uint64_t size)
-{
+void StreamTcpReassembleDecrMemuse(uint64_t size) {
     (void) SC_ATOMIC_SUB(ra_memuse, size);
     return;
 }
 
-void StreamTcpReassembleMemuseCounter(ThreadVars *tv, TcpReassemblyThreadCtx *rtv)
-{
+void StreamTcpReassembleMemuseCounter(ThreadVars *tv, TcpReassemblyThreadCtx *rtv) {
     uint64_t smemuse = SC_ATOMIC_GET(ra_memuse);
     if (tv != NULL && rtv != NULL)
         SCPerfCounterSetUI64(rtv->counter_tcp_reass_memuse, tv->sc_perf_pca, smemuse);
@@ -151,8 +147,7 @@ void StreamTcpReassembleMemuseCounter(ThreadVars *tv, TcpReassemblyThreadCtx *rt
  * \retval 1 if in bounds
  * \retval 0 if not in bounds
  */
-int StreamTcpReassembleCheckMemcap(uint32_t size)
-{
+int StreamTcpReassembleCheckMemcap(uint32_t size) {
     if (stream_config.reassembly_memcap == 0 ||
             (uint64_t)((uint64_t)size + SC_ATOMIC_GET(ra_memuse)) <= stream_config.reassembly_memcap)
         return 1;
@@ -208,8 +203,7 @@ int TcpSegmentPoolInit(void *data, void *payload_len)
 }
 
 /** \brief clean up a tcp segment pool entry */
-void TcpSegmentPoolCleanup(void *ptr)
-{
+void TcpSegmentPoolCleanup(void *ptr) {
     if (ptr == NULL)
         return;
 
@@ -1701,8 +1695,7 @@ static int HandleSegmentStartsAfterListSegment(ThreadVars *tv, TcpReassemblyThre
  *  \retval 1 stream has depth reached
  *  \retval 0 stream does not have depth reached
  */
-int StreamTcpReassembleDepthReached(Packet *p)
-{
+int StreamTcpReassembleDepthReached(Packet *p) {
     if (p->flow != NULL && p->flow->protoctx != NULL) {
         TcpSession *ssn = p->flow->protoctx;
         TcpStream *stream;
@@ -1780,8 +1773,7 @@ static uint32_t StreamTcpReassembleCheckDepth(TcpStream *stream,
     SCReturnUInt(0);
 }
 
-static void StreamTcpStoreStreamChunk(TcpSession *ssn, StreamMsg *smsg, const Packet *p, int streaminline)
-{
+static void StreamTcpStoreStreamChunk(TcpSession *ssn, StreamMsg *smsg, const Packet *p, int streaminline) {
     uint8_t direction = 0;
 
     if ((!streaminline && (p->flowflags & FLOW_PKT_TOSERVER)) ||
@@ -1890,14 +1882,6 @@ int StreamTcpReassembleHandleSegmentHandleData(ThreadVars *tv, TcpReassemblyThre
     seg->payload_len = size;
     seg->seq = TCP_GET_SEQ(p);
 
-    /* if raw reassembly is disabled for new segments, flag each
-     * segment as complete for raw before insert */
-    if (stream->flags & STREAMTCP_STREAM_FLAG_NEW_RAW_DISABLED) {
-        seg->flags |= SEGMENTTCP_FLAG_RAW_PROCESSED;
-        SCLogDebug("segment %p flagged with SEGMENTTCP_FLAG_RAW_PROCESSED, "
-                   "flags %02x", seg, seg->flags);
-    }
-
     /* proto detection skipped, but now we do get data. Set event. */
     if (stream->seg_list == NULL &&
         stream->flags & STREAMTCP_STREAM_FLAG_APPPROTO_DETECTION_SKIPPED) {
@@ -1981,12 +1965,6 @@ static int StreamTcpReassembleRawCheckLimit(TcpSession *ssn, TcpStream *stream,
         SCReturnInt(1);
     }
 
-    if (stream->flags & STREAMTCP_STREAM_FLAG_NEW_RAW_DISABLED) {
-        SCLogDebug("reassembling now as STREAMTCP_STREAM_FLAG_NEW_RAW_DISABLED is set, "
-                "so no new segments will be considered");
-        SCReturnInt(1);
-    }
-
     /* some states mean we reassemble no matter how much data we have */
     if (ssn->state >= TCP_TIME_WAIT)
         SCReturnInt(1);
@@ -2026,8 +2004,7 @@ static int StreamTcpReassembleRawCheckLimit(TcpSession *ssn, TcpStream *stream,
     SCReturnInt(1);
 }
 
-static void StreamTcpRemoveSegmentFromStream(TcpStream *stream, TcpSegment *seg)
-{
+static void StreamTcpRemoveSegmentFromStream(TcpStream *stream, TcpSegment *seg) {
     if (seg->prev == NULL) {
         stream->seg_list = seg->next;
         if (stream->seg_list != NULL)
@@ -2269,6 +2246,7 @@ int StreamTcpReassembleInlineAppLayer(ThreadVars *tv,
             SCLogDebug("copy_size is %"PRIu16"", copy_size);
             memcpy(data + data_len, seg->payload + payload_offset, copy_size);
             data_len += copy_size;
+
             ra_base_seq += copy_size;
             SCLogDebug("ra_base_seq %"PRIu32", data_len %"PRIu32, ra_base_seq, data_len);
 
@@ -2321,6 +2299,7 @@ int StreamTcpReassembleInlineAppLayer(ThreadVars *tv,
                     memcpy(data + data_len, seg->payload +
                             payload_offset, copy_size);
                     data_len += copy_size;
+
                     ra_base_seq += copy_size;
                     SCLogDebug("ra_base_seq %"PRIu32, ra_base_seq);
                     SCLogDebug("copied payload_offset %" PRIu32 ", "
@@ -2722,8 +2701,7 @@ static int StreamTcpReassembleInlineRaw (TcpReassemblyThreadCtx *ra_ctx,
  *  \retval 1 yes
  *  \retval 0 no
  */
-static inline int StreamTcpReturnSegmentCheck(const Flow *f, TcpSession *ssn, TcpStream *stream, TcpSegment *seg)
-{
+static inline int StreamTcpReturnSegmentCheck(TcpSession *ssn, TcpStream *stream, TcpSegment *seg) {
     if (stream == &ssn->client && ssn->toserver_smsg_head != NULL) {
         /* not (seg is entirely before first smsg, skip) */
         if (!(SEQ_LEQ(seg->seq + seg->payload_len, ssn->toserver_smsg_head->seq))) {
@@ -2735,24 +2713,6 @@ static inline int StreamTcpReturnSegmentCheck(const Flow *f, TcpSession *ssn, Tc
             SCReturnInt(0);
         }
     }
-
-    /* if proto detect isn't done, we're not returning */
-    if (!(StreamTcpIsSetStreamFlagAppProtoDetectionCompleted(stream))) {
-        SCReturnInt(0);
-    }
-
-    /* check app layer conditions */
-    if (!(f->flags & FLOW_NO_APPLAYER_INSPECTION)) {
-        if (!(StreamTcpAppLayerSegmentProcessed(stream, seg))) {
-            SCReturnInt(0);
-        }
-    }
-
-    /* check raw reassembly conditions */
-    if (!(seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED)) {
-        SCReturnInt(0);
-    }
-
     SCReturnInt(1);
 }
 
@@ -2761,8 +2721,7 @@ static inline int StreamTcpReturnSegmentCheck(const Flow *f, TcpSession *ssn, Tc
  *  \param f flow
  *  \param flags direction flags
  */
-void StreamTcpPruneSession(Flow *f, uint8_t flags)
-{
+void StreamTcpPruneSession(Flow *f, uint8_t flags) {
     if (f == NULL || f->protoctx == NULL)
         return;
 
@@ -2779,28 +2738,52 @@ void StreamTcpPruneSession(Flow *f, uint8_t flags)
 
     /* loop through the segments and fill one or more msgs */
     TcpSegment *seg = stream->seg_list;
+    uint32_t ra_base_seq = stream->ra_app_base_seq;
 
     for (; seg != NULL && SEQ_LT(seg->seq, stream->last_ack);)
     {
-        SCLogDebug("seg %p, SEQ %"PRIu32", LEN %"PRIu16", SUM %"PRIu32", FLAGS %02x",
+        SCLogDebug("seg %p, SEQ %"PRIu32", LEN %"PRIu16", SUM %"PRIu32,
                 seg, seg->seq, seg->payload_len,
-                (uint32_t)(seg->seq + seg->payload_len), seg->flags);
+                (uint32_t)(seg->seq + seg->payload_len));
 
-        if (StreamTcpReturnSegmentCheck(f, ssn, stream, seg) == 0) {
+        if (SEQ_LEQ((seg->seq + seg->payload_len), (ra_base_seq+1)) &&
+                   (seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED) &&
+                   (seg->flags & SEGMENTTCP_FLAG_APPLAYER_PROCESSED)) {
+            if (StreamTcpReturnSegmentCheck(ssn, stream, seg) == 0) {
+                break;
+            }
+
+            SCLogDebug("removing pre ra_base_seq %"PRIu32" seg %p seq %"PRIu32
+                    " len %"PRIu16"", ra_base_seq, seg, seg->seq, seg->payload_len);
+
+            TcpSegment *next_seg = seg->next;
+            StreamTcpRemoveSegmentFromStream(stream, seg);
+            StreamTcpSegmentReturntoPool(seg);
+            seg = next_seg;
+            continue;
+
+        } else if (StreamTcpIsSetStreamFlagAppProtoDetectionCompleted(stream) &&
+                (seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED) &&
+                (seg->flags & SEGMENTTCP_FLAG_APPLAYER_PROCESSED))
+        {
+            if (StreamTcpReturnSegmentCheck(ssn, stream, seg) == 0) {
+                break;
+            }
+
+            SCLogDebug("segment(%p) of length %"PRIu16" has been processed,"
+                    " so return it to pool", seg, seg->payload_len);
+            TcpSegment *next_seg = seg->next;
+            seg = next_seg;
+            continue;
+        } else {
+            /* give up */
             break;
         }
-
-        TcpSegment *next_seg = seg->next;
-        StreamTcpRemoveSegmentFromStream(stream, seg);
-        StreamTcpSegmentReturntoPool(seg);
-        seg = next_seg;
-        continue;
     }
 }
 
 #ifdef DEBUG
-static uint64_t GetStreamSize(TcpStream *stream)
-{
+static uint64_t GetStreamSize(TcpStream *stream) {
     if (stream) {
         uint64_t size = 0;
         uint32_t cnt = 0;
@@ -2819,8 +2802,7 @@ static uint64_t GetStreamSize(TcpStream *stream)
     return (uint64_t)0;
 }
 
-static void GetSessionSize(TcpSession *ssn, Packet *p)
-{
+static void GetSessionSize(TcpSession *ssn, Packet *p) {
     uint64_t size = 0;
     if (ssn) {
         size = GetStreamSize(&ssn->client);
@@ -2915,33 +2897,6 @@ int StreamTcpReassembleAppLayer (ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx,
     /* loop through the segments and fill one or more msgs */
     TcpSegment *seg = stream->seg_list;
     SCLogDebug("pre-loop seg %p", seg);
-
-    /* Check if we have a gap at the start of the list. If last_ack is
-     * bigger than the list start and the list start is bigger than
-     * next_seq, we know we are missing data that has been ack'd. That
-     * won't get retransmitted, so it's a data gap.
-     */
-    if (!(p->flow->flags & FLOW_NO_APPLAYER_INSPECTION)) {
-        if (SEQ_GT(seg->seq, next_seq) && SEQ_LT(seg->seq, stream->last_ack)) {
-            /* send gap signal */
-            STREAM_SET_FLAGS(ssn, stream, p, flags);
-            AppLayerHandleTCPData(tv, ra_ctx, p, p->flow, ssn, stream,
-                    NULL, 0, flags|STREAM_GAP);
-            AppLayerProfilingStore(ra_ctx->app_tctx, p);
-
-            /* set a GAP flag and make sure not bothering this stream anymore */
-            SCLogDebug("STREAMTCP_STREAM_FLAG_GAP set");
-            stream->flags |= STREAMTCP_STREAM_FLAG_GAP;
-
-            StreamTcpSetEvent(p, STREAM_REASSEMBLY_SEQ_GAP);
-            SCPerfCounterIncr(ra_ctx->counter_tcp_reass_gap, tv->sc_perf_pca);
-#ifdef DEBUG
-            dbg_app_layer_gap++;
-#endif
-            SCReturnInt(0);
-        }
-    }
-
     for (; seg != NULL && SEQ_LT(seg->seq, stream->last_ack);)
     {
         SCLogDebug("seg %p, SEQ %"PRIu32", LEN %"PRIu16", SUM %"PRIu32,
@@ -2949,18 +2904,54 @@ int StreamTcpReassembleAppLayer (ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx,
                 (uint32_t)(seg->seq + seg->payload_len));
 
         if (p->flow->flags & FLOW_NO_APPLAYER_INSPECTION) {
-            SCLogDebug("FLOW_NO_APPLAYER_INSPECTION set, breaking out");
-            break;
-        }
+            if (seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED) {
+                SCLogDebug("removing seg %p seq %"PRIu32
+                           " len %"PRIu16"", seg, seg->seq, seg->payload_len);
 
-        if (StreamTcpReturnSegmentCheck(p->flow, ssn, stream, seg) == 1) {
-            SCLogDebug("removing segment");
+                TcpSegment *next_seg = seg->next;
+                StreamTcpRemoveSegmentFromStream(stream, seg);
+                StreamTcpSegmentReturntoPool(seg);
+                seg = next_seg;
+                continue;
+            } else {
+                break;
+            }
+
+            /* Remove the segments which are either completely before the
+             * ra_base_seq and processed by both app layer and raw reassembly. */
+        } else if (SEQ_LEQ((seg->seq + seg->payload_len), (ra_base_seq+1)) &&
+                   (seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED) &&
+                   (seg->flags & SEGMENTTCP_FLAG_APPLAYER_PROCESSED)) {
+            if (StreamTcpReturnSegmentCheck(ssn, stream, seg) == 0) {
+                seg = seg->next;
+                continue;
+            }
+
+            SCLogDebug("removing pre ra_base_seq %"PRIu32" seg %p seq %"PRIu32
+                    " len %"PRIu16"", ra_base_seq, seg, seg->seq, seg->payload_len);
+
             TcpSegment *next_seg = seg->next;
             StreamTcpRemoveSegmentFromStream(stream, seg);
             StreamTcpSegmentReturntoPool(seg);
             seg = next_seg;
             continue;
-        } else if (StreamTcpAppLayerSegmentProcessed(stream, seg)) {
+        }
+
+        /* if app layer protocol has been detected, then remove all the segments
+           which has been previously processed and reassembled */
+        if (StreamTcpIsSetStreamFlagAppProtoDetectionCompleted(stream) &&
+                (seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED) &&
+                (seg->flags & SEGMENTTCP_FLAG_APPLAYER_PROCESSED))
+        {
+            if (StreamTcpReturnSegmentCheck(ssn, stream, seg) == 0) {
+                next_seq = seg->seq + seg->payload_len;
+                seg = seg->next;
+                continue;
+            }
+
+            SCLogDebug("segment(%p) of length %"PRIu16" has been processed,"
+                    " so return it to pool", seg, seg->payload_len);
+            next_seq = seg->seq + seg->payload_len;
             TcpSegment *next_seg = seg->next;
             seg = next_seg;
             continue;
@@ -2982,36 +2973,50 @@ int StreamTcpReassembleAppLayer (ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx,
                 data_len = 0;
             }
 
-            /* see what the length of the gap is, gap length is seg->seq -
-             * (ra_base_seq +1) */
+            /* don't conclude it's a gap straight away. If ra_base_seq is lower
+             * than last_ack - the window, we consider it a gap. */
+            if (SEQ_GT((stream->last_ack - stream->window), ra_base_seq) ||
+                ssn->state > TCP_ESTABLISHED)
+            {
+                /* see what the length of the gap is, gap length is seg->seq -
+                 * (ra_base_seq +1) */
 #ifdef DEBUG
-            uint32_t gap_len = seg->seq - next_seq;
-            SCLogDebug("expected next_seq %" PRIu32 ", got %" PRIu32 " , "
-                    "stream->last_ack %" PRIu32 ". Seq gap %" PRIu32"",
-                    next_seq, seg->seq, stream->last_ack, gap_len);
+                uint32_t gap_len = seg->seq - next_seq;
+                SCLogDebug("expected next_seq %" PRIu32 ", got %" PRIu32 " , "
+                        "stream->last_ack %" PRIu32 ". Seq gap %" PRIu32"",
+                        next_seq, seg->seq, stream->last_ack, gap_len);
 #endif
-            /* We have missed the packet and end host has ack'd it, so
-             * IDS should advance it's ra_base_seq and should not consider this
-             * packet any longer, even if it is retransmitted, as end host will
-             * drop it anyway */
-            ra_base_seq = seg->seq - 1;
+                /* We have missed the packet and end host has ack'd it, so
+                 * IDS should advance it's ra_base_seq and should not consider this
+                 * packet any longer, even if it is retransmitted, as end host will
+                 * drop it anyway */
+                ra_base_seq = seg->seq - 1;
 
-            /* send gap signal */
-            STREAM_SET_FLAGS(ssn, stream, p, flags);
-            AppLayerHandleTCPData(tv, ra_ctx, p, p->flow, ssn, stream,
-                    NULL, 0, flags|STREAM_GAP);
-            AppLayerProfilingStore(ra_ctx->app_tctx, p);
+                /* send gap signal */
+                STREAM_SET_FLAGS(ssn, stream, p, flags);
+                AppLayerHandleTCPData(tv, ra_ctx, p, p->flow, ssn, stream,
+                                      NULL, 0, flags|STREAM_GAP);
+                AppLayerProfilingStore(ra_ctx->app_tctx, p);
+                data_len = 0;
 
-            /* set a GAP flag and make sure not bothering this stream anymore */
-            SCLogDebug("STREAMTCP_STREAM_FLAG_GAP set");
-            stream->flags |= STREAMTCP_STREAM_FLAG_GAP;
+                /* set a GAP flag and make sure not bothering this stream anymore */
+                SCLogDebug("STREAMTCP_STREAM_FLAG_GAP set");
+                stream->flags |= STREAMTCP_STREAM_FLAG_GAP;
 
-            StreamTcpSetEvent(p, STREAM_REASSEMBLY_SEQ_GAP);
-            SCPerfCounterIncr(ra_ctx->counter_tcp_reass_gap, tv->sc_perf_pca);
+                StreamTcpSetEvent(p, STREAM_REASSEMBLY_SEQ_GAP);
+                SCPerfCounterIncr(ra_ctx->counter_tcp_reass_gap, tv->sc_perf_pca);
 #ifdef DEBUG
-            dbg_app_layer_gap++;
+                dbg_app_layer_gap++;
 #endif
-            break;
+                break;
+            } else {
+                SCLogDebug("possible GAP, but waiting to see if out of order "
+                        "packets might solve that");
+#ifdef DEBUG
+                dbg_app_layer_gap_candidate++;
+#endif
+                break;
+            }
         }
 
         int partial = FALSE;
@@ -3179,10 +3184,8 @@ int StreamTcpReassembleAppLayer (ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx,
         TcpSegment *next_seg = seg->next;
         next_seq = seg->seq + seg->payload_len;
         if (partial == FALSE) {
-            SCLogDebug("fully done with segment in app layer reassembly (seg %p seq %"PRIu32")",
-                    seg, seg->seq);
+            SCLogDebug("fully done with segment in app layer reassembly");
             seg->flags |= SEGMENTTCP_FLAG_APPLAYER_PROCESSED;
-            SCLogDebug("flags now %02x", seg->flags);
         } else {
             SCLogDebug("not yet fully done with segment in app layer reassembly");
         }
@@ -3260,18 +3263,53 @@ static int StreamTcpReassembleRaw (TcpReassemblyThreadCtx *ra_ctx,
     /* loop through the segments and fill one or more msgs */
     for (; seg != NULL && SEQ_LT(seg->seq, stream->last_ack);)
     {
-        SCLogDebug("seg %p, SEQ %"PRIu32", LEN %"PRIu16", SUM %"PRIu32", flags %02x",
+        SCLogDebug("seg %p, SEQ %"PRIu32", LEN %"PRIu16", SUM %"PRIu32,
                 seg, seg->seq, seg->payload_len,
-                (uint32_t)(seg->seq + seg->payload_len), seg->flags);
+                (uint32_t)(seg->seq + seg->payload_len));
 
-        if (StreamTcpReturnSegmentCheck(p->flow, ssn, stream, seg) == 1) {
-            SCLogDebug("removing segment");
-            TcpSegment *next_seg = seg->next;
-            StreamTcpRemoveSegmentFromStream(stream, seg);
-            StreamTcpSegmentReturntoPool(seg);
-            seg = next_seg;
-            continue;
-        } else if(seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED) {
+        if ((p->flow->flags & FLOW_NO_APPLAYER_INSPECTION) ||
+            (stream->flags & STREAMTCP_STREAM_FLAG_APPPROTO_DETECTION_COMPLETED) ||
+            (stream->flags & STREAMTCP_STREAM_FLAG_GAP))
+        {
+            /* Remove the segments which are either completely before the
+               ra_base_seq or if they are beyond ra_base_seq, but the segment offset
+               from which we need to copy in to smsg is beyond the stream->last_ack.
+               As we are copying until the stream->last_ack only */
+            if (SEQ_LEQ((seg->seq + seg->payload_len), ra_base_seq+1))
+            {
+                if (StreamTcpReturnSegmentCheck(ssn, stream, seg) == 0) {
+                    seg = seg->next;
+                    continue;
+                }
+
+                SCLogDebug("removing pre ra_base_seq %"PRIu32" seg %p seq %"PRIu32""
+                        " len %"PRIu16"", ra_base_seq, seg, seg->seq,
+                        seg->payload_len);
+
+                TcpSegment *next_seg = seg->next;
+                StreamTcpRemoveSegmentFromStream(stream, seg);
+                StreamTcpSegmentReturntoPool(seg);
+                seg = next_seg;
+                continue;
+            }
+        }
+
+        /* if app layer protocol has been detected, then remove all the segments
+         * which has been previously processed and reassembled
+         *
+         * If the stream is in GAP state the app layer flag won't be set */
+        if (StreamTcpIsSetStreamFlagAppProtoDetectionCompleted(stream) &&
+                (seg->flags & SEGMENTTCP_FLAG_RAW_PROCESSED) &&
+                ((seg->flags & SEGMENTTCP_FLAG_APPLAYER_PROCESSED) ||
+                 (stream->flags & STREAMTCP_STREAM_FLAG_GAP)))
+        {
+            if (StreamTcpReturnSegmentCheck(ssn, stream, seg) == 0) {
+                seg = seg->next;
+                continue;
+            }
+
+            SCLogDebug("segment(%p) of length %"PRIu16" has been processed,"
+                    " so return it to pool", seg, seg->payload_len);
             TcpSegment *next_seg = seg->next;
             seg = next_seg;
             continue;
@@ -3292,24 +3330,32 @@ static int StreamTcpReassembleRaw (TcpReassemblyThreadCtx *ra_ctx,
                 smsg = NULL;
             }
 
-            /* see what the length of the gap is, gap length is seg->seq -
-             * (ra_base_seq +1) */
+            /* don't conclude it's a gap straight away. If ra_base_seq is lower
+             * than last_ack - the window, we consider it a gap. */
+            if (SEQ_GT((stream->last_ack - stream->window), ra_base_seq) ||
+                ssn->state > TCP_ESTABLISHED)
+            {
+                /* see what the length of the gap is, gap length is seg->seq -
+                 * (ra_base_seq +1) */
 #ifdef DEBUG
-            uint32_t gap_len = seg->seq - next_seq;
-            SCLogDebug("expected next_seq %" PRIu32 ", got %" PRIu32 " , "
-                    "stream->last_ack %" PRIu32 ". Seq gap %" PRIu32"",
-                    next_seq, seg->seq, stream->last_ack, gap_len);
+                uint32_t gap_len = seg->seq - next_seq;
+                SCLogDebug("expected next_seq %" PRIu32 ", got %" PRIu32 " , "
+                        "stream->last_ack %" PRIu32 ". Seq gap %" PRIu32"",
+                        next_seq, seg->seq, stream->last_ack, gap_len);
 #endif
-            stream->ra_raw_base_seq = ra_base_seq;
+                stream->ra_raw_base_seq = ra_base_seq;
 
-            /* We have missed the packet and end host has ack'd it, so
-             * IDS should advance it's ra_base_seq and should not consider this
-             * packet any longer, even if it is retransmitted, as end host will
-             * drop it anyway */
-            ra_base_seq = seg->seq - 1;
+                /* We have missed the packet and end host has ack'd it, so
+                 * IDS should advance it's ra_base_seq and should not consider this
+                 * packet any longer, even if it is retransmitted, as end host will
+                 * drop it anyway */
+                ra_base_seq = seg->seq - 1;
+            } else {
+                SCLogDebug("possible GAP, but waiting to see if out of order "
+                        "packets might solve that");
+                break;
+            }
         }
-
-        int partial = FALSE;
 
         /* if the segment ends beyond ra_base_seq we need to consider it */
         if (SEQ_GT((seg->seq + seg->payload_len), ra_base_seq+1)) {
@@ -3328,7 +3374,6 @@ static int StreamTcpReassembleRaw (TcpReassemblyThreadCtx *ra_ctx,
                     } else {
                         payload_len = (stream->last_ack - seg->seq) - payload_offset;
                     }
-                    partial = TRUE;
                 } else {
                     payload_len = seg->payload_len - payload_offset;
                 }
@@ -3342,7 +3387,6 @@ static int StreamTcpReassembleRaw (TcpReassemblyThreadCtx *ra_ctx,
 
                 if (SEQ_LT(stream->last_ack, (seg->seq + seg->payload_len))) {
                     payload_len = stream->last_ack - seg->seq;
-                    partial = TRUE;
                 } else {
                     payload_len = seg->payload_len;
                 }
@@ -3472,15 +3516,8 @@ static int StreamTcpReassembleRaw (TcpReassemblyThreadCtx *ra_ctx,
 
         /* done with this segment, return it to the pool */
         TcpSegment *next_seg = seg->next;
+        seg->flags |= SEGMENTTCP_FLAG_RAW_PROCESSED;
         next_seq = seg->seq + seg->payload_len;
-        if (partial == FALSE) {
-            SCLogDebug("fully done with segment in raw reassembly (seg %p seq %"PRIu32")",
-                    seg, seg->seq);
-            seg->flags |= SEGMENTTCP_FLAG_RAW_PROCESSED;
-            SCLogDebug("flags now %02x", seg->flags);
-        } else {
-            SCLogDebug("not yet fully done with segment in raw reassembly");
-        }
         seg = next_seg;
     }
 
@@ -3774,8 +3811,7 @@ TcpSegment* StreamTcpGetSegment(ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx, 
  *
  *  \param ssn TcpSession
  */
-void StreamTcpReassembleTriggerRawReassembly(TcpSession *ssn)
-{
+void StreamTcpReassembleTriggerRawReassembly(TcpSession *ssn) {
 #ifdef DEBUG
     BUG_ON(ssn == NULL);
 #endif
@@ -3789,8 +3825,7 @@ void StreamTcpReassembleTriggerRawReassembly(TcpSession *ssn)
 #ifdef UNITTESTS
 /** unit tests and it's support functions below */
 
-static uint32_t UtSsnSmsgCnt(TcpSession *ssn, uint8_t direction)
-{
+static uint32_t UtSsnSmsgCnt(TcpSession *ssn, uint8_t direction) {
     uint32_t cnt = 0;
     StreamMsg *smsg = (direction == STREAM_TOSERVER) ?
                             ssn->toserver_smsg_head :
@@ -3809,8 +3844,7 @@ static uint32_t UtSsnSmsgCnt(TcpSession *ssn, uint8_t direction)
  *  \param  stream  The stream which will contain the reassembled segments
  */
 
-static int StreamTcpReassembleStreamTest(TcpStream *stream)
-{
+static int StreamTcpReassembleStreamTest(TcpStream *stream) {
 
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
@@ -4057,8 +4091,7 @@ void StreamTcpCreateTestPacket(uint8_t *payload, uint8_t value,
  *  \param  stream          Reassembled stream returned from the reassembly functions
  */
 
-int StreamTcpCheckStreamContents(uint8_t *stream_policy, uint16_t sp_size, TcpStream *stream)
-{
+int StreamTcpCheckStreamContents(uint8_t *stream_policy, uint16_t sp_size, TcpStream *stream) {
     TcpSegment *temp;
     uint16_t i = 0;
     uint8_t j;
@@ -4097,8 +4130,7 @@ int StreamTcpCheckStreamContents(uint8_t *stream_policy, uint16_t sp_size, TcpSt
  *
  *  \retval On success the function returns 1, on failure 0.
  */
-static int StreamTcpCheckChunks (TcpSession *ssn, uint8_t *stream_contents)
-{
+static int StreamTcpCheckChunks (TcpSession *ssn, uint8_t *stream_contents) {
     SCEnter();
 
     StreamMsg *msg;
@@ -4258,8 +4290,7 @@ static int StreamTcpTestStartsBeforeListSegment(TcpStream *stream) {
  *                  also tells the OS policy used for reassembling the segments.
  */
 
-static int StreamTcpTestStartsAtSameListSegment(TcpStream *stream)
-{
+static int StreamTcpTestStartsAtSameListSegment(TcpStream *stream) {
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -4374,8 +4405,7 @@ static int StreamTcpTestStartsAtSameListSegment(TcpStream *stream)
  */
 
 
-static int StreamTcpTestStartsAfterListSegment(TcpStream *stream)
-{
+static int StreamTcpTestStartsAfterListSegment(TcpStream *stream) {
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -4477,8 +4507,7 @@ static int StreamTcpTestStartsAfterListSegment(TcpStream *stream)
  *              segments.
  */
 
-static int StreamTcpReassembleTest01(void)
-{
+static int StreamTcpReassembleTest01(void) {
     TcpStream stream;
     uint8_t stream_before_bsd[10] = {0x4a, 0x4a, 0x4a, 0x4a, 0x4c, 0x4c,
                                       0x4c, 0x4d, 0x4d, 0x4d};
@@ -4505,8 +4534,7 @@ static int StreamTcpReassembleTest01(void)
  *              to reassemble segments.
  */
 
-static int StreamTcpReassembleTest02(void)
-{
+static int StreamTcpReassembleTest02(void) {
     TcpStream stream;
     uint8_t stream_same_bsd[8] = {0x43, 0x43, 0x43, 0x4c, 0x48, 0x48,
                                     0x49, 0x51};
@@ -4532,8 +4560,7 @@ static int StreamTcpReassembleTest02(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest03(void)
-{
+static int StreamTcpReassembleTest03(void) {
     TcpStream stream;
     uint8_t stream_after_bsd[8] = {0x41, 0x41, 0x4a, 0x46, 0x46, 0x46,
                                      0x47, 0x47};
@@ -4559,8 +4586,7 @@ static int StreamTcpReassembleTest03(void)
  *              reassemble segments.
  */
 
-static int StreamTcpReassembleTest04(void)
-{
+static int StreamTcpReassembleTest04(void) {
     TcpStream stream;
     uint8_t stream_bsd[25] = {0x30, 0x41, 0x41, 0x41, 0x4a, 0x4a, 0x42, 0x43,
                                0x43, 0x43, 0x4c, 0x4c, 0x4c, 0x4d, 0x4d, 0x4d,
@@ -4585,8 +4611,7 @@ static int StreamTcpReassembleTest04(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest05(void)
-{
+static int StreamTcpReassembleTest05(void) {
     TcpStream stream;
     uint8_t stream_before_vista[10] = {0x4a, 0x41, 0x42, 0x4a, 0x4c, 0x44,
                                         0x4c, 0x4d, 0x45, 0x45};
@@ -4610,8 +4635,7 @@ static int StreamTcpReassembleTest05(void)
  *              to reassemble segments.
  */
 
-static int StreamTcpReassembleTest06(void)
-{
+static int StreamTcpReassembleTest06(void) {
     TcpStream stream;
     uint8_t stream_same_vista[8] = {0x43, 0x43, 0x43, 0x4c, 0x48, 0x48,
                                      0x49, 0x51};
@@ -4637,8 +4661,7 @@ static int StreamTcpReassembleTest06(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest07(void)
-{
+static int StreamTcpReassembleTest07(void) {
     TcpStream stream;
     uint8_t stream_after_vista[8] = {0x41, 0x41, 0x4a, 0x46, 0x46, 0x46,
                                       0x47, 0x47};
@@ -4664,8 +4687,7 @@ static int StreamTcpReassembleTest07(void)
  *              reassemble segments.
  */
 
-static int StreamTcpReassembleTest08(void)
-{
+static int StreamTcpReassembleTest08(void) {
     TcpStream stream;
     uint8_t stream_vista[25] = {0x30, 0x41, 0x41, 0x41, 0x4a, 0x42, 0x42, 0x43,
                                  0x43, 0x43, 0x4c, 0x44, 0x4c, 0x4d, 0x45, 0x45,
@@ -4690,8 +4712,7 @@ static int StreamTcpReassembleTest08(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest09(void)
-{
+static int StreamTcpReassembleTest09(void) {
     TcpStream stream;
     uint8_t stream_before_linux[10] = {0x4a, 0x4a, 0x4a, 0x4a, 0x4c, 0x4c,
                                         0x4c, 0x4d, 0x4d, 0x4d};
@@ -4715,8 +4736,7 @@ static int StreamTcpReassembleTest09(void)
  *              to reassemble segments.
  */
 
-static int StreamTcpReassembleTest10(void)
-{
+static int StreamTcpReassembleTest10(void) {
     TcpStream stream;
     uint8_t stream_same_linux[8] = {0x4c, 0x4c, 0x4c, 0x4c, 0x48, 0x48,
                                      0x51, 0x51};
@@ -4740,8 +4760,7 @@ static int StreamTcpReassembleTest10(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest11(void)
-{
+static int StreamTcpReassembleTest11(void) {
     TcpStream stream;
     uint8_t stream_after_linux[8] = {0x41, 0x41, 0x4a, 0x46, 0x46, 0x46,
                                       0x47, 0x47};
@@ -4765,8 +4784,7 @@ static int StreamTcpReassembleTest11(void)
  *              reassemble segments.
  */
 
-static int StreamTcpReassembleTest12(void)
-{
+static int StreamTcpReassembleTest12(void) {
     TcpStream stream;
     uint8_t stream_linux[25] = {0x30, 0x41, 0x41, 0x41, 0x4a, 0x4a, 0x42, 0x43,
                                  0x43, 0x43, 0x4c, 0x4c, 0x4c, 0x4d, 0x4d, 0x4d,
@@ -4791,8 +4809,7 @@ static int StreamTcpReassembleTest12(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest13(void)
-{
+static int StreamTcpReassembleTest13(void) {
     TcpStream stream;
     uint8_t stream_before_old_linux[10] = {0x4a, 0x4a, 0x4a, 0x4a, 0x4c, 0x4c,
                                             0x4c, 0x4d, 0x4d, 0x4d};
@@ -4816,8 +4833,7 @@ static int StreamTcpReassembleTest13(void)
  *              used to reassemble segments.
  */
 
-static int StreamTcpReassembleTest14(void)
-{
+static int StreamTcpReassembleTest14(void) {
     TcpStream stream;
     uint8_t stream_same_old_linux[8] = {0x4c, 0x4c, 0x4c, 0x4c, 0x48, 0x48,
                                          0x51, 0x51};
@@ -4841,8 +4857,7 @@ static int StreamTcpReassembleTest14(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest15(void)
-{
+static int StreamTcpReassembleTest15(void) {
     TcpStream stream;
     uint8_t stream_after_old_linux[8] = {0x41, 0x41, 0x4a, 0x46, 0x46, 0x46,
                                           0x47, 0x47};
@@ -4866,8 +4881,7 @@ static int StreamTcpReassembleTest15(void)
  *              reassemble segments.
  */
 
-static int StreamTcpReassembleTest16(void)
-{
+static int StreamTcpReassembleTest16(void) {
     TcpStream stream;
     uint8_t stream_old_linux[25] = {0x30, 0x41, 0x41, 0x41, 0x4a, 0x4a, 0x42, 0x4b,
                                      0x4b, 0x4b, 0x4c, 0x4c, 0x4c, 0x4d, 0x4d, 0x4d,
@@ -4892,8 +4906,7 @@ static int StreamTcpReassembleTest16(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest17(void)
-{
+static int StreamTcpReassembleTest17(void) {
     TcpStream stream;
     uint8_t stream_before_solaris[10] = {0x4a, 0x4a, 0x4a, 0x4a, 0x4c, 0x4c,
                                           0x4c, 0x4d, 0x4d, 0x4d};
@@ -4917,8 +4930,7 @@ static int StreamTcpReassembleTest17(void)
  *              to reassemble segments.
  */
 
-static int StreamTcpReassembleTest18(void)
-{
+static int StreamTcpReassembleTest18(void) {
     TcpStream stream;
     uint8_t stream_same_solaris[8] = {0x4c, 0x4c, 0x4c, 0x4c, 0x48, 0x48,
                                        0x51, 0x51};
@@ -4942,8 +4954,7 @@ static int StreamTcpReassembleTest18(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest19(void)
-{
+static int StreamTcpReassembleTest19(void) {
     TcpStream stream;
     uint8_t stream_after_solaris[8] = {0x41, 0x4a, 0x4a, 0x46, 0x46, 0x46,
                                         0x47, 0x47};
@@ -4969,8 +4980,7 @@ static int StreamTcpReassembleTest19(void)
  *              reassemble segments.
  */
 
-static int StreamTcpReassembleTest20(void)
-{
+static int StreamTcpReassembleTest20(void) {
     TcpStream stream;
     uint8_t stream_solaris[25] = {0x30, 0x41, 0x4a, 0x4a, 0x4a, 0x42, 0x42, 0x4b,
                                    0x4b, 0x4b, 0x4c, 0x4c, 0x4c, 0x4d, 0x4d, 0x4d,
@@ -4997,8 +5007,7 @@ static int StreamTcpReassembleTest20(void)
  *              segments.
  */
 
-static int StreamTcpReassembleTest21(void)
-{
+static int StreamTcpReassembleTest21(void) {
     TcpStream stream;
     uint8_t stream_before_last[10] = {0x4a, 0x4a, 0x4a, 0x4a, 0x4c, 0x4c,
                                        0x4c, 0x4d, 0x4d, 0x4d};
@@ -5022,8 +5031,7 @@ static int StreamTcpReassembleTest21(void)
  *              to reassemble segments.
  */
 
-static int StreamTcpReassembleTest22(void)
-{
+static int StreamTcpReassembleTest22(void) {
     TcpStream stream;
     uint8_t stream_same_last[8] = {0x4c, 0x4c, 0x4c, 0x4c, 0x50, 0x48,
                                     0x51, 0x51};
@@ -5046,8 +5054,7 @@ static int StreamTcpReassembleTest22(void)
  *              after the list segment and LAST policy is used to reassemble
  *              segments.
  */
-static int StreamTcpReassembleTest23(void)
-{
+static int StreamTcpReassembleTest23(void) {
     TcpStream stream;
     uint8_t stream_after_last[8] = {0x41, 0x4a, 0x4a, 0x46, 0x4e, 0x46, 0x47, 0x4f};
     memset(&stream, 0, sizeof (TcpStream));
@@ -5072,8 +5079,7 @@ static int StreamTcpReassembleTest23(void)
  *              reassemble segments.
  */
 
-static int StreamTcpReassembleTest24(void)
-{
+static int StreamTcpReassembleTest24(void) {
     int ret = 0;
     TcpStream stream;
     uint8_t stream_last[25] = {0x30, 0x41, 0x4a, 0x4a, 0x4a, 0x4a, 0x42, 0x4b,
@@ -5193,8 +5199,7 @@ static int StreamTcpTestMissedPacket (TcpReassemblyThreadCtx *ra_ctx,
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest25 (void)
-{
+static int StreamTcpReassembleTest25 (void) {
     int ret = 0;
     uint8_t payload[4];
     uint32_t seq;
@@ -5252,8 +5257,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest26 (void)
-{
+static int StreamTcpReassembleTest26 (void) {
     int ret = 0;
     uint8_t payload[4];
     uint32_t seq;
@@ -5310,8 +5314,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest27 (void)
-{
+static int StreamTcpReassembleTest27 (void) {
     int ret = 0;
     uint8_t payload[4];
     uint32_t seq;
@@ -5369,8 +5372,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest28 (void)
-{
+static int StreamTcpReassembleTest28 (void) {
     int ret = 0;
     uint8_t payload[4];
     uint32_t seq;
@@ -5450,8 +5452,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest29 (void)
-{
+static int StreamTcpReassembleTest29 (void) {
     int ret = 0;
     uint8_t payload[4];
     uint32_t seq;
@@ -5528,8 +5529,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest30 (void)
-{
+static int StreamTcpReassembleTest30 (void) {
     int ret = 0;
     uint8_t payload[4];
     uint32_t seq;
@@ -5625,8 +5625,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest31 (void)
-{
+static int StreamTcpReassembleTest31 (void) {
     int ret = 0;
     uint8_t payload[4];
     uint32_t seq;
@@ -5697,8 +5696,7 @@ end:
     return ret;
 }
 
-static int StreamTcpReassembleTest32(void)
-{
+static int StreamTcpReassembleTest32(void) {
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -5787,8 +5785,7 @@ end:
     return ret;
 }
 
-static int StreamTcpReassembleTest33(void)
-{
+static int StreamTcpReassembleTest33(void) {
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -5868,8 +5865,7 @@ static int StreamTcpReassembleTest33(void)
     return 1;
 }
 
-static int StreamTcpReassembleTest34(void)
-{
+static int StreamTcpReassembleTest34(void) {
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -5950,8 +5946,7 @@ static int StreamTcpReassembleTest34(void)
 }
 
 /** \test Test the bug 56 condition */
-static int StreamTcpReassembleTest35(void)
-{
+static int StreamTcpReassembleTest35(void) {
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -6019,8 +6014,7 @@ static int StreamTcpReassembleTest35(void)
 }
 
 /** \test Test the bug 57 condition */
-static int StreamTcpReassembleTest36(void)
-{
+static int StreamTcpReassembleTest36(void) {
     TcpSession ssn;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -6087,8 +6081,7 @@ static int StreamTcpReassembleTest36(void)
 }
 
 /** \test Test the bug 76 condition */
-static int StreamTcpReassembleTest37(void)
-{
+static int StreamTcpReassembleTest37(void) {
     TcpSession ssn;
     Flow f;
     TCPHdr tcph;
@@ -6186,8 +6179,7 @@ static int StreamTcpReassembleTest37(void)
  *
  *  \retval On success it returns 1 and on failure 0.
  */
-static int StreamTcpReassembleTest38 (void)
-{
+static int StreamTcpReassembleTest38 (void) {
     int ret = 0;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -6301,8 +6293,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest39 (void)
-{
+static int StreamTcpReassembleTest39 (void) {
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
         return 0;
@@ -6903,8 +6894,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest40 (void)
-{
+static int StreamTcpReassembleTest40 (void) {
     int ret = 0;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -7103,8 +7093,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest43 (void)
-{
+static int StreamTcpReassembleTest43 (void) {
     int ret = 0;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -7319,8 +7308,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest45 (void)
-{
+static int StreamTcpReassembleTest45 (void) {
     int ret = 0;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -7438,8 +7426,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest46 (void)
-{
+static int StreamTcpReassembleTest46 (void) {
     int ret = 0;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -7561,8 +7548,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpReassembleTest47 (void)
-{
+static int StreamTcpReassembleTest47 (void) {
     int ret = 0;
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -7655,8 +7641,7 @@ end:
 }
 
 /** \test 3 in order segments in inline reassembly */
-static int StreamTcpReassembleInlineTest01(void)
-{
+static int StreamTcpReassembleInlineTest01(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -7733,8 +7718,7 @@ end:
 /** \test 3 in order segments, then reassemble, add one more and reassemble again.
  *        test the sliding window reassembly.
  */
-static int StreamTcpReassembleInlineTest02(void)
-{
+static int StreamTcpReassembleInlineTest02(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -7844,8 +7828,7 @@ end:
  *        test the sliding window reassembly with a small window size so that we
  *        cutting off at the start (left edge)
  */
-static int StreamTcpReassembleInlineTest03(void)
-{
+static int StreamTcpReassembleInlineTest03(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -7960,8 +7943,7 @@ end:
  *        test the sliding window reassembly with a small window size so that we
  *        cutting off at the start (left edge) with small packet overlap.
  */
-static int StreamTcpReassembleInlineTest04(void)
-{
+static int StreamTcpReassembleInlineTest04(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8073,8 +8055,7 @@ end:
 }
 
 /** \test with a GAP we should have 2 smsgs */
-static int StreamTcpReassembleInlineTest05(void)
-{
+static int StreamTcpReassembleInlineTest05(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8167,8 +8148,7 @@ end:
 }
 
 /** \test with a GAP we should have 2 smsgs, with filling the GAP later */
-static int StreamTcpReassembleInlineTest06(void)
-{
+static int StreamTcpReassembleInlineTest06(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8296,8 +8276,7 @@ end:
 
 /** \test with a GAP we should have 2 smsgs, with filling the GAP later, small
  *        window */
-static int StreamTcpReassembleInlineTest07(void)
-{
+static int StreamTcpReassembleInlineTest07(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8431,8 +8410,7 @@ end:
  *        cutting off at the start (left edge). Test if the first segment is
  *        removed from the list.
  */
-static int StreamTcpReassembleInlineTest08(void)
-{
+static int StreamTcpReassembleInlineTest08(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8564,8 +8542,7 @@ end:
  *        cutting off at the start (left edge). Test if the first segment is
  *        removed from the list.
  */
-static int StreamTcpReassembleInlineTest09(void)
-{
+static int StreamTcpReassembleInlineTest09(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8710,8 +8687,7 @@ end:
 
 /** \test App Layer reassembly.
  */
-static int StreamTcpReassembleInlineTest10(void)
-{
+static int StreamTcpReassembleInlineTest10(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8796,8 +8772,7 @@ end:
 
 /** \test test insert with overlap
  */
-static int StreamTcpReassembleInsertTest01(void)
-{
+static int StreamTcpReassembleInsertTest01(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8885,8 +8860,7 @@ end:
 
 /** \test test insert with overlaps
  */
-static int StreamTcpReassembleInsertTest02(void)
-{
+static int StreamTcpReassembleInsertTest02(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8928,8 +8902,7 @@ end:
 
 /** \test test insert with overlaps
  */
-static int StreamTcpReassembleInsertTest03(void)
-{
+static int StreamTcpReassembleInsertTest03(void) {
     int ret = 0;
     TcpReassemblyThreadCtx *ra_ctx = NULL;
     ThreadVars tv;
@@ -8975,8 +8948,7 @@ end:
  *          for various OS policies.
  */
 
-void StreamTcpReassembleRegisterTests(void)
-{
+void StreamTcpReassembleRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("StreamTcpReassembleTest01 -- BSD OS Before Reassembly Test", StreamTcpReassembleTest01, 1);
     UtRegisterTest("StreamTcpReassembleTest02 -- BSD OS At Same Reassembly Test", StreamTcpReassembleTest02, 1);

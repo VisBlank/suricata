@@ -1,0 +1,53 @@
+file ./src/suricata
+
+# mysql
+#b MysqlParseClientRecord
+#b MysqlParseServerRecord
+
+
+#b DetectMysqlUserALMatch
+#b DetectMysqlDbALMatch
+#b DetectMysqlUserParseArg
+#b DetectMysqlUserSetup
+#b DetectMysqlKeywordsRegister
+#b DetectMysqlDbSetup
+#b DetectMysqlDbParseArg
+#b ParseClientAuth
+#b JsonMysqlLogger
+#b ParseCompleteMysqlClientPkt
+#b ParseClientCmd
+b JsonMysqlLogger
+b ParseCompleteMysqlClientPkt
+b ParseClientCmd
+
+# oracle
+#b Oracle11gParseClientRecord
+#b Oracle11gParseLogin
+#b Oracle11gParseData
+#b Oracle11gParseServerRecord
+#b JsonOracle11gLogger
+#b RegisterOracle11gParsers
+#b src/app-layer-oracle11g-common.c:278 if (*p == 0x0e)
+#b CaptrueSQL
+
+#b detect-oracle.c:UserMatch
+#b detect-oracle.c:SidMatch
+#
+#b DetectMSSqlKeywordsRegister
+#b MSSqlUserMatch
+#b MSSqlUserSetup
+#b MSSqlUserParseArg
+#b MSSqlKeywordsFree
+#b MSSqlDbMatch
+#b MSSqlDbSetup
+#b MSSqlDbParseArg
+
+#b TDSGetTx
+#b TDSGetTxCnt
+#
+#b MysqlGetTx
+#b MysqlGetTxCnt
+
+#r -c yaml/demo.yaml -q 0
+r -c yaml/demo.yaml -i eth1
+set print pretty

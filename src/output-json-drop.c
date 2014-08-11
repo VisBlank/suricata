@@ -186,18 +186,8 @@ static TmEcode JsonDropLogThreadDeinit(ThreadVars *t, void *data)
 
 static void JsonDropLogDeInitCtx(OutputCtx *output_ctx)
 {
-    OutputDropLoggerDisable();
-
     LogFileCtx *logfile_ctx = (LogFileCtx *)output_ctx->data;
     LogFileFreeCtx(logfile_ctx);
-    SCFree(output_ctx);
-}
-
-static void JsonDropLogDeInitCtxSub(OutputCtx *output_ctx)
-{
-    OutputDropLoggerDisable();
-
-    SCLogDebug("cleaning up sub output_ctx %p", output_ctx);
     SCFree(output_ctx);
 }
 
@@ -246,7 +236,7 @@ static OutputCtx *JsonDropLogInitCtxSub(ConfNode *conf, OutputCtx *parent_ctx)
     }
 
     output_ctx->data = ajt->file_ctx;
-    output_ctx->DeInit = JsonDropLogDeInitCtxSub;
+    output_ctx->DeInit = JsonDropLogDeInitCtx;
     return output_ctx;
 }
 
@@ -288,9 +278,9 @@ static int JsonDropLogger(ThreadVars *tv, void *thread_data, const Packet *p)
  *
  * \retval bool TRUE or FALSE
  */
-static int JsonDropLogCondition(ThreadVars *tv, const Packet *p)
-{
-    if (!EngineModeIsIPS()) {
+static int JsonDropLogCondition(ThreadVars *tv, const Packet *p) {
+    extern uint8_t engine_mode;
+    if (!IS_ENGINE_MODE_IPS(engine_mode)) {
         SCLogDebug("engine is not running in inline mode, so returning");
         return FALSE;
     }
@@ -317,8 +307,7 @@ static int JsonDropLogCondition(ThreadVars *tv, const Packet *p)
     return FALSE;
 }
 
-void TmModuleJsonDropLogRegister (void)
-{
+void TmModuleJsonDropLogRegister (void) {
     tmm_modules[TMM_JSONDROPLOG].name = MODULE_NAME;
     tmm_modules[TMM_JSONDROPLOG].ThreadInit = JsonDropLogThreadInit;
     tmm_modules[TMM_JSONDROPLOG].ThreadDeinit = JsonDropLogThreadDeinit;

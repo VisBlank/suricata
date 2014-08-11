@@ -72,7 +72,6 @@
 #include "app-layer-ssl.h"
 #include "app-layer-ssh.h"
 #include "app-layer-smtp.h"
-#include "app-layer-mysql.h"
 
 #include "util-action.h"
 #include "util-radix-tree.h"
@@ -119,16 +118,7 @@
 void RegisterAllModules();
 void TmqhSetup (void);
 
-/**
- * Run or list unittests
- *
- * \param list_unittests If set to 1, list unittests. Run them if set to 0.
- * \param regex_arg A regular expression to select unittests to run
- *
- * This function is terminal and will call exit after being called.
- */
-
-void RunUnittests(int list_unittests, char *regex_arg)
+int RunUnittests(int list_unittests, char *regex_arg)
 {
 #ifdef UNITTESTS
     /* Initializations for global vars, queues, etc (memsets, mutex init..) */
@@ -196,8 +186,16 @@ void RunUnittests(int list_unittests, char *regex_arg)
     SCPerfRegisterTests();
     DecodePPPRegisterTests();
     DecodeVLANRegisterTests();
-    MysqlParserRegisterTests();
     HTPParserRegisterTests();
+/* we are disabling the ssh parser temporarily, since we are moving away
+ * from some of the archaic features we use in the app layer.  We will
+ * reintroduce this parser.  Also do note that keywords that rely on
+ * the ssh parser would now be disabled */
+#if 0
+    SSHParserRegisterTests();
+#endif
+    SMBParserRegisterTests();
+    FTPParserRegisterTests();
     DecodeRawRegisterTests();
     DecodePPPOERegisterTests();
     DecodeICMPV4RegisterTests();
@@ -252,6 +250,7 @@ void RunUnittests(int list_unittests, char *regex_arg)
     DetectEngineHttpHRHRegisterTests();
     DetectEngineRegisterTests();
     SCLogRegisterTests();
+    SMTPParserRegisterTests();
     MagicRegisterTests();
     UtilMiscRegisterTests();
     DetectAddressTests();

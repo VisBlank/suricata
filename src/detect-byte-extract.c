@@ -245,6 +245,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
 #define MAX_SUBSTRINGS 100
     int ret = 0, res = 0;
     int ov[MAX_SUBSTRINGS];
+    char *str_ptr;
     int i = 0;
 
     ret = pcre_exec(parse_regex, parse_regex_study, arg,
@@ -263,26 +264,24 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
     memset(bed, 0, sizeof(DetectByteExtractData));
 
     /* no of bytes to extract */
-    char nbytes_str[64] = "";
-    res = pcre_copy_substring((char *)arg, ov,
-                             MAX_SUBSTRINGS, 1, nbytes_str, sizeof(nbytes_str));
+    res = pcre_get_substring((char *)arg, ov,
+                             MAX_SUBSTRINGS, 1, (const char **)&str_ptr);
     if (res < 0) {
-        SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_copy_substring failed "
+        SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_get_substring failed "
                    "for arg 1 for byte_extract");
         goto error;
     }
-    bed->nbytes = atoi(nbytes_str);
+    bed->nbytes = atoi(str_ptr);
 
     /* offset */
-    char offset_str[64] = "";
-    res = pcre_copy_substring((char *)arg, ov,
-                             MAX_SUBSTRINGS, 2, offset_str, sizeof(offset_str));
+    res = pcre_get_substring((char *)arg, ov,
+                             MAX_SUBSTRINGS, 2, (const char **)&str_ptr);
     if (res < 0) {
-        SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_copy_substring failed "
+        SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_get_substring failed "
                    "for arg 2 for byte_extract");
         goto error;
     }
-    int offset = atoi(offset_str);
+    int offset = atoi(str_ptr);
     if (offset < -65535 || offset > 65535) {
         SCLogError(SC_ERR_INVALID_SIGNATURE, "byte_extract offset invalid - %d.  "
                    "The right offset range is -65535 to 65535", offset);
@@ -291,37 +290,35 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
     bed->offset = offset;
 
     /* var name */
-    char varname_str[256] = "";
-    res = pcre_copy_substring((char *)arg, ov,
-                             MAX_SUBSTRINGS, 3, varname_str, sizeof(varname_str));
+    res = pcre_get_substring((char *)arg, ov,
+                             MAX_SUBSTRINGS, 3, (const char **)&str_ptr);
     if (res < 0) {
-        SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_copy_substring failed "
+        SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_get_substring failed "
                    "for arg 3 for byte_extract");
         goto error;
     }
-    bed->name = SCStrdup(varname_str);
+    bed->name = SCStrdup(str_ptr);
     if (bed->name == NULL)
         goto error;
 
     /* check out other optional args */
     for (i = 4; i < ret; i++) {
-        char opt_str[64] = "";
-        res = pcre_copy_substring((char *)arg, ov,
-                                 MAX_SUBSTRINGS, i, opt_str, sizeof(opt_str));
+        res = pcre_get_substring((char *)arg, ov,
+                                 MAX_SUBSTRINGS, i, (const char **)&str_ptr);
         if (res < 0) {
-            SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_copy_substring failed "
+            SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_get_substring failed "
                        "for arg %d for byte_extract", i);
             goto error;
         }
 
-        if (strcmp("relative", opt_str) == 0) {
+        if (strcmp("relative", str_ptr) == 0) {
             if (bed->flags & DETECT_BYTE_EXTRACT_FLAG_RELATIVE) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "relative specified more "
                            "than once for byte_extract");
                 goto error;
             }
             bed->flags |= DETECT_BYTE_EXTRACT_FLAG_RELATIVE;
-        } else if (strcmp("multiplier", opt_str) == 0) {
+        } else if (strcmp("multiplier", str_ptr) == 0) {
             if (bed->flags & DETECT_BYTE_EXTRACT_FLAG_MULTIPLIER) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "multiplier specified more "
                            "than once for byte_extract");
@@ -329,16 +326,14 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
             }
             bed->flags |= DETECT_BYTE_EXTRACT_FLAG_MULTIPLIER;
             i++;
-
-            char multiplier_str[16] = "";
-            res = pcre_copy_substring((char *)arg, ov,
-                                     MAX_SUBSTRINGS, i, multiplier_str, sizeof(multiplier_str));
+            res = pcre_get_substring((char *)arg, ov,
+                                     MAX_SUBSTRINGS, i, (const char **)&str_ptr);
             if (res < 0) {
-                SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_copy_substring failed "
+                SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_get_substring failed "
                            "for arg %d for byte_extract", i);
                 goto error;
             }
-            int multiplier = atoi(multiplier_str);
+            int multiplier = atoi(str_ptr);
             if (multiplier < DETECT_BYTE_EXTRACT_MULTIPLIER_MIN_LIMIT ||
                 multiplier > DETECT_BYTE_EXTRACT_MULTIPLIER_MAX_LIMIT) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "multipiler_value invalid "
@@ -349,7 +344,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
                 goto error;
             }
             bed->multiplier_value = multiplier;
-        } else if (strcmp("big", opt_str) == 0) {
+        } else if (strcmp("big", str_ptr) == 0) {
             if (bed->flags & DETECT_BYTE_EXTRACT_FLAG_ENDIAN) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "endian option specified "
                            "more than once for byte_extract");
@@ -357,7 +352,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
             }
             bed->flags |= DETECT_BYTE_EXTRACT_FLAG_ENDIAN;
             bed->endian = DETECT_BYTE_EXTRACT_ENDIAN_BIG;
-        } else if (strcmp("little", opt_str) == 0) {
+        } else if (strcmp("little", str_ptr) == 0) {
             if (bed->flags & DETECT_BYTE_EXTRACT_FLAG_ENDIAN) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "endian option specified "
                            "more than once for byte_extract");
@@ -365,7 +360,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
             }
             bed->flags |= DETECT_BYTE_EXTRACT_FLAG_ENDIAN;
             bed->endian = DETECT_BYTE_EXTRACT_ENDIAN_LITTLE;
-        } else if (strcmp("dce", opt_str) == 0) {
+        } else if (strcmp("dce", str_ptr) == 0) {
             if (bed->flags & DETECT_BYTE_EXTRACT_FLAG_ENDIAN) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "endian option specified "
                            "more than once for byte_extract");
@@ -373,7 +368,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
             }
             bed->flags |= DETECT_BYTE_EXTRACT_FLAG_ENDIAN;
             bed->endian = DETECT_BYTE_EXTRACT_ENDIAN_DCE;
-        } else if (strcmp("string", opt_str) == 0) {
+        } else if (strcmp("string", str_ptr) == 0) {
             if (bed->flags & DETECT_BYTE_EXTRACT_FLAG_STRING) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "string specified more "
                            "than once for byte_extract");
@@ -386,7 +381,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
                 goto error;
             }
             bed->flags |= DETECT_BYTE_EXTRACT_FLAG_STRING;
-        } else if (strcmp("hex", opt_str) == 0) {
+        } else if (strcmp("hex", str_ptr) == 0) {
             if (!(bed->flags & DETECT_BYTE_EXTRACT_FLAG_STRING)) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "Base(hex) specified "
                            "without specifying string.  The right way is "
@@ -399,7 +394,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
                 goto error;
             }
             bed->base = DETECT_BYTE_EXTRACT_BASE_HEX;
-        } else if (strcmp("oct", opt_str) == 0) {
+        } else if (strcmp("oct", str_ptr) == 0) {
             if (!(bed->flags & DETECT_BYTE_EXTRACT_FLAG_STRING)) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "Base(oct) specified "
                            "without specifying string.  The right way is "
@@ -412,7 +407,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
                 goto error;
             }
             bed->base = DETECT_BYTE_EXTRACT_BASE_OCT;
-        } else if (strcmp("dec", opt_str) == 0) {
+        } else if (strcmp("dec", str_ptr) == 0) {
             if (!(bed->flags & DETECT_BYTE_EXTRACT_FLAG_STRING)) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "Base(dec) specified "
                            "without specifying string.  The right way is "
@@ -425,7 +420,7 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
                 goto error;
             }
             bed->base = DETECT_BYTE_EXTRACT_BASE_DEC;
-        } else if (strcmp("align", opt_str) == 0) {
+        } else if (strcmp("align", str_ptr) == 0) {
             if (bed->flags & DETECT_BYTE_EXTRACT_FLAG_ALIGN) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "Align specified more "
                            "than once for byte_extract");
@@ -433,26 +428,24 @@ static inline DetectByteExtractData *DetectByteExtractParse(char *arg)
             }
             bed->flags |= DETECT_BYTE_EXTRACT_FLAG_ALIGN;
             i++;
-
-            char align_str[16] = "";
-            res = pcre_copy_substring((char *)arg, ov,
-                                     MAX_SUBSTRINGS, i, align_str, sizeof(align_str));
+            res = pcre_get_substring((char *)arg, ov,
+                                     MAX_SUBSTRINGS, i, (const char **)&str_ptr);
             if (res < 0) {
-                SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_copy_substring failed "
+                SCLogError(SC_ERR_PCRE_GET_SUBSTRING, "pcre_get_substring failed "
                            "for arg %d in byte_extract", i);
                 goto error;
             }
-            bed->align_value = atoi(align_str);
+            bed->align_value = atoi(str_ptr);
             if (!(bed->align_value == 2 || bed->align_value == 4)) {
                 SCLogError(SC_ERR_INVALID_SIGNATURE, "Invalid align_value for "
                            "byte_extract - \"%d\"", bed->align_value);
                 goto error;
             }
-        } else if (strcmp("", opt_str) == 0) {
+        } else if (strcmp("", str_ptr) == 0) {
             ;
         } else {
             SCLogError(SC_ERR_INVALID_SIGNATURE, "Invalid option - \"%s\" "
-                       "specified in byte_extract", opt_str);
+                       "specified in byte_extract", str_ptr);
             goto error;
         }
     } /* for (i = 4; i < ret; i++) */

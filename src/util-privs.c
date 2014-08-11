@@ -101,8 +101,7 @@ void SCDropMainThreadCaps(uint32_t userid, uint32_t groupid)
     SCLogInfo("dropped the caps for main thread");
 }
 
-void SCDropCaps(ThreadVars *tv)
-{
+void SCDropCaps(ThreadVars *tv) {
 #if 0
     capng_clear(CAPNG_SELECT_BOTH);
     capng_apply(CAPNG_SELECT_BOTH);

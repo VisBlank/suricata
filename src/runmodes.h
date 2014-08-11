@@ -30,7 +30,6 @@ enum {
     RUNMODE_PCAP_FILE,
     RUNMODE_PFRING,
     RUNMODE_NFQ,
-    RUNMODE_NFLOG,
     RUNMODE_IPFW,
     RUNMODE_ERF_FILE,
     RUNMODE_DAG,
@@ -51,7 +50,6 @@ enum {
     RUNMODE_CONF_TEST,
     RUNMODE_LIST_UNITTEST,
     RUNMODE_ENGINE_ANALYSIS,
-    RUNMODE_MYSQL_PACKET,
 #ifdef OS_WIN32
     RUNMODE_INSTALL_SERVICE,
     RUNMODE_REMOVE_SERVICE,
@@ -83,7 +81,6 @@ void RunModeShutDown(void);
 #include "runmode-erf-dag.h"
 #include "runmode-napatech.h"
 #include "runmode-af-packet.h"
-#include "runmode-nflog.h"
 #include "runmode-unix-socket.h"
 
 int threading_set_cpu_affinity;

@@ -24,12 +24,12 @@
 #ifndef __DETECT_LUAJIT_EXT_H__
 #define __DETECT_LUAJIT_EXT_H__
 
-#ifdef HAVE_LUA
+#ifdef HAVE_LUAJIT
 int LuajitRegisterExtensions(lua_State *);
 
 void LuajitExtensionsMatchSetup(lua_State *lua_state,
         DetectLuajitData *, DetectEngineThreadCtx *det_ctx,
         Flow *f, int need_flow_lock);
 
-#endif /* HAVE_LUA */
+#endif /* HAVE_LUAJIT */
 #endif

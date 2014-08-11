@@ -292,8 +292,7 @@ end:
 }
 
 #ifdef UNITTESTS
-static int HTPFileParserTest01(void)
-{
+static int HTPFileParserTest01(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -375,8 +374,7 @@ end:
     return result;
 }
 
-static int HTPFileParserTest02(void)
-{
+static int HTPFileParserTest02(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -494,8 +492,7 @@ end:
     return result;
 }
 
-static int HTPFileParserTest03(void)
-{
+static int HTPFileParserTest03(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -645,8 +642,7 @@ end:
     return result;
 }
 
-static int HTPFileParserTest04(void)
-{
+static int HTPFileParserTest04(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -791,8 +787,7 @@ end:
     return result;
 }
 
-static int HTPFileParserTest05(void)
-{
+static int HTPFileParserTest05(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -916,8 +911,7 @@ end:
 }
 
 /** \test first multipart part contains file but doesn't end in first chunk */
-static int HTPFileParserTest06(void)
-{
+static int HTPFileParserTest06(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -1041,8 +1035,7 @@ end:
 }
 
 /** \test POST, but not multipart */
-static int HTPFileParserTest07(void)
-{
+static int HTPFileParserTest07(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /filename HTTP/1.1\r\n"
@@ -1137,8 +1130,7 @@ end:
     return result;
 }
 
-static int HTPFileParserTest08(void)
-{
+static int HTPFileParserTest08(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -1223,8 +1215,7 @@ end:
 }
 
 /** \test invalid header: Somereallylongheaderstr: has no value */
-static int HTPFileParserTest09(void)
-{
+static int HTPFileParserTest09(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -1341,8 +1332,7 @@ end:
 }
 
 /** \test empty entries */
-static int HTPFileParserTest10(void)
-{
+static int HTPFileParserTest10(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -1452,8 +1442,7 @@ end:
 }
 
 /** \test filedata cut in two pieces */
-static int HTPFileParserTest11(void)
-{
+static int HTPFileParserTest11(void) {
     int result = 0;
     Flow *f = NULL;
     uint8_t httpbuf1[] = "POST /upload.cgi HTTP/1.1\r\n"
@@ -1617,8 +1606,7 @@ end:
 
 #endif /* UNITTESTS */
 
-void HTPFileParserRegisterTests(void)
-{
+void HTPFileParserRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("HTPFileParserTest01", HTPFileParserTest01, 1);
     UtRegisterTest("HTPFileParserTest02", HTPFileParserTest02, 1);

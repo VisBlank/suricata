@@ -6,6 +6,7 @@
  */
 
 #include "app-layer-mysql-common.h"
+#include "detect-threshold.h"
 
 #define MYSQL_HDR_LEN 4
 
@@ -29,6 +30,45 @@ int ParseMysqlPktHdr(MysqlPktHeader *hdr, uint8_t *input, uint32_t input_len) {
     return 0;
 }
 
+static MysqlTransaction *MysqlTransactionAlloc() {
+    MysqlTransaction *tx = SCCalloc(1, sizeof(MysqlTransaction));
+    if (unlikely(tx == NULL)) {
+        return NULL;
+    }
+    return tx;
+}
+
+void MysqlTransactionFree(void *trans) {
+    MysqlTransaction *tx = (MysqlTransaction *)trans;
+    if (tx == NULL)
+        SCReturn;
+
+    if (tx->sql != NULL)
+        SCFree(tx->sql);
+
+    SCFree(tx);
+}
+
+static MysqlTransaction *InsertTx(MysqlState *s) {
+    MysqlTransaction *tx = MysqlTransactionAlloc();
+
+    tx->s = s;
+
+    if (!s->cur_tx) {
+        tx->tx_id = 0; /* the first transection */
+    } else {
+        tx->tx_id = s->cur_tx->tx_id + 1; /* tx_id is accumulative */
+    }
+
+    /* add to @s */
+    s->cur_tx = tx;
+    TAILQ_INSERT_HEAD(&s->tx_list, tx, next);
+    s->tx_num++;
+
+    /* return tx for convenient */
+    return tx;
+}
+
 static int ParseServerHs(MysqlState *s, uint8_t *input, uint32_t input_len) {
     if (input_len < 4) { /* minimal length for Mysql packege */
         return -1;
@@ -41,27 +81,8 @@ static int ParseServerHs(MysqlState *s, uint8_t *input, uint32_t input_len) {
     p += MYSQL_HDR_LEN;
     p += 24;
 
-    uint32_t res;
-    int ret = 0;
-    if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, sizeof(int), p)) <= 0)
-        return -1;
-
-    int conn_id = res; 
-    MysqlTransaction *tx = NULL;
-    if (s->cur_tx == NULL) {
-        tx = MysqlTransactionAlloc();
-        if (!tx)
-            return -1;
-        s->cur_tx = tx;
-        TAILQ_INSERT_HEAD(&s->tx_list, tx, next);
-    }
-
-    s->cur_tx->tx_id = conn_id;
-    s->cur_tx->tx_num++;
-
-    /* TODO: handshake message useless for now */
-
-    s->cur_tx->hs = 1;
+    /* TODO: handshake message useless for now, just label it */
+    s->hs = 1;
     return 0;
 }
 
@@ -69,55 +90,53 @@ static int ParseClientAuth(MysqlState *state, uint8_t *input, uint32_t input_len
     uint8_t *p = input;
     int ret;
     uint32_t res;
-    MysqlPktHeader hdr;
-    uint32_t parsed_len = 0;
 
     if (input_len < 4) { /* minimal length for Mysql packege */
         return -1;
     }
 
-    ParseMysqlPktHdr(&hdr, input, input_len);
+    ParseMysqlPktHdr(&state->hdr, input, input_len);
     p += MYSQL_HDR_LEN; /* skip header and sequence */
 
     if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, 4, p)) <= 0)
         return -1;
 
-    state->cur_tx->cli.client_attr = (int32_t)res;
+    state->cli.client_attr = (int32_t)res;
     p += 4; /* skip client attr */
 
     if ((ret = ByteExtractUint32(&res, BYTE_LITTLE_ENDIAN, 4, p)) <= 0)
         return -1;
 
-    state->cur_tx->cli.max_pkt_len = res;
+    state->cli.max_pkt_len = res;
     p += 4; /* skip max packet length */
 
-    state->cur_tx->cli.charset = *p;
+    state->cli.charset = *p;
     ++p;
     p += 23; /* skip reserved */
 
-    state->cur_tx->cli.username = SCStrdup((char *)p);
+    state->cli.username = SCStrdup((char *)p);
 
-    p += strlen(state->cur_tx->cli.username) + 1; /* skip user name plus '\0' */
+    p += strlen(state->cli.username) + 1; /* skip user name plus '\0' */
 
-    state->cur_tx->cli.password_len = *p;
-    ++p; /* skip password length */
-    parsed_len++;
-
-    if (state->cur_tx->cli.password_len > 0) {
-        state->cur_tx->cli.password = SCMalloc(state->cur_tx->cli.password_len);
-        memcpy(state->cur_tx->cli.password, p, state->cur_tx->cli.password_len);
-        p += state->cur_tx->cli.password_len;
+    char pass_len = *p;
+    if (pass_len > 0) { /* password len */
+        ++p; /* skip len byte */
+        p += pass_len; /* skip password */
     }
 
     if (*p != '\0') {
-        parsed_len = p - input + 1;
-        if (parsed_len + sizeof("mysql_native_password") - 1 < input_len) {
-            /* db_name available */
-            state->cur_tx->cli.db_name= SCStrdup((char *)p);
+        /* From wireshark, we assure that there was a `\0` at the end of @input, so we
+         * can use strncmp to detect the db name without segment error */
+        if (strncmp((const char *)p, "mysql_native_password", sizeof(sizeof("mysql_native_password") - 1)) != 0) {
+            /* db name presented */
+            state->cli.db_name= SCStrdup((char *)p);
         }
     }
 
-    state->cur_tx->try_auth = 1;
+    state->try_auth = 1;
+
+    MysqlTransaction *tx = InsertTx(state);
+    tx->cmd = MYSQL_COMMAND_LOGIN;
     return 0;
 }
 
@@ -135,64 +154,33 @@ static int ParseServerAuthResp(MysqlState *state, uint8_t *input, uint32_t input
 
     /* login OK or fail? */
     if (status == 0) {
-        state->cur_tx->auth_ok = 1;
+        state->auth_ok = 1;
         return 0;
+    } else {
+        ;/* TODO: on login fail, should we drop the state? */
     }
 
     return -1;
 }
 
-static int IsComplete(PendingPkt *ppkt) {
-    MysqlPktHeader hdr;
-    if (ParseMysqlPktHdr(&hdr, ppkt->pkt, ppkt->cur_len) == -1)
-        return FALSE;
-    if (ppkt->cur_len - MYSQL_HDR_LEN == hdr.payload_len)
-        return TRUE;
-    return FALSE;
-}
-
-static int TryAppendPkt(PendingPkt *ppkt, uint8_t *input, uint32_t input_len) {
-    if (ppkt == NULL)
-        return -1;
-    if (ppkt->cur_len + input_len > ppkt->pkt_len) {
-        /* lenght error, we suppose that the @input is not part of the @ppkt */
-        ppkt->flags = PPKT_DROP;
-        return -1;
-    } else {
-        memcpy(ppkt->pkt + ppkt->cur_len, input, input_len);
-        ppkt->cur_len += input_len;
-        return 0;
-    }
-    return 0;
-}
-
-void ResetCmd(MysqlClientCommand *cmd) {
-    if (!cmd)
-        return;
-   if (cmd->sql != NULL) 
-       SCFree(cmd->sql);
-   memset(cmd, 0, sizeof(*cmd));
-}
-
 static int ParseCompleteMysqlClientPkt(MysqlState *state, uint8_t *input, uint32_t input_len)  {
-    MysqlClientCommand *cmd = &state->cur_tx->cmd;
+    MysqlTransaction *tx= InsertTx(state);
     uint8_t *p = input;
 
     if (input_len < 4)
         return -1;
 
-    ResetCmd(cmd);
-    ParseMysqlPktHdr(&cmd->hdr, input, input_len);
+    ParseMysqlPktHdr(&state->hdr, input, input_len);
     p += 4;
 
-    cmd->cmd = *p;
+    tx->cmd = *p;
     ++p;
 
-    if (cmd->hdr.payload_len > 1) { /* at least have a command */
-        cmd->sql = SCMalloc(cmd->hdr.payload_len);
-        memcpy(cmd->sql, p, cmd->hdr.payload_len);
-        cmd->sql[cmd->hdr.payload_len - 1] = 0;
-        cmd->sql_size = cmd->hdr.payload_len;
+    if (state->hdr.payload_len > 1) { /* at least have a command */
+        tx->sql = SCMalloc(state->hdr.payload_len);
+        memcpy(tx->sql, p, state->hdr.payload_len);
+        tx->sql[state->hdr.payload_len - 1] = 0;
+        tx->sql_len = state->hdr.payload_len;
     }
 
     return 0;
@@ -205,14 +193,15 @@ enum pkt_flags {
     PKT_INVALID,
 };
 
-static int CheckPkt(uint8_t *input, uint32_t input_len) {
+static int CheckPkt(MysqlState *s, uint8_t *input, uint32_t input_len) {
     int ret = 0;
     MysqlPktHeader hdr;
+
     ret = ParseMysqlPktHdr(&hdr, input, input_len);
 
     if (ret == -1) {
         /* we supporse this package can append to existing pending packets */
-        return PKT_INCOMPLETE_CAN_APPEND;
+        return PKT_INVALID;
     }
 
     if (hdr.payload_len == input_len - MYSQL_HDR_LEN) {
@@ -253,49 +242,44 @@ static int ParseServerCmdResp(MysqlState *state, uint8_t *input, uint32_t input_
 }
 
 static int ParseClientCmd(MysqlState *state, uint8_t *input, uint32_t input_len)  {
-    int ret = 0;
-    int res = CheckPkt(input, input_len);
-    PendingPkt *ppkt = NULL, *cur_ppkt = state->cur_tx->cur_ppkt;
+    int res = 0;
+    if (state->pending && state->recved_len + input_len == state->payload_len)
+        res = PKT_INCOMPLETE_CAN_APPEND;
+    else
+        res = CheckPkt(state, input, input_len);
 
     switch (res) {
         case PKT_COMPLETE:
             return ParseCompleteMysqlClientPkt(state, input, input_len);
         case PKT_INCOMPLETE_WITH_HEAD:
-            if (cur_ppkt ) {
-                /* incoming pkt is another new message, the old append
-                 * pkt supposed to be dropped */
-                if (cur_ppkt->flags == PPKT_APPENDING)
-                    cur_ppkt->flags = PPKT_DROP;
-            }
+            state->pending = TRUE;
+            /* we include header bytes into payload, because successive
+             * pending bytes will not include header bytes, and at last
+             * we need to parse the complete pkt with header */ 
+            
+            ParseMysqlPktHdr(&state->hdr, input, input_len);
+            state->payload_len = state->hdr.payload_len + MYSQL_HDR_LEN;
+            state->payload = SCCalloc(1, state->payload_len);
+            memcpy(state->payload, input, input_len);
+            state->recved_len = input_len;
 
-            /* add new ppkt */
-            ppkt = SCMalloc(sizeof(*ppkt));
-            if (unlikely(ppkt == NULL)) {
-                /* TODO: we should set some hint to the transaction */
-                return -1;
-            }
-
-            if (InitPendingPkt(ppkt, input, input_len) == -1) {
-                return -1;
-            }
-
-            TAILQ_INSERT_HEAD(&state->cur_tx->ppkt_list, ppkt, next);
-            state->cur_tx->cur_ppkt = ppkt;
-
-            return 0;
+            SCReturnInt(0);
         case PKT_INCOMPLETE_CAN_APPEND:
-            if (TryAppendPkt(cur_ppkt, input, input_len) == -1) {
-                /* append fail */
-                SCReturnInt(0);
+            memcpy(state->payload + state->recved_len, input, input_len);
+            state->recved_len += input_len;
+            
+            if (state->recved_len == state->payload_len) {
+                if (ParseCompleteMysqlClientPkt(state, state->payload, state->payload_len) == 0) {
+                    state->pending = FALSE;
+
+                    SCFree(state->payload);
+                    state->payload = NULL;
+                    state->recved_len = 0;
+                    state->payload_len = 0;
+                    SCReturnInt(0);
+                }
             }
 
-            if (IsComplete(cur_ppkt)) {
-                ret = ParseCompleteMysqlClientPkt(state, cur_ppkt->pkt, cur_ppkt->cur_len);
-                cur_ppkt->flags = PPKT_COMPLETE;
-                /* we'll remove/release these ppkts in MysqlStateFree */
-                return ret;
-            }
-            break;
         default:
             SCReturnInt(-1);
     }
@@ -314,7 +298,7 @@ int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
     if (pstate == NULL)
         SCReturnInt(-1);
 
-    if (!state->cur_tx->try_auth) {
+    if (!state->try_auth) {
         return ParseClientAuth(state, input, input_len);
     } else {
         return ParseClientCmd(state, input, input_len);
@@ -334,18 +318,20 @@ int MysqlParseServerRecord(Flow *f, void *mysql_state,
     if (pstate == NULL)
         SCReturnInt(-1);
 
-    if (state->cur_tx == NULL) {
-        MysqlTransaction *tx = MysqlTransactionAlloc();
-        if (!tx) {
-            return -1;
-        }
-        TAILQ_INSERT_HEAD(&state->tx_list, tx, next);
-        state->cur_tx = tx;
+    /* do not set transection for server response */
+#if 0
+    MysqlTransaction *tx = InsertTx(state, input, input_len);
+    if (unlikely(!tx)) {
+        SCReturnInt(-1);
     }
+#endif
 
-    if (!state->cur_tx->hs) {
+    /* FIXME: We also parse the server response, if iptables
+     * do not forward server response to NFQ, we may fail
+     * on state transition, and I think this is a serious bug */
+    if (!state->hs) {
         return ParseServerHs(state, input, input_len);
-    } else if (!state->cur_tx->auth_ok) {
+    } else if (!state->auth_ok) {
         return ParseServerAuthResp(state, input, input_len);
     } else  {
         return ParseServerCmdResp(state, input, input_len);
@@ -356,82 +342,13 @@ int MysqlParseServerRecord(Flow *f, void *mysql_state,
 
 void *MysqlStateAlloc(void) {
     static uint8_t proto[] = "mysql";
-    MysqlState *s = SCMalloc(sizeof(MysqlState));
+    MysqlState *s = SCCalloc(sizeof(MysqlState), 1);
     if (s == NULL)
         return NULL;
-    memset(s, 0, sizeof(MysqlState));
     s->protocol_name = proto;
 
     TAILQ_INIT(&s->tx_list);
     return s;
-}
-
-void MysqlStateClean(MysqlState *ms) {
-    /* TODO */
-    MysqlClient *c = &ms->cur_tx->cli;
-    if (c->username != NULL)
-        SCFree(c->username);
-    if (c->db_name != NULL)
-        SCFree(c->db_name);
-
-    if (c->password != NULL)
-        SCFree(c->password);
-
-    if (c->src_ip != NULL)
-        SCFree(c->src_ip);
-
-    if (c->dst_ip != NULL)
-        SCFree(c->dst_ip);
-}
-
-void *MysqlTransactionAlloc() {
-    MysqlTransaction *tx = SCMalloc(sizeof(MysqlTransaction));
-    if (unlikely(tx == NULL))
-        return NULL;
-    memset(tx, 0, sizeof(*tx));
-    TAILQ_INIT(&tx->ppkt_list);
-    return tx;
-}
-
-void PendingPktFree(void *ppkt) {
-    if (ppkt == NULL)
-        return;
-    PendingPkt *p = ppkt;
-    if (p->pkt != NULL)
-        SCFree(p->pkt);
-    SCFree(p);
-}
-
-void MysqlTransactionFree(void *trans) {
-    MysqlTransaction *tx = (MysqlTransaction *)trans;
-    if (tx == NULL)
-        SCReturn;
-
-    if (tx->cli.username != NULL)
-        SCFree(tx->cli.username);
-
-    if (tx->cli.db_name!= NULL)
-        SCFree(tx->cli.db_name);
-
-    if (tx->cli.password!= NULL)
-        SCFree(tx->cli.password);
-
-    if (tx->cli.src_ip != NULL)
-        SCFree(tx->cli.src_ip);
-
-    if (tx->cli.dst_ip != NULL)
-        SCFree(tx->cli.dst_ip);
-
-    if (tx->cmd.sql != NULL)
-        SCFree(tx->cmd.sql);
-
-    PendingPkt *ppkt;
-    while ((ppkt = TAILQ_FIRST(&tx->ppkt_list))) {
-        TAILQ_REMOVE(&tx->ppkt_list, ppkt, next);
-        PendingPktFree(ppkt);
-    }
-
-    SCFree(tx);
 }
 
 void MysqlStateFree(void *ms) {
@@ -439,10 +356,15 @@ void MysqlStateFree(void *ms) {
     if (ms) {
         MysqlState *s = (MysqlState *)ms;
         MysqlTransaction *tx = NULL;
+
         while ((tx = TAILQ_FIRST(&s->tx_list))) {
             TAILQ_REMOVE(&s->tx_list, tx, next);
             MysqlTransactionFree(tx);
         }
+
+        if (s->pending)
+            SCFree(s->payload);
+
         SCFree(s);
     }
 }
@@ -455,30 +377,112 @@ int MysqlRequestParse(uint8_t *input, uint32_t input_len) {
     SCReturnInt(1);
 }
 
+#define MYSQL_CMD(cmd) case cmd: return #cmd
 const char *CmdStr(MysqlCommand cmd) {
-    static char *cmd_str[] = {
-        "SLEEP","QUIT",
-        "INIT_DB","QUERY",
-        "FIELD_LIST","CREATE_DB",
-        "DROP_DB","REFRESH",
-        "SHUTDOWN","STATISTICS",
-        "PROCESS_INFO","CONNECT",
-        "PROCESS_KILL","DEBUG",
-        "PING","TIME",
-        "DELAYED_INSERT","CHANGE_USER",
-        "BINLOG_DUMP","TABLE_DUMP",
-        "CONNECT_OUT","REGISTER_SLAVE",
-        "STMT_PREPARE","STMT_EXECUTE",
-        "STMT_SEND_LONG_DATA","STMT_CLOSE",
-        "STMT_RESET","SET_OPTION",
-        "STMT_FETCH","DAEMON",
-        "BINLOG_DUMP_GTID","RESET_CONNECTION",
-        "LOGIN",
-        "PENDING",
-        "DO_NOT_EXIST",
-    };
+    switch (cmd) {
+        MYSQL_CMD(MYSQL_COMMAND_SLEEP)              ;
+        MYSQL_CMD(MYSQL_COMMAND_INIT_DB)            ;
+        MYSQL_CMD(MYSQL_COMMAND_FIELD_LIST)         ;
+        MYSQL_CMD(MYSQL_COMMAND_DROP_DB)            ;
+        MYSQL_CMD(MYSQL_COMMAND_SHUTDOWN)           ;
+        MYSQL_CMD(MYSQL_COMMAND_PROCESS_INFO)       ;
+        MYSQL_CMD(MYSQL_COMMAND_PROCESS_KILL)       ;
+        MYSQL_CMD(MYSQL_COMMAND_PING)               ;
+        MYSQL_CMD(MYSQL_COMMAND_DELAYED_INSERT)     ;
+        MYSQL_CMD(MYSQL_COMMAND_BINLOG_DUMP)        ;
+        MYSQL_CMD(MYSQL_COMMAND_CONNECT_OUT)        ;
+        MYSQL_CMD(MYSQL_COMMAND_STMT_PREPARE)       ;
+        MYSQL_CMD(MYSQL_COMMAND_STMT_SEND_LONG_DATA);
+        MYSQL_CMD(MYSQL_COMMAND_STMT_RESET)         ;
+        MYSQL_CMD(MYSQL_COMMAND_STMT_FETCH)         ;
+        MYSQL_CMD(MYSQL_COMMAND_BINLOG_DUMP_GTID)   ;
+        MYSQL_CMD(MYSQL_COMMAND_LOGIN)              ;
+        MYSQL_CMD(MYSQL_COMMAND_PENDING)            ;
+        MYSQL_CMD(MYSQL_COMMAND_DO_NOT_EXIST)       ;
+        MYSQL_CMD(MYSQL_COMMAND_QUIT)               ;
+        MYSQL_CMD(MYSQL_COMMAND_QUERY)              ;
+        MYSQL_CMD(MYSQL_COMMAND_CREATE_DB)          ;
+        MYSQL_CMD(MYSQL_COMMAND_REFRESH)            ;
+        MYSQL_CMD(MYSQL_COMMAND_STATISTICS)         ;
+        MYSQL_CMD(MYSQL_COMMAND_CONNECT)            ;
+        MYSQL_CMD(MYSQL_COMMAND_DEBUG)              ;
+        MYSQL_CMD(MYSQL_COMMAND_TIME)               ;
+        MYSQL_CMD(MYSQL_COMMAND_CHANGE_USER)        ;
+        MYSQL_CMD(MYSQL_COMMAND_TABLE_DUMP)         ;
+        MYSQL_CMD(MYSQL_COMMAND_REGISTER_SLAVE)     ;
+        MYSQL_CMD(MYSQL_COMMAND_STMT_EXECUTE)       ;
+        MYSQL_CMD(MYSQL_COMMAND_STMT_CLOSE)         ;
+        MYSQL_CMD(MYSQL_COMMAND_SET_OPTION)         ;
+        MYSQL_CMD(MYSQL_COMMAND_DAEMON)             ;
+        MYSQL_CMD(MYSQL_COMMAND_RESET_CONNECTION)   ;
+    }
 
-    if (cmd >= sizeof(cmd_str)/sizeof(char*))
-        return cmd_str[sizeof(cmd_str)/sizeof(char*) - 1]; 
-    return cmd_str[cmd];
+    return "MYSQL_COMMAND_UNKNOWN";
+}
+
+void *MysqlGetTx(void *alstate, uint64_t tx_id) {
+    MysqlState *s = alstate;
+    MysqlTransaction *tx = NULL;
+    if (s->cur_tx && s->tx_num == tx_id + 1) {
+        tx = s->cur_tx;
+        goto end;
+    }
+
+    /* TODO: we need to define the `get tx` logic according in
+     * Mysql context, here we just return the tx with tx_id + 1 == tx_num,
+     * and this may be not the correct one, sometimes we may need some
+     * other tx(s) */
+    TAILQ_FOREACH(tx, &s->tx_list, next) {
+        SCLogDebug("s->tx_num %u, tx_id %"PRIu64, s->tx_num, (tx_id + 1));
+        if (tx_id != tx->tx_id)
+            continue;
+        SCLogDebug("returning tx %p", tx);
+        goto end;
+    }
+    return NULL;
+
+end:
+    return tx;
+}
+
+uint64_t MysqlGetTxCnt(void *alstate) {
+    MysqlState *s = alstate;
+    return (uint64_t) s->tx_num; /* current tx marked the total tx count */
+}
+
+void MysqlStateTxFree(void *state, uint64_t tx_id) {
+    SCEnter();
+    MysqlState *s = state;
+    MysqlTransaction *tx = NULL;
+
+    SCLogDebug("state %p, id %"PRIu64, s, tx_id);
+
+    TAILQ_FOREACH(tx, &s->tx_list, next) {
+        SCLogDebug("tx %p s->tx_num %u, tx_id %"PRIu64, tx, s->tx_num, (tx_id + 1));
+        if (tx_id + 1 < s->tx_num)
+            break;
+        else if (tx_id + 1 > s->tx_num)
+            continue;
+
+        if (tx == s->cur_tx)
+            s->cur_tx = NULL;
+    }
+
+    TAILQ_REMOVE(&s->tx_list, tx, next);
+    MysqlTransactionFree(tx);
+}
+
+int MysqlGetAlstateProgressCompletionStatus(uint8_t dir) {
+    return TRUE;
+}
+
+int MysqlGetAlstateProgress(void *tx, uint8_t direction) {
+    (void) direction;
+    MysqlTransaction *mysql_tx = tx;
+    if (direction == 1)
+        return mysql_tx->replied | mysql_tx->reply_lost;
+    else
+        /* FIXME: there is no pendding transection, but I dont know why
+         * the `!=` here */
+        return mysql_tx->s->pending == FALSE; 
 }

@@ -35,8 +35,7 @@
 /**
  * \brief Test Mutex macros
  */
-int ThreadMacrosTest01Mutex(void)
-{
+int ThreadMacrosTest01Mutex(void) {
     SCMutex mut;
     int r = 0;
     r |= SCMutexInit(&mut, NULL);
@@ -63,8 +62,7 @@ int ThreadMacrosTest01Mutex(void)
  * if a spinlock is actually locked.
  *
  */
-int ThreadMacrosTest02Spinlocks(void)
-{
+int ThreadMacrosTest02Spinlocks(void) {
     SCSpinlock mut;
     int r = 0;
     r |= SCSpinInit(&mut, 0);
@@ -83,8 +81,7 @@ int ThreadMacrosTest02Spinlocks(void)
 /**
  * \brief Test RWLock macros
  */
-int ThreadMacrosTest03RWLocks(void)
-{
+int ThreadMacrosTest03RWLocks(void) {
     SCRWLock rwl_write;
     int r = 0;
     r |= SCRWLockInit(&rwl_write, NULL);
@@ -99,8 +96,7 @@ int ThreadMacrosTest03RWLocks(void)
 /**
  * \brief Test RWLock macros
  */
-int ThreadMacrosTest04RWLocks(void)
-{
+int ThreadMacrosTest04RWLocks(void) {
     SCRWLock rwl_read;
     int r = 0;
     r |= SCRWLockInit(&rwl_read, NULL);
@@ -115,8 +111,7 @@ int ThreadMacrosTest04RWLocks(void)
 /**
  * \brief Test RWLock macros
  */
-int ThreadMacrosTest05RWLocks(void)
-{
+int ThreadMacrosTest05RWLocks(void) {
     SCRWLock rwl_read;
     int r = 0;
     r |= SCRWLockInit(&rwl_read, NULL);

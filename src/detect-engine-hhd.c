@@ -60,8 +60,7 @@
 
 #define BUFFER_STEP 50
 
-static inline int HHDCreateSpace(DetectEngineThreadCtx *det_ctx, uint16_t size)
-{
+static inline int HHDCreateSpace(DetectEngineThreadCtx *det_ctx, uint16_t size) {
     void *ptmp;
     if (size > det_ctx->hhd_buffers_size) {
         ptmp = SCRealloc(det_ctx->hhd_buffers,

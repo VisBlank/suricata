@@ -45,8 +45,7 @@ static uint16_t toclient_min_chunk_len = 2560;
 static Pool *stream_msg_pool = NULL;
 static SCMutex stream_msg_pool_mutex = SCMUTEX_INITIALIZER;
 
-static void StreamMsgEnqueue (StreamMsgQueue *q, StreamMsg *s)
-{
+static void StreamMsgEnqueue (StreamMsgQueue *q, StreamMsg *s) {
     SCEnter();
     SCLogDebug("s %p", s);
     /* more packets in queue */
@@ -67,8 +66,7 @@ static void StreamMsgEnqueue (StreamMsgQueue *q, StreamMsg *s)
     SCReturn;
 }
 
-static StreamMsg *StreamMsgDequeue (StreamMsgQueue *q)
-{
+static StreamMsg *StreamMsgDequeue (StreamMsgQueue *q) {
     SCEnter();
 
     /* if the queue is empty there are no packets left.
@@ -106,8 +104,7 @@ StreamMsg *StreamMsgGetFromPool(void)
 }
 
 /* Used by l7inspection to return msgs to pool */
-void StreamMsgReturnToPool(StreamMsg *s)
-{
+void StreamMsgReturnToPool(StreamMsg *s) {
     SCLogDebug("s %p", s);
     SCMutexLock(&stream_msg_pool_mutex);
     PoolReturn(stream_msg_pool, (void *)s);
@@ -133,8 +130,7 @@ void StreamMsgPutInQueue(StreamMsgQueue *q, StreamMsg *s)
     SCLogDebug("q->len %" PRIu32 "", q->len);
 }
 
-void *StreamMsgPoolAlloc(void)
-{
+void *StreamMsgPoolAlloc(void) {
     if (StreamTcpReassembleCheckMemcap((uint32_t)sizeof(StreamMsg)) == 0)
         return NULL;
 
@@ -158,16 +154,14 @@ int StreamMsgInit(void *data, void *initdata)
     return 1;
 }
 
-void StreamMsgPoolFree(void *ptr)
-{
+void StreamMsgPoolFree(void *ptr) {
     if (ptr) {
         SCFree(ptr);
         StreamTcpReassembleDecrMemuse((uint32_t)sizeof(StreamMsg));
     }
 }
 
-void StreamMsgQueuesInit(uint32_t prealloc)
-{
+void StreamMsgQueuesInit(uint32_t prealloc) {
 #ifdef DEBUG
     SCMutexInit(&stream_pool_memuse_mutex, NULL);
 #endif
@@ -180,8 +174,7 @@ void StreamMsgQueuesInit(uint32_t prealloc)
     SCMutexUnlock(&stream_msg_pool_mutex);
 }
 
-void StreamMsgQueuesDeinit(char quiet)
-{
+void StreamMsgQueuesDeinit(char quiet) {
     if (quiet == FALSE) {
         if (stream_msg_pool->max_outstanding > stream_msg_pool->allocated)
             SCLogInfo("TCP segment chunk pool had a peak use of %u chunks, "
@@ -203,8 +196,7 @@ void StreamMsgQueuesDeinit(char quiet)
 
 /** \brief alloc a stream msg queue
  *  \retval smq ptr to the queue or NULL */
-StreamMsgQueue *StreamMsgQueueGetNew(void)
-{
+StreamMsgQueue *StreamMsgQueueGetNew(void) {
     if (StreamTcpReassembleCheckMemcap((uint32_t)sizeof(StreamMsgQueue)) == 0)
         return NULL;
 
@@ -222,20 +214,17 @@ StreamMsgQueue *StreamMsgQueueGetNew(void)
  *  \param q the queue to free
  *  \todo we may want to consider non empty queue's
  */
-void StreamMsgQueueFree(StreamMsgQueue *q)
-{
+void StreamMsgQueueFree(StreamMsgQueue *q) {
     SCFree(q);
     StreamTcpReassembleDecrMemuse((uint32_t)sizeof(StreamMsgQueue));
 }
 
-StreamMsgQueue *StreamMsgQueueGetByPort(uint16_t port)
-{
+StreamMsgQueue *StreamMsgQueueGetByPort(uint16_t port) {
     /* XXX implement this */
     return NULL;//&stream_q;
 }
 
-void StreamMsgQueueSetMinChunkLen(uint8_t dir, uint16_t len)
-{
+void StreamMsgQueueSetMinChunkLen(uint8_t dir, uint16_t len) {
     if (dir == FLOW_PKT_TOSERVER) {
         toserver_min_chunk_len = len;
     } else {
@@ -243,8 +232,7 @@ void StreamMsgQueueSetMinChunkLen(uint8_t dir, uint16_t len)
     }
 }
 
-uint16_t StreamMsgQueueGetMinChunkLen(uint8_t dir)
-{
+uint16_t StreamMsgQueueGetMinChunkLen(uint8_t dir) {
     if (dir == FLOW_PKT_TOSERVER) {
         return toserver_min_chunk_len;
     } else {
@@ -253,8 +241,7 @@ uint16_t StreamMsgQueueGetMinChunkLen(uint8_t dir)
 }
 
 /** \brief Return a list of smsgs to the pool */
-void StreamMsgReturnListToPool(void *list)
-{
+void StreamMsgReturnListToPool(void *list) {
     /* if we have (a) smsg(s), return to the pool */
     StreamMsg *smsg = (StreamMsg *)list;
     while (smsg != NULL) {

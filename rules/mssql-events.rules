@@ -1,0 +1,2 @@
+alert mssql any any -> any any (msg:"SQL Server user(sa) detected"; flow:to_server,established; mssql-user:sa; sid:2260000; rev:1;)
+alert mssql any any -> any any (msg:"SQL Server database(master) detected"; flow:to_server,established; mssql-db:master; sid:2260001; rev:1;)

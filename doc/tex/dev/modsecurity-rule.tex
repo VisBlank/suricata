@@ -1,0 +1,15 @@
+\section{modsecurity 规则学习}
+
+\subsection{关键字}
+
+\subsection{操作符}
+
+\begin{itemize}
+\item {\cf @rx}：正则表达式操作符，它是默认的操作符，无需显式指定，例如：
+
+\begin{lstlisting}
+# Detect Nikto with a case-insensitive pattern 
+SecRule REQUEST_HEADERS:User-Agent "@rx (?i)nikto" phase:1,id:174,t:none
+\end{lstlisting}
+
+\end{itemize}

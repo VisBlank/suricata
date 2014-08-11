@@ -543,8 +543,7 @@ end:
  *       context and setting up the signature itself.
  */
 
-static int DetectUrilenSetpTest01(void)
-{
+static int DetectUrilenSetpTest01(void) {
 
     DetectUrilenData *urilend = NULL;
     uint8_t res = 0;

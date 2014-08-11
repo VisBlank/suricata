@@ -1210,8 +1210,7 @@ end:
 }
 
 /** \test multiple http transactions and body chunks of request handling */
-static int DetectHttpClientBodyTest14(void)
-{
+static int DetectHttpClientBodyTest14(void) {
     int result = 0;
     Signature *s = NULL;
     DetectEngineThreadCtx *det_ctx = NULL;
@@ -1429,8 +1428,7 @@ end:
 }
 
 /** \test multiple http transactions and body chunks of request handling */
-static int DetectHttpClientBodyTest15(void)
-{
+static int DetectHttpClientBodyTest15(void) {
     int result = 0;
     Signature *s = NULL;
     DetectEngineThreadCtx *det_ctx = NULL;

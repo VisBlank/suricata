@@ -52,8 +52,7 @@ int DetectContentMatch (ThreadVars *, DetectEngineThreadCtx *, Packet *, Signatu
 int DetectContentSetup(DetectEngineCtx *, Signature *, char *);
 void DetectContentRegisterTests(void);
 
-void DetectContentRegister (void)
-{
+void DetectContentRegister (void) {
     sigmatch_table[DETECT_CONTENT].name = "content";
     sigmatch_table[DETECT_CONTENT].desc = "match on payload content";
     sigmatch_table[DETECT_CONTENT].url = "https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Payload_keywords#Content";
@@ -66,8 +65,7 @@ void DetectContentRegister (void)
 }
 
 /* pass on the content_max_id */
-uint32_t DetectContentMaxId(DetectEngineCtx *de_ctx)
-{
+uint32_t DetectContentMaxId(DetectEngineCtx *de_ctx) {
     return MpmPatternIdStoreGetMaxId(de_ctx->mpm_pattern_id_store);
 }
 
@@ -420,8 +418,7 @@ error:
  *
  * \param cd pointer to DetectCotentData
  */
-void DetectContentFree(void *ptr)
-{
+void DetectContentFree(void *ptr) {
     SCEnter();
     DetectContentData *cd = (DetectContentData *)ptr;
 
@@ -439,8 +436,7 @@ void DetectContentFree(void *ptr)
 /**
  * \test DetectCotentParseTest01 this is a test to make sure we can deal with escaped colons
  */
-int DetectContentParseTest01 (void)
-{
+int DetectContentParseTest01 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"abc\\:def\"";
@@ -465,8 +461,7 @@ int DetectContentParseTest01 (void)
 /**
  * \test DetectCotentParseTest02 this is a test to make sure we can deal with escaped semi-colons
  */
-int DetectContentParseTest02 (void)
-{
+int DetectContentParseTest02 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"abc\\;def\"";
@@ -491,8 +486,7 @@ int DetectContentParseTest02 (void)
 /**
  * \test DetectCotentParseTest03 this is a test to make sure we can deal with escaped double-quotes
  */
-int DetectContentParseTest03 (void)
-{
+int DetectContentParseTest03 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"abc\\\"def\"";
@@ -517,8 +511,7 @@ int DetectContentParseTest03 (void)
 /**
  * \test DetectCotentParseTest04 this is a test to make sure we can deal with escaped backslashes
  */
-int DetectContentParseTest04 (void)
-{
+int DetectContentParseTest04 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"abc\\\\def\"";
@@ -544,8 +537,7 @@ int DetectContentParseTest04 (void)
 /**
  * \test DetectCotentParseTest05 test illegal escape
  */
-int DetectContentParseTest05 (void)
-{
+int DetectContentParseTest05 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"abc\\def\"";
@@ -564,8 +556,7 @@ int DetectContentParseTest05 (void)
 /**
  * \test DetectCotentParseTest06 test a binary content
  */
-int DetectContentParseTest06 (void)
-{
+int DetectContentParseTest06 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"a|42|c|44|e|46|\"";
@@ -591,8 +582,7 @@ int DetectContentParseTest06 (void)
 /**
  * \test DetectCotentParseTest07 test an empty content
  */
-int DetectContentParseTest07 (void)
-{
+int DetectContentParseTest07 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"\"";
@@ -609,8 +599,7 @@ int DetectContentParseTest07 (void)
 /**
  * \test DetectCotentParseTest08 test an empty content
  */
-int DetectContentParseTest08 (void)
-{
+int DetectContentParseTest08 (void) {
     int result = 1;
     DetectContentData *cd = NULL;
     char *teststring = "\"\"";
@@ -705,8 +694,7 @@ end:
 /**
  * \brief Wrapper for DetectContentLongPatternMatchTest
  */
-int DetectContentLongPatternMatchTestWrp(char *sig, uint32_t sid)
-{
+int DetectContentLongPatternMatchTestWrp(char *sig, uint32_t sid) {
     /** Real packet with the following tcp data:
      * "Hi, this is a big test to check content matches of splitted"
      * "patterns between multiple chunks!"
@@ -894,8 +882,7 @@ int DetectContentLongPatternMatchTest11()
     return DetectContentLongPatternMatchTestWrp(sig, 1);
 }
 
-int DetectContentParseTest09(void)
-{
+int DetectContentParseTest09(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "!\"boo\"";
@@ -911,8 +898,7 @@ int DetectContentParseTest09(void)
     return result;
 }
 
-int DetectContentParseTest10(void)
-{
+int DetectContentParseTest10(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "!\"boo\"";
@@ -927,8 +913,7 @@ int DetectContentParseTest10(void)
     return result;
 }
 
-int DetectContentParseNegTest11(void)
-{
+int DetectContentParseNegTest11(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "\"boo\"";
@@ -943,8 +928,7 @@ int DetectContentParseNegTest11(void)
     return result;
 }
 
-int DetectContentParseNegTest12(void)
-{
+int DetectContentParseNegTest12(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "\"boo\"";
@@ -959,8 +943,7 @@ int DetectContentParseNegTest12(void)
     return result;
 }
 
-int DetectContentParseNegTest13(void)
-{
+int DetectContentParseNegTest13(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "!\"boo\"";
@@ -975,8 +958,7 @@ int DetectContentParseNegTest13(void)
     return result;
 }
 
-int DetectContentParseNegTest14(void)
-{
+int DetectContentParseNegTest14(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "  \"!boo\"";
@@ -991,8 +973,7 @@ int DetectContentParseNegTest14(void)
     return result;
 }
 
-int DetectContentParseNegTest15(void)
-{
+int DetectContentParseNegTest15(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "  !\"boo\"";
@@ -1007,8 +988,7 @@ int DetectContentParseNegTest15(void)
     return result;
 }
 
-int DetectContentParseNegTest16(void)
-{
+int DetectContentParseNegTest16(void) {
     int result = 0;
     DetectContentData *cd = NULL;
     char *teststring = "  \"boo\"";

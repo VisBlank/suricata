@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2014 Open Information Security Foundation
+/* Copyright (C) 2007-2011 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -56,8 +56,7 @@
 
 TmEcode NoIPFWSupportExit(ThreadVars *, void *, void **);
 
-void TmModuleReceiveIPFWRegister (void)
-{
+void TmModuleReceiveIPFWRegister (void) {
 
     tmm_modules[TMM_RECEIVEIPFW].name = "ReceiveIPFW";
     tmm_modules[TMM_RECEIVEIPFW].ThreadInit = NoIPFWSupportExit;
@@ -68,8 +67,7 @@ void TmModuleReceiveIPFWRegister (void)
     tmm_modules[TMM_RECEIVEIPFW].flags = TM_FLAG_RECEIVE_TM;
 }
 
-void TmModuleVerdictIPFWRegister (void)
-{
+void TmModuleVerdictIPFWRegister (void) {
     tmm_modules[TMM_VERDICTIPFW].name = "VerdictIPFW";
     tmm_modules[TMM_VERDICTIPFW].ThreadInit = NoIPFWSupportExit;
     tmm_modules[TMM_VERDICTIPFW].Func = NULL;
@@ -78,8 +76,7 @@ void TmModuleVerdictIPFWRegister (void)
     tmm_modules[TMM_VERDICTIPFW].RegisterTests = NULL;
 }
 
-void TmModuleDecodeIPFWRegister (void)
-{
+void TmModuleDecodeIPFWRegister (void) {
     tmm_modules[TMM_DECODEIPFW].name = "DecodeIPFW";
     tmm_modules[TMM_DECODEIPFW].ThreadInit = NoIPFWSupportExit;
     tmm_modules[TMM_DECODEIPFW].Func = NULL;
@@ -90,8 +87,7 @@ void TmModuleDecodeIPFWRegister (void)
     tmm_modules[TMM_DECODEIPFW].flags = TM_FLAG_DECODE_TM;
 }
 
-TmEcode NoIPFWSupportExit(ThreadVars *tv, void *initdata, void **data)
-{
+TmEcode NoIPFWSupportExit(ThreadVars *tv, void *initdata, void **data) {
 
     SCLogError(SC_ERR_IPFW_NOSUPPORT,"Error creating thread %s: you do not have support for ipfw "
            "enabled please recompile with --enable-ipfw", tv->name);
@@ -150,8 +146,7 @@ TmEcode DecodeIPFW(ThreadVars *, Packet *, void *, PacketQueue *, PacketQueue *)
  * \brief Registration Function for RecieveIPFW.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleReceiveIPFWRegister (void)
-{
+void TmModuleReceiveIPFWRegister (void) {
     SCMutexInit(&ipfw_init_lock, NULL);
 
     tmm_modules[TMM_RECEIVEIPFW].name = "ReceiveIPFW";
@@ -171,8 +166,7 @@ void TmModuleReceiveIPFWRegister (void)
  * \brief Registration Function for VerdictIPFW.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleVerdictIPFWRegister (void)
-{
+void TmModuleVerdictIPFWRegister (void) {
     tmm_modules[TMM_VERDICTIPFW].name = "VerdictIPFW";
     tmm_modules[TMM_VERDICTIPFW].ThreadInit = VerdictIPFWThreadInit;
     tmm_modules[TMM_VERDICTIPFW].Func = VerdictIPFW;
@@ -187,8 +181,7 @@ void TmModuleVerdictIPFWRegister (void)
  * \brief Registration Function for DecodeIPFW.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleDecodeIPFWRegister (void)
-{
+void TmModuleDecodeIPFWRegister (void) {
     tmm_modules[TMM_DECODEIPFW].name = "DecodeIPFW";
     tmm_modules[TMM_DECODEIPFW].ThreadInit = DecodeIPFWThreadInit;
     tmm_modules[TMM_DECODEIPFW].Func = DecodeIPFW;
@@ -235,6 +228,7 @@ TmEcode ReceiveIPFWLoop(ThreadVars *tv, void *data, void *slot)
     struct pollfd IPFWpoll;
     struct timeval IPFWts;
     Packet *p = NULL;
+    uint16_t packet_q_len = 0;
 
     nq = IPFWGetQueue(ptv->ipfw_index);
     if (nq == NULL) {
@@ -277,7 +271,12 @@ TmEcode ReceiveIPFWLoop(ThreadVars *tv, void *data, void *slot)
 
         /* make sure we have at least one packet in the packet pool, to prevent
          * us from alloc'ing packets at line rate */
-        PacketPoolWait();
+        do {
+            packet_q_len = PacketPoolSize();
+            if (unlikely(packet_q_len == 0)) {
+                PacketPoolWait();
+            }
+        } while (packet_q_len == 0);
 
         p = PacketGetFromQueueOrAlloc();
         if (p == NULL) {
@@ -503,7 +502,7 @@ TmEcode DecodeIPFWThreadInit(ThreadVars *tv, void *initdata, void **data)
 TmEcode DecodeIPFWThreadDeinit(ThreadVars *tv, void *data)
 {
     if (data != NULL)
-        DecodeThreadVarsFree(tv, data);
+        DecodeThreadVarsFree(data);
     SCReturnInt(TM_ECODE_OK);
 }
 
@@ -767,8 +766,7 @@ int IPFWRegisterQueue(char *queue)
  *  \retval ptr pointer to the IPFWThreadVars at index
  *  \retval NULL on error
  */
-void *IPFWGetQueue(int number)
-{
+void *IPFWGetQueue(int number) {
     if (number >= receive_port_num)
         return NULL;
 
@@ -785,8 +783,7 @@ void *IPFWGetQueue(int number)
  *  \retval ptr pointer to the IPFWThreadVars at index
  *  \retval NULL on error
  */
-void *IPFWGetThread(int number)
-{
+void *IPFWGetThread(int number) {
     if (number >= receive_port_num)
         return NULL;
 

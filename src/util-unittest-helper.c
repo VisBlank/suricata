@@ -51,8 +51,7 @@
  *
  *  \retval uint the uin32_t representation
  */
-uint32_t UTHSetIPv4Address(char *str)
-{
+uint32_t UTHSetIPv4Address(char *str) {
     struct in_addr in;
     if (inet_pton(AF_INET, str, &in) != 1) {
         printf("invalid IPv6 address %s\n", str);
@@ -77,8 +76,7 @@ uint32_t UTHSetIPv4Address(char *str)
  */
 Packet *UTHBuildPacketIPV6Real(uint8_t *payload, uint16_t payload_len,
                            uint8_t ipproto, char *src, char *dst,
-                           uint16_t sport, uint16_t dport)
-{
+                           uint16_t sport, uint16_t dport) {
     uint32_t in[4];
 
     Packet *p = PacketGetFromAlloc();
@@ -163,8 +161,7 @@ error:
  */
 Packet *UTHBuildPacketReal(uint8_t *payload, uint16_t payload_len,
                            uint8_t ipproto, char *src, char *dst,
-                           uint16_t sport, uint16_t dport)
-{
+                           uint16_t sport, uint16_t dport) {
     struct in_addr in;
 
     Packet *p = PacketGetFromAlloc();
@@ -255,8 +252,7 @@ error:
  * \retval Packet pointer to the built in packet
  */
 Packet *UTHBuildPacket(uint8_t *payload, uint16_t payload_len,
-                           uint8_t ipproto)
-{
+                           uint8_t ipproto) {
     return UTHBuildPacketReal(payload, payload_len, ipproto,
                               "192.168.1.5", "192.168.1.1",
                               41424, 80);
@@ -273,8 +269,7 @@ Packet *UTHBuildPacket(uint8_t *payload, uint16_t payload_len,
  *
  * \retval Packet pointer to the array of built in packets; NULL if something fail
  */
-Packet **UTHBuildPacketArrayFromEth(uint8_t *raw_eth[], int *pktsize, int numpkts)
-{
+Packet **UTHBuildPacketArrayFromEth(uint8_t *raw_eth[], int *pktsize, int numpkts) {
     DecodeThreadVars dtv;
     ThreadVars th_v;
     if (raw_eth == NULL || pktsize == NULL || numpkts <= 0) {
@@ -311,8 +306,7 @@ Packet **UTHBuildPacketArrayFromEth(uint8_t *raw_eth[], int *pktsize, int numpkt
  *
  * \retval Packet pointer to the built in packet; NULL if something fail
  */
-Packet *UTHBuildPacketFromEth(uint8_t *raw_eth, uint16_t pktsize)
-{
+Packet *UTHBuildPacketFromEth(uint8_t *raw_eth, uint16_t pktsize) {
     DecodeThreadVars dtv;
     ThreadVars th_v;
     Packet *p = PacketGetFromAlloc();
@@ -336,8 +330,7 @@ Packet *UTHBuildPacketFromEth(uint8_t *raw_eth, uint16_t pktsize)
  * \retval Packet pointer to the built in packet
  */
 Packet *UTHBuildPacketSrcDst(uint8_t *payload, uint16_t payload_len,
-                           uint8_t ipproto, char *src, char *dst)
-{
+                           uint8_t ipproto, char *src, char *dst) {
     return UTHBuildPacketReal(payload, payload_len, ipproto,
                               src, dst,
                               41424, 80);
@@ -354,8 +347,7 @@ Packet *UTHBuildPacketSrcDst(uint8_t *payload, uint16_t payload_len,
  * \retval Packet pointer to the built in packet
  */
 Packet *UTHBuildPacketIPV6SrcDst(uint8_t *payload, uint16_t payload_len,
-                           uint8_t ipproto, char *src, char *dst)
-{
+                           uint8_t ipproto, char *src, char *dst) {
     return UTHBuildPacketIPV6Real(payload, payload_len, ipproto,
                               src, dst,
                               41424, 80);
@@ -372,8 +364,7 @@ Packet *UTHBuildPacketIPV6SrcDst(uint8_t *payload, uint16_t payload_len,
  * \retval Packet pointer to the built in packet
  */
 Packet *UTHBuildPacketSrcDstPorts(uint8_t *payload, uint16_t payload_len,
-                           uint8_t ipproto, uint16_t sport, uint16_t dport)
-{
+                           uint8_t ipproto, uint16_t sport, uint16_t dport) {
     return UTHBuildPacketReal(payload, payload_len, ipproto,
                               "192.168.1.5", "192.168.1.1",
                               sport, dport);
@@ -385,8 +376,7 @@ Packet *UTHBuildPacketSrcDstPorts(uint8_t *payload, uint16_t payload_len,
  *
  * \param p pointer to the Packet
  */
-void UTHFreePackets(Packet **p, int numpkts)
-{
+void UTHFreePackets(Packet **p, int numpkts) {
     if (p == NULL)
         return;
 
@@ -402,8 +392,7 @@ void UTHFreePackets(Packet **p, int numpkts)
  *
  * \param p pointer to the Packet
  */
-void UTHFreePacket(Packet *p)
-{
+void UTHFreePacket(Packet *p) {
     if (p == NULL)
         return;
 #if 0 // VJ we now use one buffer
@@ -430,8 +419,7 @@ void UTHFreePacket(Packet *p)
     SCFree(p);
 }
 
-Flow *UTHBuildFlow(int family, char *src, char *dst, Port sp, Port dp)
-{
+Flow *UTHBuildFlow(int family, char *src, char *dst, Port sp, Port dp) {
     struct in_addr in;
 
     Flow *f = SCMalloc(sizeof(Flow));
@@ -481,8 +469,7 @@ Flow *UTHBuildFlow(int family, char *src, char *dst, Port sp, Port dp)
     return f;
 }
 
-void UTHFreeFlow(Flow *flow)
-{
+void UTHFreeFlow(Flow *flow) {
     if (flow != NULL) {
         FlowFree(flow);
     }
@@ -511,8 +498,7 @@ void UTHFreeFlow(Flow *flow)
  * \retval int 1 if the match of all the sids is the specified has the
  *             specified results; 0 if not
  */
-int UTHGenericTest(Packet **pkt, int numpkts, char *sigs[], uint32_t sids[], uint32_t *results, int numsigs)
-{
+int UTHGenericTest(Packet **pkt, int numpkts, char *sigs[], uint32_t sids[], uint32_t *results, int numsigs) {
 
     int result = 0;
     if (pkt == NULL || sigs == NULL || numpkts == 0
@@ -588,8 +574,7 @@ int UTHCheckPacketMatchResults(Packet *p, uint32_t sids[],
  *
  * \retval int 0 if we have errors; 1 if all the signatures loaded succesfuly
  */
-int UTHAppendSigs(DetectEngineCtx *de_ctx, char *sigs[], int numsigs)
-{
+int UTHAppendSigs(DetectEngineCtx *de_ctx, char *sigs[], int numsigs) {
     if (de_ctx == NULL || numsigs <= 0 || sigs == NULL) {
         SCLogError(SC_ERR_INVALID_ARGUMENT, "Arguments invalid, check if sigs or de_ctx are NULL, and if the array contain sigs");
         return 0;
@@ -627,8 +612,7 @@ int UTHAppendSigs(DetectEngineCtx *de_ctx, char *sigs[], int numsigs)
  * \retval return 1 if all goes well
  * \retval return 0 if something fail
  */
-int UTHMatchPacketsWithResults(DetectEngineCtx *de_ctx, Packet **p, int num_packets, uint32_t sids[], uint32_t *results, int numsigs)
-{
+int UTHMatchPacketsWithResults(DetectEngineCtx *de_ctx, Packet **p, int num_packets, uint32_t sids[], uint32_t *results, int numsigs) {
     int result = 0;
 
     if (de_ctx == NULL || p == NULL) {
@@ -677,8 +661,7 @@ end:
  * \retval return 1 if all goes well
  * \retval return 0 if something fail
  */
-int UTHMatchPackets(DetectEngineCtx *de_ctx, Packet **p, int num_packets)
-{
+int UTHMatchPackets(DetectEngineCtx *de_ctx, Packet **p, int num_packets) {
     int result = 1;
 
     if (de_ctx == NULL || p == NULL) {
@@ -728,8 +711,7 @@ end:
  * \retval return 1 if match
  * \retval return 0 if not
  */
-int UTHPacketMatchSigMpm(Packet *p, char *sig, uint16_t mpm_type)
-{
+int UTHPacketMatchSigMpm(Packet *p, char *sig, uint16_t mpm_type) {
     SCEnter();
 
     int result = 0;
@@ -789,8 +771,7 @@ end:
  * \retval return 1 if match
  * \retval return 0 if not
  */
-int UTHPacketMatchSig(Packet *p, char *sig)
-{
+int UTHPacketMatchSig(Packet *p, char *sig) {
     int result = 1;
 
     DecodeThreadVars dtv;
@@ -838,8 +819,7 @@ end:
     return result;
 }
 
-uint32_t UTHBuildPacketOfFlows(uint32_t start, uint32_t end, uint8_t dir)
-{
+uint32_t UTHBuildPacketOfFlows(uint32_t start, uint32_t end, uint8_t dir) {
     uint32_t i = start;
     uint8_t payload[] = "Payload";
     for (; i < end; i++) {
@@ -851,7 +831,7 @@ uint32_t UTHBuildPacketOfFlows(uint32_t start, uint32_t end, uint8_t dir)
             p->src.addr_data32[0] = i + 1;
             p->dst.addr_data32[0] = i;
         }
-        FlowHandlePacket(NULL, NULL, p);
+        FlowHandlePacket(NULL, p);
         if (p->flow != NULL)
             SC_ATOMIC_RESET(p->flow->use_cnt);
 
@@ -869,8 +849,7 @@ uint32_t UTHBuildPacketOfFlows(uint32_t start, uint32_t end, uint8_t dir)
 /**
  * \brief CheckUTHTestPacket wrapper to check packets for unittests
  */
-int CheckUTHTestPacket(Packet *p, uint8_t ipproto)
-{
+int CheckUTHTestPacket(Packet *p, uint8_t ipproto) {
     uint16_t sport = 41424;
     uint16_t dport = 80;
     uint8_t payload[] = "Payload";
@@ -917,8 +896,7 @@ int CheckUTHTestPacket(Packet *p, uint8_t ipproto)
 /**
  * \brief UTHBuildPacketRealTest01 wrapper to check packets for unittests
  */
-int UTHBuildPacketRealTest01(void)
-{
+int UTHBuildPacketRealTest01(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacketReal(payload, sizeof(payload), IPPROTO_TCP,
@@ -933,8 +911,7 @@ int UTHBuildPacketRealTest01(void)
 /**
  * \brief UTHBuildPacketRealTest02 wrapper to check packets for unittests
  */
-int UTHBuildPacketRealTest02(void)
-{
+int UTHBuildPacketRealTest02(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacketReal(payload, sizeof(payload), IPPROTO_UDP,
@@ -948,8 +925,7 @@ int UTHBuildPacketRealTest02(void)
 /**
  * \brief UTHBuildPacketTest01 wrapper to check packets for unittests
  */
-int UTHBuildPacketTest01(void)
-{
+int UTHBuildPacketTest01(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacket(payload, sizeof(payload), IPPROTO_TCP);
@@ -963,8 +939,7 @@ int UTHBuildPacketTest01(void)
 /**
  * \brief UTHBuildPacketTest02 wrapper to check packets for unittests
  */
-int UTHBuildPacketTest02(void)
-{
+int UTHBuildPacketTest02(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacket(payload, sizeof(payload), IPPROTO_UDP);
@@ -978,8 +953,7 @@ int UTHBuildPacketTest02(void)
 /**
  * \brief UTHBuildPacketOfFlowsTest01 wrapper to check packets for unittests
  */
-int UTHBuildPacketOfFlowsTest01(void)
-{
+int UTHBuildPacketOfFlowsTest01(void) {
     int result = 0;
 
     FlowInitConfig(FLOW_QUIET);
@@ -1000,8 +974,7 @@ int UTHBuildPacketOfFlowsTest01(void)
 /**
  * \brief UTHBuildPacketSrcDstTest01 wrapper to check packets for unittests
  */
-int UTHBuildPacketSrcDstTest01(void)
-{
+int UTHBuildPacketSrcDstTest01(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacketSrcDst(payload, sizeof(payload), IPPROTO_TCP,
@@ -1016,8 +989,7 @@ int UTHBuildPacketSrcDstTest01(void)
 /**
  * \brief UTHBuildPacketSrcDstTest02 wrapper to check packets for unittests
  */
-int UTHBuildPacketSrcDstTest02(void)
-{
+int UTHBuildPacketSrcDstTest02(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacketSrcDst(payload, sizeof(payload), IPPROTO_UDP,
@@ -1032,8 +1004,7 @@ int UTHBuildPacketSrcDstTest02(void)
 /**
  * \brief UTHBuildPacketSrcDstPortsTest01 wrapper to check packets for unittests
  */
-int UTHBuildPacketSrcDstPortsTest01(void)
-{
+int UTHBuildPacketSrcDstPortsTest01(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacketSrcDstPorts(payload, sizeof(payload), IPPROTO_TCP,
@@ -1048,8 +1019,7 @@ int UTHBuildPacketSrcDstPortsTest01(void)
 /**
  * \brief UTHBuildPacketSrcDstPortsTest02 wrapper to check packets for unittests
  */
-int UTHBuildPacketSrcDstPortsTest02(void)
-{
+int UTHBuildPacketSrcDstPortsTest02(void) {
     uint8_t payload[] = "Payload";
 
     Packet *p = UTHBuildPacketSrcDstPorts(payload, sizeof(payload), IPPROTO_UDP,
@@ -1063,8 +1033,7 @@ int UTHBuildPacketSrcDstPortsTest02(void)
 
 #endif /* UNITTESTS */
 
-void UTHRegisterTests(void)
-{
+void UTHRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("UTHBuildPacketRealTest01", UTHBuildPacketRealTest01, 1);
     UtRegisterTest("UTHBuildPacketRealTest02", UTHBuildPacketRealTest02, 1);

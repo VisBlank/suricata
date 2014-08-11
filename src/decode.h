@@ -56,7 +56,6 @@ enum PktSrcEnum {
     PKT_SRC_FFR_SHUTDOWN,
 };
 
-#include "source-nflog.h"
 #include "source-nfq.h"
 #include "source-ipfw.h"
 #include "source-pcap.h"
@@ -87,8 +86,6 @@ enum PktSrcEnum {
 /* forward declarations */
 struct DetectionEngineThreadCtx_;
 typedef struct AppLayerThreadCtx_ AppLayerThreadCtx;
-
-struct PktPool_;
 
 /* declare these here as they are called from the
  * PACKET_RECYCLE and PACKET_CLEANUP macro's. */
@@ -398,9 +395,6 @@ typedef struct Packet_
 
     union {
         /* nfq stuff */
-#ifdef HAVE_NFLOG
-        NFLOGPacketVars nflog_v;
-#endif /* HAVE_NFLOG */
 #ifdef NFQ
         NFQPacketVars nfq_v;
 #endif /* NFQ */
@@ -530,10 +524,6 @@ typedef struct Packet_
     /* tunnel packet ref count */
     uint16_t tunnel_tpr_cnt;
 
-    /* The Packet pool from which this packet was allocated. Used when returning
-     * the packet to its owner's stack. If NULL, then allocated with malloc.
-     */
-    struct PktPool_ *pool;
 
 #ifdef PROFILING
     PktProfiling *profile;
@@ -572,9 +562,6 @@ typedef struct DecodeThreadVars_
     AppLayerThreadCtx *app_tctx;
 
     int vlan_disabled;
-
-    /* thread data for flow logging api */
-    void *output_flow_thread_data;
 
     /** stats/counters */
     uint16_t counter_pkts;
@@ -821,7 +808,7 @@ int PacketCopyDataOffset(Packet *p, int offset, uint8_t *data, int datalen);
 const char *PktSrcToString(enum PktSrcEnum pkt_src);
 
 DecodeThreadVars *DecodeThreadVarsAlloc(ThreadVars *);
-void DecodeThreadVarsFree(ThreadVars *, DecodeThreadVars *);
+void DecodeThreadVarsFree(DecodeThreadVars *);
 
 /* decoder functions */
 int DecodeEthernet(ThreadVars *, DecodeThreadVars *, Packet *, uint8_t *, uint16_t, PacketQueue *);
@@ -901,19 +888,6 @@ void AddressDebugPrint(Address *);
  */
 #ifndef IPPROTO_SCTP
 #define IPPROTO_SCTP 132
-#endif
-
-#ifndef IPPROTO_MH
-#define IPPROTO_MH 135
-#endif
-
-/* Host Identity Protocol (rfc 5201) */
-#ifndef IPPROTO_HIP
-#define IPPROTO_HIP 139
-#endif
-
-#ifndef IPPROTO_SHIM6
-#define IPPROTO_SHIM6 140
 #endif
 
 /* pcap provides this, but we don't want to depend on libpcap */

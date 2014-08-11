@@ -34,8 +34,7 @@ static Signature g_tag_signature;
 /** tag packet alert structure for tag alerts */
 static PacketAlert g_tag_pa;
 
-void PacketAlertTagInit(void)
-{
+void PacketAlertTagInit(void) {
     memset(&g_tag_signature, 0x00, sizeof(g_tag_signature));
 
     g_tag_signature.id = TAG_SIG_ID;
@@ -51,8 +50,7 @@ void PacketAlertTagInit(void)
     g_tag_pa.s = &g_tag_signature;
 }
 
-PacketAlert *PacketAlertGetTag(void)
-{
+PacketAlert *PacketAlertGetTag(void) {
     return &g_tag_pa;
 }
 
@@ -236,8 +234,7 @@ int PacketAlertAppend(DetectEngineThreadCtx *det_ctx, Signature *s, Packet *p, u
  * \param det_ctx detection engine thread context
  * \param p pointer to the packet
  */
-void PacketAlertFinalize(DetectEngineCtx *de_ctx, DetectEngineThreadCtx *det_ctx, Packet *p)
-{
+void PacketAlertFinalize(DetectEngineCtx *de_ctx, DetectEngineThreadCtx *det_ctx, Packet *p) {
     SCEnter();
     int i = 0;
     Signature *s = NULL;

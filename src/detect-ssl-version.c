@@ -131,6 +131,8 @@ int DetectSslVersionMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,
         SCReturnInt(0);
     }
 
+    FLOWLOCK_RDLOCK(f);
+
     if (flags & STREAM_TOCLIENT) {
         SCLogDebug("server (toclient) version is 0x%02X",
                    app_state->server_connp.version);
@@ -140,6 +142,8 @@ int DetectSslVersionMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,
                    app_state->client_connp.version);
         ver = app_state->client_connp.version;
     }
+
+    FLOWLOCK_UNLOCK(f);
 
     switch (ver) {
         case SSL_VERSION_2:
@@ -350,8 +354,7 @@ void DetectSslVersionFree(void *ptr)
  * \test DetectSslVersionTestParse01 is a test to make sure that we parse the
  *      "ssl_version" option correctly when given valid ssl_version option
  */
-int DetectSslVersionTestParse01(void)
-{
+int DetectSslVersionTestParse01(void) {
     DetectSslVersionData *ssl = NULL;
     ssl = DetectSslVersionParse("SSlv3");
     if (ssl != NULL && ssl->data[SSLv3].ver == SSL_VERSION_3) {
@@ -367,8 +370,7 @@ int DetectSslVersionTestParse01(void)
  *      "ssl_version" option correctly when given an invalid ssl_version option
  *       it should return ssl = NULL
  */
-int DetectSslVersionTestParse02(void)
-{
+int DetectSslVersionTestParse02(void) {
     DetectSslVersionData *ssl = NULL;
     ssl = DetectSslVersionParse("2.5");
     if (ssl == NULL) {
@@ -383,8 +385,7 @@ int DetectSslVersionTestParse02(void)
  * \test DetectSslVersionTestParse03 is a test to make sure that we parse the
  *      "ssl_version" options correctly when given valid ssl_version options
  */
-int DetectSslVersionTestParse03(void)
-{
+int DetectSslVersionTestParse03(void) {
     DetectSslVersionData *ssl = NULL;
     ssl = DetectSslVersionParse("SSlv3,tls1.0, !tls1.2");
     if (ssl != NULL && ssl->data[SSLv3].ver == SSL_VERSION_3 &&

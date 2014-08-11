@@ -1,9 +1,8 @@
 /**
- * \file: app-layer-mysql.c
- * \author: coanor
- *
  * App-layer parser for Mysql protocol
  *
+ * author: coanor <coanor@gmail.com>
+ * date: Fri Apr  4 14:28:19 CST 2014
  */
 
 #include "suricata-common.h"
@@ -39,17 +38,9 @@ void RegisterMysqlParsers(void) {
 
 			/* if not configured, enable the default 3306 port */
 			if (!have_cfg) {
-				SCLogWarning(SC_ERR_MYSQL_CONFIG, "no MySQL config found, "
-						"enabling MySQL detection on port 3306");
-				AppLayerProtoDetectPPRegister(
-						IPPROTO_TCP, "3306", ALPROTO_MYSQL, 0,
-						sizeof(MysqlPktHeader),
-						STREAM_TOSERVER, MysqlProbingParser);
+				return;
 			}
         }
-
-        AppLayerParserRegisterParserAcceptableDataDirection(IPPROTO_TCP, ALPROTO_MYSQL,
-				STREAM_TOSERVER | STREAM_TOCLIENT);
     } else {
         SCLogInfo("Protocol detection and parser disabled for %s protocol", proto_name);
         return;
@@ -59,6 +50,15 @@ void RegisterMysqlParsers(void) {
         AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_MYSQL, STREAM_TOSERVER, MysqlParseClientRecord);
         AppLayerParserRegisterParser(IPPROTO_TCP, ALPROTO_MYSQL, STREAM_TOCLIENT, MysqlParseServerRecord);
 		AppLayerParserRegisterStateFuncs(IPPROTO_TCP, ALPROTO_MYSQL, MysqlStateAlloc, MysqlStateFree);
+
+        /* TODO: should we add get/has event callbacks? */
+
+        AppLayerParserRegisterGetTx(IPPROTO_TCP, ALPROTO_MYSQL, MysqlGetTx);
+        AppLayerParserRegisterGetTxCnt(IPPROTO_TCP, ALPROTO_MYSQL, MysqlGetTxCnt);
+        AppLayerParserRegisterGetStateProgressCompletionStatus(IPPROTO_TCP,
+                ALPROTO_MYSQL, MysqlGetAlstateProgressCompletionStatus);
+
+        AppLayerParserRegisterGetStateProgressFunc(IPPROTO_TCP, ALPROTO_MYSQL, MysqlGetAlstateProgress);
     }
 
 #ifdef UNITTESTS

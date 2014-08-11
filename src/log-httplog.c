@@ -63,8 +63,7 @@ static void LogHttpLogDeInitCtx(OutputCtx *);
 
 int LogHttpLogger(ThreadVars *tv, void *thread_data, const Packet *, Flow *f, void *state, void *tx, uint64_t tx_id);
 
-void TmModuleLogHttpLogRegister (void)
-{
+void TmModuleLogHttpLogRegister (void) {
     tmm_modules[TMM_LOGHTTPLOG].name = MODULE_NAME;
     tmm_modules[TMM_LOGHTTPLOG].ThreadInit = LogHttpLogThreadInit;
     tmm_modules[TMM_LOGHTTPLOG].ThreadExitPrintStats = LogHttpLogExitPrintStats;
@@ -129,8 +128,7 @@ typedef struct LogHttpLogThread_ {
 
 /* Retrieves the selected cookie value */
 static uint32_t GetCookieValue(uint8_t *rawcookies, uint32_t rawcookies_len, char *cookiename,
-                                                        uint8_t **cookievalue)
-{
+                                                        uint8_t **cookievalue) {
     uint8_t *p = rawcookies;
     uint8_t *cn = p; /* ptr to cookie name start */
     uint8_t *cv = NULL; /* ptr to cookie value start */
@@ -506,8 +504,8 @@ static TmEcode LogHttpLogIPWrapper(ThreadVars *tv, void *data, const Packet *p, 
     aft->uri_cnt ++;
 
     SCMutexLock(&hlog->file_ctx->fp_mutex);
-    hlog->file_ctx->Write((const char *)MEMBUFFER_BUFFER(aft->buffer),
-        MEMBUFFER_OFFSET(aft->buffer), hlog->file_ctx);
+    (void)MemBufferPrintToFPAsString(aft->buffer, hlog->file_ctx->fp);
+    fflush(hlog->file_ctx->fp);
     SCMutexUnlock(&hlog->file_ctx->fp_mutex);
 
 end:
@@ -575,8 +573,7 @@ TmEcode LogHttpLogThreadDeinit(ThreadVars *t, void *data)
     return TM_ECODE_OK;
 }
 
-void LogHttpLogExitPrintStats(ThreadVars *tv, void *data)
-{
+void LogHttpLogExitPrintStats(ThreadVars *tv, void *data) {
     LogHttpLogThread *aft = (LogHttpLogThread *)data;
     if (aft == NULL) {
         return;
@@ -603,7 +600,6 @@ OutputCtx *LogHttpLogInitCtx(ConfNode *conf)
         LogFileFreeCtx(file_ctx);
         return NULL;
     }
-    OutputRegisterFileRotationFlag(&file_ctx->rotation_flag);
 
     LogHttpFileCtx *httplog_ctx = SCMalloc(sizeof(LogHttpFileCtx));
     if (unlikely(httplog_ctx == NULL)) {
@@ -733,7 +729,6 @@ static void LogHttpLogDeInitCtx(OutputCtx *output_ctx)
     for (i = 0; i < httplog_ctx->cf_n; i++) {
         SCFree(httplog_ctx->cf_nodes[i]);
     }
-    OutputUnregisterFileRotationFlag(&httplog_ctx->file_ctx->rotation_flag);
     LogFileFreeCtx(httplog_ctx->file_ctx);
     SCFree(httplog_ctx);
     SCFree(output_ctx);

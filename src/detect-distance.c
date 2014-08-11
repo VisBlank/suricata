@@ -236,8 +236,7 @@ end:
  * distance works, if the previous keyword is byte_jump and content
  * (bug 163)
  */
-int DetectDistanceTestPacket01 (void)
-{
+int DetectDistanceTestPacket01 (void) {
     int result = 0;
     uint8_t buf[] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
     uint16_t buflen = sizeof(buf);
@@ -260,8 +259,7 @@ end:
 }
 #endif /* UNITTESTS */
 
-void DetectDistanceRegisterTests(void)
-{
+void DetectDistanceRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("DetectDistanceTest01 -- distance / within mix", DetectDistanceTest01, 1);
     UtRegisterTest("DetectDistanceTestPacket01", DetectDistanceTestPacket01, 1);

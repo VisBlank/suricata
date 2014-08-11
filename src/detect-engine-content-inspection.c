@@ -274,9 +274,9 @@ int DetectEngineContentInspection(DetectEngineCtx *de_ctx, DetectEngineThreadCtx
 
             /* do the actual search */
             if (cd->flags & DETECT_CONTENT_NOCASE)
-                found = BoyerMooreNocase(cd->content, cd->content_len, sbuffer, sbuffer_len, cd->bm_ctx);
+                found = BoyerMooreNocase(cd->content, cd->content_len, sbuffer, sbuffer_len, cd->bm_ctx->bmGs, cd->bm_ctx->bmBc);
             else
-                found = BoyerMoore(cd->content, cd->content_len, sbuffer, sbuffer_len, cd->bm_ctx);
+                found = BoyerMoore(cd->content, cd->content_len, sbuffer, sbuffer_len, cd->bm_ctx->bmGs, cd->bm_ctx->bmBc);
 
             /* next we evaluate the result in combination with the
              * negation flag. */
@@ -529,10 +529,10 @@ int DetectEngineContentInspection(DetectEngineCtx *de_ctx, DetectEngineThreadCtx
         det_ctx->discontinue_matching = 0;
 
         goto no_match;
-#ifdef HAVE_LUA
+#ifdef HAVE_LUAJIT
     }
     else if (sm->type == DETECT_LUAJIT) {
-        SCLogDebug("lua starting");
+        SCLogDebug("luajit starting");
         /* for flowvar gets and sets we need to know the flow's lock status */
         int need_flow_lock = 0;
         if (inspection_mode <= DETECT_ENGINE_CONTENT_INSPECTION_MODE_STREAM)
@@ -541,12 +541,12 @@ int DetectEngineContentInspection(DetectEngineCtx *de_ctx, DetectEngineThreadCtx
         if (DetectLuajitMatchBuffer(det_ctx, s, sm, buffer, buffer_len,
                     det_ctx->buffer_offset, f, need_flow_lock) != 1)
         {
-            SCLogDebug("lua no_match");
+            SCLogDebug("luajit no_match");
             goto no_match;
         }
-        SCLogDebug("lua match");
+        SCLogDebug("luajit match");
         goto match;
-#endif /* HAVE_LUA */
+#endif
     } else {
         SCLogDebug("sm->type %u", sm->type);
 #ifdef DEBUG

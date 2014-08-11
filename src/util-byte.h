@@ -82,6 +82,8 @@
  */
 char *BytesToString(const uint8_t *bytes, size_t nbytes);
 
+char *BytesToString2(const uint8_t *bytes, size_t nbytes, int32_t limit);
+
 /**
  * Extract bytes from a byte string and convert to a unint64_t.
  *

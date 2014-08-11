@@ -290,8 +290,7 @@ static inline Packet *FlowForceReassemblyPseudoPacketGet(int direction,
  *  \retval 0 no
  *  \retval 1 yes
  */
-int FlowForceReassemblyNeedReassembly(Flow *f, int *server, int *client)
-{
+int FlowForceReassemblyNeedReassembly(Flow *f, int *server, int *client) {
     TcpSession *ssn;
 
     if (f == NULL) {

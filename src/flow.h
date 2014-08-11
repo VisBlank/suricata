@@ -178,13 +178,6 @@ typedef struct AppLayerParserState_ AppLayerParserState;
 /** \todo only used by flow keyword internally. */
 #define FLOW_PKT_ONLYSTREAM             0x80
 
-#define FLOW_END_FLAG_STATE_NEW         0x01
-#define FLOW_END_FLAG_STATE_ESTABLISHED 0x02
-#define FLOW_END_FLAG_STATE_CLOSED      0x04
-#define FLOW_END_FLAG_EMERGENCY         0x08
-#define FLOW_END_FLAG_TIMEOUT           0x10
-#define FLOW_END_FLAG_FORCED            0x20
-
 /** Mutex or RWLocks for the flow. */
 //#define FLOWLOCK_RWLOCK
 #define FLOWLOCK_MUTEX
@@ -324,8 +317,8 @@ typedef struct Flow_
 
     uint32_t flags;
 
-    /* time stamp of last update (last packet) */
-    struct timeval lastts;
+    /* ts of flow init and last update */
+    int32_t lastts_sec;
 
 #ifdef FLOWLOCK_RWLOCK
     SCRWLock r;
@@ -341,9 +334,7 @@ typedef struct Flow_
     /** mapping to Flow's protocol specific protocols for timeouts
         and state and free functions. */
     uint8_t protomap;
-
-    uint8_t flow_end_flags;
-    /* coccinelle: Flow:flow_end_flags:FLOW_END_FLAG_ */
+    uint8_t pad0;
 
     AppProto alproto; /**< \brief application level protocol */
     AppProto alproto_ts;
@@ -386,11 +377,11 @@ typedef struct Flow_
     struct Flow_ *lnext; /* list */
     struct Flow_ *lprev;
     struct timeval startts;
-
+#ifdef DEBUG
     uint32_t todstpktcnt;
     uint32_t tosrcpktcnt;
-    uint64_t todstbytecnt;
-    uint64_t tosrcbytecnt;
+    uint64_t bytecnt;
+#endif
 } Flow;
 
 enum {
@@ -410,7 +401,7 @@ typedef struct FlowProto_ {
     int (*GetProtoState)(void *);
 } FlowProto;
 
-void FlowHandlePacket (ThreadVars *, DecodeThreadVars *, Packet *);
+void FlowHandlePacket (ThreadVars *, Packet *);
 void FlowInitConfig (char);
 void FlowPrintQueueInfo (void);
 void FlowShutdown(void);
@@ -444,8 +435,7 @@ void FlowCleanupAppLayer(Flow *);
  *
  * \param f Flow to set the flag in
  */
-static inline void FlowLockSetNoPacketInspectionFlag(Flow *f)
-{
+static inline void FlowLockSetNoPacketInspectionFlag(Flow *f) {
     SCEnter();
 
     SCLogDebug("flow %p", f);
@@ -460,8 +450,7 @@ static inline void FlowLockSetNoPacketInspectionFlag(Flow *f)
  *
  * \param f Flow to set the flag in
  */
-static inline  void FlowSetNoPacketInspectionFlag(Flow *f)
-{
+static inline  void FlowSetNoPacketInspectionFlag(Flow *f) {
     SCEnter();
 
     SCLogDebug("flow %p", f);
@@ -474,8 +463,7 @@ static inline  void FlowSetNoPacketInspectionFlag(Flow *f)
  *
  * \param f Flow to set the flag in
  */
-static inline void FlowLockSetNoPayloadInspectionFlag(Flow *f)
-{
+static inline void FlowLockSetNoPayloadInspectionFlag(Flow *f) {
     SCEnter();
 
     SCLogDebug("flow %p", f);
@@ -490,8 +478,7 @@ static inline void FlowLockSetNoPayloadInspectionFlag(Flow *f)
  *
  * \param f Flow to set the flag in
  */
-static inline void FlowSetNoPayloadInspectionFlag(Flow *f)
-{
+static inline void FlowSetNoPayloadInspectionFlag(Flow *f) {
     SCEnter();
 
     SCLogDebug("flow %p", f);
@@ -504,8 +491,7 @@ static inline void FlowSetNoPayloadInspectionFlag(Flow *f)
  *
  *  \param f *LOCKED* flow
  */
-static inline void FlowSetSessionNoApplayerInspectionFlag(Flow *f)
-{
+static inline void FlowSetSessionNoApplayerInspectionFlag(Flow *f) {
     f->flags |= FLOW_NO_APPLAYER_INSPECTION;
 }
 
@@ -538,8 +524,7 @@ static inline void FlowDecrUsecnt(Flow *f)
 /** \brief Reference the flow, bumping the flows use_cnt
  *  \note This should only be called once for a destination
  *        pointer */
-static inline void FlowReference(Flow **d, Flow *f)
-{
+static inline void FlowReference(Flow **d, Flow *f) {
     if (likely(f != NULL)) {
 #ifdef DEBUG_VALIDATION
         BUG_ON(*d == f);
@@ -552,8 +537,7 @@ static inline void FlowReference(Flow **d, Flow *f)
     }
 }
 
-static inline void FlowDeReference(Flow **d)
-{
+static inline void FlowDeReference(Flow **d) {
     if (likely(*d != NULL)) {
         FlowDecrUsecnt(*d);
         *d = NULL;

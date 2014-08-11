@@ -108,8 +108,7 @@ static void LogTlsLogExtendedJSON(json_t *tjs, SSLState * state)
     json_object_set_new(tjs, "version", json_string(ssl_version));
 }
 
-static int JsonTlsLogger(ThreadVars *tv, void *thread_data, const Packet *p)
-{
+static int JsonTlsLogger(ThreadVars *tv, void *thread_data, const Packet *p) {
     JsonTlsLogThread *aft = (JsonTlsLogThread *)thread_data;
     MemBuffer *buffer = (MemBuffer *)aft->buffer;
     OutputTlsCtx *tls_ctx = aft->tlslog_ctx;
@@ -213,16 +212,6 @@ static TmEcode JsonTlsLogThreadDeinit(ThreadVars *t, void *data)
     return TM_ECODE_OK;
 }
 
-static void OutputTlsLogDeinit(OutputCtx *output_ctx)
-{
-    OutputTlsLoggerDisable();
-
-    OutputTlsCtx *tls_ctx = output_ctx->data;
-    LogFileCtx *logfile_ctx = tls_ctx->file_ctx;
-    LogFileFreeCtx(logfile_ctx);
-    SCFree(tls_ctx);
-    SCFree(output_ctx);
-}
 
 #define DEFAULT_LOG_FILENAME "tls.json"
 OutputCtx *OutputTlsLogInit(ConfNode *conf)
@@ -270,18 +259,9 @@ OutputCtx *OutputTlsLogInit(ConfNode *conf)
         }
     }
     output_ctx->data = tls_ctx;
-    output_ctx->DeInit = OutputTlsLogDeinit;
+    output_ctx->DeInit = NULL;
 
     return output_ctx;
-}
-
-static void OutputTlsLogDeinitSub(OutputCtx *output_ctx)
-{
-    OutputTlsLoggerDisable();
-
-    OutputTlsCtx *tls_ctx = output_ctx->data;
-    SCFree(tls_ctx);
-    SCFree(output_ctx);
 }
 
 OutputCtx *OutputTlsLogInitSub(ConfNode *conf, OutputCtx *parent_ctx)
@@ -317,7 +297,7 @@ OutputCtx *OutputTlsLogInitSub(ConfNode *conf, OutputCtx *parent_ctx)
         }
     }
     output_ctx->data = tls_ctx;
-    output_ctx->DeInit = OutputTlsLogDeinitSub;
+    output_ctx->DeInit = NULL;
 
     return output_ctx;
 }
@@ -326,8 +306,7 @@ OutputCtx *OutputTlsLogInitSub(ConfNode *conf, OutputCtx *parent_ctx)
  *  \brief Condition function for TLS logger
  *  \retval bool true or false -- log now?
  */
-static int JsonTlsCondition(ThreadVars *tv, const Packet *p)
-{
+static int JsonTlsCondition(ThreadVars *tv, const Packet *p) {
     if (p->flow == NULL) {
         return FALSE;
     }
@@ -364,8 +343,7 @@ dontlog:
     return FALSE;
 }
 
-void TmModuleJsonTlsLogRegister (void)
-{
+void TmModuleJsonTlsLogRegister (void) {
     tmm_modules[TMM_JSONTLSLOG].name = "JsonTlsLog";
     tmm_modules[TMM_JSONTLSLOG].ThreadInit = JsonTlsLogThreadInit;
     tmm_modules[TMM_JSONTLSLOG].ThreadDeinit = JsonTlsLogThreadDeinit;

@@ -40,8 +40,7 @@
  *                 characters that can't be inside the needle_len. So the skips can be
  *                 faster
  */
-void Bs2BmBadchars(const uint8_t *needle, uint16_t needle_len, uint8_t *badchars)
-{
+void Bs2BmBadchars(const uint8_t *needle, uint16_t needle_len, uint8_t *badchars) {
     uint32_t i;
     for (i = 0; i < ALPHABET_SIZE; i++)
         badchars[i] = 1;
@@ -62,8 +61,7 @@ void Bs2BmBadchars(const uint8_t *needle, uint16_t needle_len, uint8_t *badchars
  *                 characters that can't be inside the needle_len. So the skips can be
  *                 faster
  */
-void Bs2BmBadcharsNocase(const uint8_t *needle, uint16_t needle_len, uint8_t *badchars)
-{
+void Bs2BmBadcharsNocase(const uint8_t *needle, uint16_t needle_len, uint8_t *badchars) {
     uint32_t i;
     for (i = 0; i < ALPHABET_SIZE; i++)
         badchars[i] = 1;

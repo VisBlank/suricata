@@ -41,6 +41,4 @@ int OutputRegisterFileLogger(const char *name, FileLogger LogFunc, OutputCtx *);
 
 void TmModuleFileLoggerRegister (void);
 
-void OutputFileShutdown(void);
-
 #endif /* __OUTPUT_FILE_H__ */

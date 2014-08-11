@@ -130,8 +130,7 @@ error:
  *       the received packet against the sig.
  */
 
-static int DetectL3protoTestSig1(void)
-{
+static int DetectL3protoTestSig1(void) {
 
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -214,8 +213,7 @@ end:
  *       the received IPv6 packet against the sig.
  */
 
-static int DetectL3protoTestSig2(void)
-{
+static int DetectL3protoTestSig2(void) {
 
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -297,8 +295,7 @@ end:
  *       in conjonction with ip_proto keyword.
  */
 
-static int DetectL3protoTestSig3(void)
-{
+static int DetectL3protoTestSig3(void) {
 
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -381,8 +378,7 @@ end:
 /**
  * \brief this function registers unit tests for DetectL3proto
  */
-void DetectL3protoRegisterTests(void)
-{
+void DetectL3protoRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("DetectL3protoTestSig1",  DetectL3protoTestSig1, 1);
     UtRegisterTest("DetectL3protoTestSig2",  DetectL3protoTestSig2, 1);

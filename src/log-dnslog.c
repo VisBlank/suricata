@@ -71,8 +71,35 @@ typedef struct LogDnsLogThread_ {
     MemBuffer *buffer;
 } LogDnsLogThread;
 
-static void LogQuery(LogDnsLogThread *aft, char *timebuf, char *srcip, char *dstip, Port sp, Port dp, DNSTransaction *tx, DNSQueryEntry *entry)
-{
+static void CreateTypeString(uint16_t type, char *str, size_t str_size) {
+    if (type == DNS_RECORD_TYPE_A) {
+        snprintf(str, str_size, "A");
+    } else if (type == DNS_RECORD_TYPE_NS) {
+        snprintf(str, str_size, "NS");
+    } else if (type == DNS_RECORD_TYPE_AAAA) {
+        snprintf(str, str_size, "AAAA");
+    } else if (type == DNS_RECORD_TYPE_TXT) {
+        snprintf(str, str_size, "TXT");
+    } else if (type == DNS_RECORD_TYPE_CNAME) {
+        snprintf(str, str_size, "CNAME");
+    } else if (type == DNS_RECORD_TYPE_SOA) {
+        snprintf(str, str_size, "SOA");
+    } else if (type == DNS_RECORD_TYPE_MX) {
+        snprintf(str, str_size, "MX");
+    } else if (type == DNS_RECORD_TYPE_PTR) {
+        snprintf(str, str_size, "PTR");
+    } else if (type == DNS_RECORD_TYPE_ANY) {
+        snprintf(str, str_size, "ANY");
+    } else if (type == DNS_RECORD_TYPE_TKEY) {
+        snprintf(str, str_size, "TKEY");
+    } else if (type == DNS_RECORD_TYPE_TSIG) {
+        snprintf(str, str_size, "TSIG");
+    } else {
+        snprintf(str, str_size, "%04x/%u", type, type);
+    }
+}
+
+static void LogQuery(LogDnsLogThread *aft, char *timebuf, char *srcip, char *dstip, Port sp, Port dp, DNSTransaction *tx, DNSQueryEntry *entry) {
     LogDnsFileCtx *hlog = aft->dnslog_ctx;
 
     SCLogDebug("got a DNS request and now logging !!");
@@ -90,19 +117,18 @@ static void LogQuery(LogDnsLogThread *aft, char *timebuf, char *srcip, char *dst
             entry->len);
 
     char record[16] = "";
-    DNSCreateTypeString(entry->type, record, sizeof(record));
+    CreateTypeString(entry->type, record, sizeof(record));
     MemBufferWriteString(aft->buffer,
             " [**] %s [**] %s:%" PRIu16 " -> %s:%" PRIu16 "\n",
             record, srcip, sp, dstip, dp);
 
     SCMutexLock(&hlog->file_ctx->fp_mutex);
-    hlog->file_ctx->Write((const char *)MEMBUFFER_BUFFER(aft->buffer),
-        MEMBUFFER_OFFSET(aft->buffer), hlog->file_ctx);
+    (void)MemBufferPrintToFPAsString(aft->buffer, hlog->file_ctx->fp);
+    fflush(hlog->file_ctx->fp);
     SCMutexUnlock(&hlog->file_ctx->fp_mutex);
 }
 
-static void LogAnswer(LogDnsLogThread *aft, char *timebuf, char *srcip, char *dstip, Port sp, Port dp, DNSTransaction *tx, DNSAnswerEntry *entry)
-{
+static void LogAnswer(LogDnsLogThread *aft, char *timebuf, char *srcip, char *dstip, Port sp, Port dp, DNSTransaction *tx, DNSAnswerEntry *entry) {
     LogDnsFileCtx *hlog = aft->dnslog_ctx;
 
     SCLogDebug("got a DNS response and now logging !!");
@@ -130,7 +156,7 @@ static void LogAnswer(LogDnsLogThread *aft, char *timebuf, char *srcip, char *ds
         }
 
         char record[16] = "";
-        DNSCreateTypeString(entry->type, record, sizeof(record));
+        CreateTypeString(entry->type, record, sizeof(record));
         MemBufferWriteString(aft->buffer,
                 " [**] %s [**] TTL %u [**] ", record, entry->ttl);
 
@@ -157,8 +183,8 @@ static void LogAnswer(LogDnsLogThread *aft, char *timebuf, char *srcip, char *ds
             srcip, sp, dstip, dp);
 
     SCMutexLock(&hlog->file_ctx->fp_mutex);
-    hlog->file_ctx->Write((const char *)MEMBUFFER_BUFFER(aft->buffer),
-        MEMBUFFER_OFFSET(aft->buffer), hlog->file_ctx);
+    (void)MemBufferPrintToFPAsString(aft->buffer, hlog->file_ctx->fp);
+    fflush(hlog->file_ctx->fp);
     SCMutexUnlock(&hlog->file_ctx->fp_mutex);
 }
 
@@ -278,8 +304,7 @@ static TmEcode LogDnsLogThreadDeinit(ThreadVars *t, void *data)
     return TM_ECODE_OK;
 }
 
-static void LogDnsLogExitPrintStats(ThreadVars *tv, void *data)
-{
+static void LogDnsLogExitPrintStats(ThreadVars *tv, void *data) {
     LogDnsLogThread *aft = (LogDnsLogThread *)data;
     if (aft == NULL) {
         return;
@@ -291,7 +316,6 @@ static void LogDnsLogExitPrintStats(ThreadVars *tv, void *data)
 static void LogDnsLogDeInitCtx(OutputCtx *output_ctx)
 {
     LogDnsFileCtx *dnslog_ctx = (LogDnsFileCtx *)output_ctx->data;
-    OutputUnregisterFileRotationFlag(&dnslog_ctx->file_ctx->rotation_flag);
     LogFileFreeCtx(dnslog_ctx->file_ctx);
     SCFree(dnslog_ctx);
     SCFree(output_ctx);
@@ -314,7 +338,6 @@ static OutputCtx *LogDnsLogInitCtx(ConfNode *conf)
         LogFileFreeCtx(file_ctx);
         return NULL;
     }
-    OutputRegisterFileRotationFlag(&file_ctx->rotation_flag);
 
     LogDnsFileCtx *dnslog_ctx = SCMalloc(sizeof(LogDnsFileCtx));
     if (unlikely(dnslog_ctx == NULL)) {
@@ -343,8 +366,7 @@ static OutputCtx *LogDnsLogInitCtx(ConfNode *conf)
     return output_ctx;
 }
 
-void TmModuleLogDnsLogRegister (void)
-{
+void TmModuleLogDnsLogRegister (void) {
     tmm_modules[TMM_LOGDNSLOG].name = MODULE_NAME;
     tmm_modules[TMM_LOGDNSLOG].ThreadInit = LogDnsLogThreadInit;
     tmm_modules[TMM_LOGDNSLOG].ThreadExitPrintStats = LogDnsLogExitPrintStats;

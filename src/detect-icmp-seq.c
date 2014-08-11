@@ -50,8 +50,7 @@ void DetectIcmpSeqFree(void *);
 /**
  * \brief Registration function for icmp_seq
  */
-void DetectIcmpSeqRegister (void)
-{
+void DetectIcmpSeqRegister (void) {
     sigmatch_table[DETECT_ICMP_SEQ].name = "icmp_seq";
     sigmatch_table[DETECT_ICMP_SEQ].desc = "check for a ICMP sequence number";
     sigmatch_table[DETECT_ICMP_SEQ].url = "https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Header_keywords#icmp_seq";
@@ -92,8 +91,7 @@ error:
  * \retval 0 no match
  * \retval 1 match
  */
-int DetectIcmpSeqMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, Packet *p, Signature *s, SigMatch *m)
-{
+int DetectIcmpSeqMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, Packet *p, Signature *s, SigMatch *m) {
     uint16_t seqn;
     DetectIcmpSeqData *iseq = (DetectIcmpSeqData *)m->ctx;
 
@@ -154,8 +152,7 @@ int DetectIcmpSeqMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, Packet *p
  * \retval iseq pointer to DetectIcmpSeqData on success
  * \retval NULL on failure
  */
-DetectIcmpSeqData *DetectIcmpSeqParse (char *icmpseqstr)
-{
+DetectIcmpSeqData *DetectIcmpSeqParse (char *icmpseqstr) {
     DetectIcmpSeqData *iseq = NULL;
     char *substr[3] = {NULL, NULL, NULL};
 #define MAX_SUBSTRINGS 30
@@ -230,8 +227,7 @@ error:
  * \retval 0 on Success
  * \retval -1 on Failure
  */
-static int DetectIcmpSeqSetup (DetectEngineCtx *de_ctx, Signature *s, char *icmpseqstr)
-{
+static int DetectIcmpSeqSetup (DetectEngineCtx *de_ctx, Signature *s, char *icmpseqstr) {
     DetectIcmpSeqData *iseq = NULL;
     SigMatch *sm = NULL;
 
@@ -260,8 +256,7 @@ error:
  *
  * \param ptr pointer to DetectIcmpSeqData
  */
-void DetectIcmpSeqFree (void *ptr)
-{
+void DetectIcmpSeqFree (void *ptr) {
     DetectIcmpSeqData *iseq = (DetectIcmpSeqData *)ptr;
     SCFree(iseq);
 }
@@ -275,8 +270,7 @@ void DetectIcmpSeqFree (void *ptr)
 /**
  * \test DetectIcmpSeqParseTest01 is a test for setting a valid icmp_seq value
  */
-int DetectIcmpSeqParseTest01 (void)
-{
+int DetectIcmpSeqParseTest01 (void) {
     DetectIcmpSeqData *iseq = NULL;
     iseq = DetectIcmpSeqParse("300");
     if (iseq != NULL && htons(iseq->seq) == 300) {
@@ -290,8 +284,7 @@ int DetectIcmpSeqParseTest01 (void)
  * \test DetectIcmpSeqParseTest02 is a test for setting a valid icmp_seq value
  *       with spaces all around
  */
-int DetectIcmpSeqParseTest02 (void)
-{
+int DetectIcmpSeqParseTest02 (void) {
     DetectIcmpSeqData *iseq = NULL;
     iseq = DetectIcmpSeqParse("  300  ");
     if (iseq != NULL && htons(iseq->seq) == 300) {
@@ -304,8 +297,7 @@ int DetectIcmpSeqParseTest02 (void)
 /**
  * \test DetectIcmpSeqParseTest03 is a test for setting an invalid icmp_seq value
  */
-int DetectIcmpSeqParseTest03 (void)
-{
+int DetectIcmpSeqParseTest03 (void) {
     DetectIcmpSeqData *iseq = NULL;
     iseq = DetectIcmpSeqParse("badc");
     if (iseq != NULL) {
@@ -320,8 +312,7 @@ int DetectIcmpSeqParseTest03 (void)
  *       icmp_seq keyword by creating 2 rules and matching a crafted packet
  *       against them. Only the first one shall trigger.
  */
-int DetectIcmpSeqMatchTest01 (void)
-{
+int DetectIcmpSeqMatchTest01 (void) {
     int result = 0;
     Packet *p = NULL;
     Signature *s = NULL;
@@ -378,8 +369,7 @@ end:
 }
 #endif /* UNITTESTS */
 
-void DetectIcmpSeqRegisterTests (void)
-{
+void DetectIcmpSeqRegisterTests (void) {
 #ifdef UNITTESTS
     UtRegisterTest("DetectIcmpSeqParseTest01", DetectIcmpSeqParseTest01, 1);
     UtRegisterTest("DetectIcmpSeqParseTest02", DetectIcmpSeqParseTest02, 1);

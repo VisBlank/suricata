@@ -69,8 +69,7 @@ int LiveRegisterDevice(char *dev)
  *
  *  \retval cnt the number of registered devices
  */
-int LiveGetDeviceCount(void)
-{
+int LiveGetDeviceCount(void) {
     int i = 0;
     LiveDevice *pd;
 
@@ -89,8 +88,7 @@ int LiveGetDeviceCount(void)
  *  \retval ptr pointer to the string containing the device
  *  \retval NULL on error
  */
-char *LiveGetDeviceName(int number)
-{
+char *LiveGetDeviceName(int number) {
     int i = 0;
     LiveDevice *pd;
 
@@ -113,8 +111,7 @@ char *LiveGetDeviceName(int number)
  *  \retval ptr pointer to the string containing the device
  *  \retval NULL on error
  */
-LiveDevice *LiveGetDevice(char *name)
-{
+LiveDevice *LiveGetDevice(char *name) {
     int i = 0;
     LiveDevice *pd;
 
@@ -138,11 +135,6 @@ LiveDevice *LiveGetDevice(char *name)
 
 int LiveBuildDeviceList(char * runmode)
 {
-    return LiveBuildDeviceListCustom(runmode, "interface");
-}
-
-int LiveBuildDeviceListCustom(char * runmode, char * itemname)
-{
     ConfNode *base = ConfGetNode(runmode);
     ConfNode *child;
     int i = 0;
@@ -151,14 +143,14 @@ int LiveBuildDeviceListCustom(char * runmode, char * itemname)
         return 0;
 
     TAILQ_FOREACH(child, &base->head, next) {
-        if (!strcmp(child->val, itemname)) {
+        if (!strcmp(child->val, "interface")) {
             ConfNode *subchild;
             TAILQ_FOREACH(subchild, &child->head, next) {
-                if ((!strcmp(subchild->name, itemname))) {
+                if ((!strcmp(subchild->name, "interface"))) {
                     if (!strcmp(subchild->val, "default"))
                         break;
-                    SCLogInfo("Adding %s %s from config file",
-                              itemname, subchild->val);
+                    SCLogInfo("Adding interface %s from config file",
+                              subchild->val);
                     LiveRegisterDevice(subchild->val);
                     i++;
                 }

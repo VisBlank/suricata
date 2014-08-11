@@ -1,0 +1,50 @@
+.PS
+#######################
+#box_wid=.6; box_ht=.15; mv_dist=.3
+box_wid=.8; box_ht=.2; mv_dist=.3
+#######################
+right
+PCAP: box "pcap" ht box_ht wid box_wid
+
+move mv_dist
+PACKET: box "packet" ht box_ht wid box_wid
+
+move mv_dist
+SLOT: box "SlotProc" ht box_ht wid box_wid
+
+move mv_dist
+RUN: box "SlotRun" ht box_ht wid box_wid
+
+#spline from PCAP.w + (-.3, .4) down .2 then to PCAP.w + (0, .05) ->
+spline from PCAP.w + (-.6,  .0)              to PCAP.w + (0, .0) -> "\fI\s7Capture pkt\fR\s8" ""
+#spline from PCAP.w + (-.3,-.4) up   .2 then to PCAP.w + (0,-.05) ->
+
+line from PCAP.e to PACKET.w -> "\fI\s7copy\fR\s8" ""
+
+line from PACKET.e to SLOT.w -> 
+line from SLOT.e to RUN.w -> 
+
+spline from RUN.e + (.0, .02) right .2 then up left to RUN.n + (0, .3) then to RUN.n ->
+
+DECODE: box "Decode" ht box_ht wid box_wid at RUN.s + (0, -.5)
+spline from RUN.e             right .2 then down .5 then to DECODE.e ->
+box "\fI\s7ethernet/ipv4/tcp/udp\s8\fR" at DECODE.s + (0, -.05) invisible
+
+FLOW: box "Flow Engin" ht box_ht wid box_wid at SLOT.s + (0, -.5)
+line from DECODE.w to FLOW.e ->
+
+STREAM: box "TCP Reassemble" ht box_ht wid box_wid at PACKET.s + (0, -.5)
+line from FLOW.w to STREAM.e ->
+#box "\fI\s6protocol detect\s6\fR" at STREAM.s + (0, -.05) invisible
+
+DETECT: box "Detect" ht box_ht wid box_wid at PCAP.s + (0, -.5)
+line from STREAM.w to DETECT.e ->
+
+AL: box "\s7App Layer\s8" ht 0.15 wid .5 at DETECT.s + (.6, -.2)
+spline dashed from DETECT.s down .2 then to AL.w <->
+#box "\fI\s7detect/parse\s6\fR" at AL.s + (0, -.05) invisible
+
+OUT: box "Output" ht box_ht wid box_wid at DETECT.s + (0, -.5)
+spline from DETECT.w left .2 then down .5 then to OUT.w ->
+
+.PE

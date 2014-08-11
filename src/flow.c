@@ -232,15 +232,14 @@ static inline int FlowUpdateSeenFlag(const Packet *p)
  * This is called for every packet.
  *
  *  \param tv threadvars
- *  \param dtv decode thread vars (for flow output api thread data)
  *  \param p packet to handle flow for
  */
-void FlowHandlePacket(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p)
+void FlowHandlePacket(ThreadVars *tv, Packet *p)
 {
     /* Get this packet's flow from the hash. FlowHandlePacket() will setup
      * a new flow if nescesary. If we get NULL, we're out of flow memory.
      * The returned flow is locked. */
-    Flow *f = FlowGetFlowFromHash(tv, dtv, p);
+    Flow *f = FlowGetFlowFromHash(p);
     if (f == NULL)
         return;
 
@@ -248,24 +247,29 @@ void FlowHandlePacket(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p)
     FlowReference(&p->flow, f);
 
     /* update the last seen timestamp of this flow */
-    COPY_TIMESTAMP(&p->ts,&f->lastts);
+    f->lastts_sec = p->ts.tv_sec;
 
     /* update flags and counters */
     if (FlowGetPacketDirection(f, p) == TOSERVER) {
         if (FlowUpdateSeenFlag(p)) {
             f->flags |= FLOW_TO_DST_SEEN;
         }
+#ifdef DEBUG
         f->todstpktcnt++;
-        f->todstbytecnt += GET_PKT_LEN(p);
+#endif
         p->flowflags |= FLOW_PKT_TOSERVER;
     } else {
         if (FlowUpdateSeenFlag(p)) {
             f->flags |= FLOW_TO_SRC_SEEN;
         }
+#ifdef DEBUG
         f->tosrcpktcnt++;
-        f->tosrcbytecnt += GET_PKT_LEN(p);
+#endif
         p->flowflags |= FLOW_PKT_TOCLIENT;
     }
+#ifdef DEBUG
+    f->bytecnt += GET_PKT_LEN(p);
+#endif
 
     if ((f->flags & FLOW_TO_DST_SEEN) && (f->flags & FLOW_TO_SRC_SEEN)) {
         SCLogDebug("pkt %p FLOW_PKT_ESTABLISHED", p);
@@ -300,7 +304,6 @@ void FlowInitConfig(char quiet)
     SC_ATOMIC_INIT(flow_memuse);
     SC_ATOMIC_INIT(flow_prune_idx);
     FlowQueueInit(&flow_spare_q);
-    FlowQueueInit(&flow_recycle_q);
 
     unsigned int seed = RandomTimePreseed();
     /* set defaults */
@@ -439,11 +442,8 @@ void FlowShutdown(void)
 
     FlowPrintStats();
 
-    /* free queues */
+    /* free spare queue */
     while((f = FlowDequeue(&flow_spare_q))) {
-        FlowFree(f);
-    }
-    while((f = FlowDequeue(&flow_recycle_q))) {
         FlowFree(f);
     }
 
@@ -470,7 +470,6 @@ void FlowShutdown(void)
     }
     (void) SC_ATOMIC_SUB(flow_memuse, flow_config.hash_size * sizeof(FlowBucket));
     FlowQueueDestroy(&flow_spare_q);
-    FlowQueueDestroy(&flow_recycle_q);
 
     SC_ATOMIC_DESTROY(flow_prune_idx);
     SC_ATOMIC_DESTROY(flow_memuse);

@@ -148,8 +148,7 @@ bad_data:
     SCReturnInt(-1);
 }
 
-static int BufferData(DNSState *dns_state, uint8_t *data, uint16_t len)
-{
+static int BufferData(DNSState *dns_state, uint8_t *data, uint16_t len) {
     if (dns_state->buffer == NULL) {
         if (DNSCheckMemcap(0xffff, dns_state) < 0)
             return -1;
@@ -176,14 +175,12 @@ static int BufferData(DNSState *dns_state, uint8_t *data, uint16_t len)
     return 0;
 }
 
-static void BufferReset(DNSState *dns_state)
-{
+static void BufferReset(DNSState *dns_state) {
     dns_state->record_len = 0;
     dns_state->offset = 0;
 }
 
-static int DNSRequestParseData(Flow *f, DNSState *dns_state, const uint8_t *input, const uint32_t input_len)
-{
+static int DNSRequestParseData(Flow *f, DNSState *dns_state, const uint8_t *input, const uint32_t input_len) {
     DNSHeader *dns_header = (DNSHeader *)input;
 
     if (DNSValidateRequestHeader(dns_state, dns_header) < 0)
@@ -358,8 +355,7 @@ bad_data:
     SCReturnInt(-1);
 }
 
-static int DNSReponseParseData(Flow *f, DNSState *dns_state, const uint8_t *input, const uint32_t input_len)
-{
+static int DNSReponseParseData(Flow *f, DNSState *dns_state, const uint8_t *input, const uint32_t input_len) {
     DNSHeader *dns_header = (DNSHeader *)input;
 
     if (DNSValidateResponseHeader(dns_state, dns_header) < 0)
@@ -594,8 +590,7 @@ static uint16_t DNSTcpProbingParser(uint8_t *input, uint32_t ilen, uint32_t *off
     return ALPROTO_DNS;
 }
 
-void RegisterDNSTCPParsers(void)
-{
+void RegisterDNSTCPParsers(void) {
     char *proto_name = "dns";
 
     /** DNS */
@@ -660,8 +655,7 @@ void RegisterDNSTCPParsers(void)
 
 /* UNITTESTS */
 #ifdef UNITTESTS
-void DNSTCPParserRegisterTests(void)
-{
+void DNSTCPParserRegisterTests(void) {
 //	UtRegisterTest("DNSTCPParserTest01", DNSTCPParserTest01, 1);
 }
 #endif

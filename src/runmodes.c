@@ -84,16 +84,6 @@ static RunModes runmodes[RUNMODE_USER_MAX];
 
 static char *active_runmode;
 
-/* free list for our outputs */
-typedef struct OutputFreeList_ {
-    TmModule *tm_module;
-    OutputCtx *output_ctx;
-
-    TAILQ_ENTRY(OutputFreeList_) entries;
-} OutputFreeList;
-TAILQ_HEAD(, OutputFreeList_) output_free_list =
-    TAILQ_HEAD_INITIALIZER(output_free_list);
-
 /**
  * \internal
  * \brief Translate a runmode mode to a printale string.
@@ -117,8 +107,6 @@ static const char *RunModeTranslateModeToName(int runmode)
 #endif
         case RUNMODE_NFQ:
             return "NFQ";
-        case RUNMODE_NFLOG:
-            return "NFLOG";
         case RUNMODE_IPFW:
             return "IPFW";
         case RUNMODE_ERF_FILE:
@@ -205,7 +193,6 @@ void RunModeRegisterRunModes(void)
     RunModeErfDagRegister();
     RunModeNapatechRegister();
     RunModeIdsAFPRegister();
-    RunModeIdsNflogRegister();
     RunModeTileMpipeRegister();
     RunModeUnixSocketRegister();
 #ifdef UNITTESTS
@@ -309,9 +296,6 @@ void RunModeDispatch(int runmode, const char *custom_mode, DetectEngineCtx *de_c
             case RUNMODE_UNIX_SOCKET:
                 custom_mode = RunModeUnixSocketGetDefaultMode();
                 break;
-            case RUNMODE_NFLOG:
-                custom_mode = RunModeIdsNflogGetDefaultMode();
-                break;
             default:
                 SCLogError(SC_ERR_UNKNOWN_RUN_MODE, "Unknown runtime mode. Aborting");
                 exit(EXIT_FAILURE);
@@ -376,7 +360,7 @@ void RunModeRegisterNewRunMode(int runmode, const char *name,
                                int (*RunModeFunc)(DetectEngineCtx *))
 {
     void *ptmp;
-    if (RunModeGetCustomMode(runmode, name) != NULL) {
+    if (RunModeGetCustomMode(runmode, name) != NULL) { /* 查找是否已经有同名的模式 */
         SCLogError(SC_ERR_RUNMODE, "A runmode by this custom name has already "
                    "been registered.  Please use an unique name");
         return;
@@ -385,7 +369,7 @@ void RunModeRegisterNewRunMode(int runmode, const char *name,
     ptmp = SCRealloc(runmodes[runmode].runmodes,
                      (runmodes[runmode].no_of_runmodes + 1) * sizeof(RunMode));
     if (ptmp == NULL) {
-        SCFree(runmodes[runmode].runmodes);
+        SCFree(runmodes[runmode].runmodes); /* 居然会释放其它已经存在的 runmode */
         runmodes[runmode].runmodes = NULL;
         exit(EXIT_FAILURE);
     }
@@ -411,21 +395,17 @@ void RunModeRegisterNewRunMode(int runmode, const char *name,
 }
 
 /**
- * Setup the outputs for this run mode.
- *
- * \param tv The ThreadVars for the thread the outputs will be
- * appended to.
+ * Cleanup the run mode.
  */
-void RunOutputFreeList(void)
+void RunModeShutDown(void)
 {
-    OutputFreeList *output;
-    while ((output = TAILQ_FIRST(&output_free_list))) {
-        SCLogDebug("output %s %p %p", output->tm_module->name, output, output->output_ctx);
-
+    /* Close any log files. */
+    RunModeOutput *output;
+    while ((output = TAILQ_FIRST(&RunModeOutputs))) {
+        SCLogDebug("Shutting down output %s.", output->tm_module->name);
+        TAILQ_REMOVE(&RunModeOutputs, output, entries);
         if (output->output_ctx != NULL && output->output_ctx->DeInit != NULL)
             output->output_ctx->DeInit(output->output_ctx);
-
-        TAILQ_REMOVE(&output_free_list, output, entries);
         SCFree(output);
     }
 }
@@ -435,61 +415,9 @@ static TmModule *tx_logger_module = NULL;
 static TmModule *file_logger_module = NULL;
 static TmModule *filedata_logger_module = NULL;
 
-/**
- * Cleanup the run mode.
- */
-void RunModeShutDown(void)
-{
-    RunOutputFreeList();
-
-    OutputPacketShutdown();
-    OutputTxShutdown();
-    OutputFileShutdown();
-    OutputFiledataShutdown();
-
-    /* Close any log files. */
-    RunModeOutput *output;
-    while ((output = TAILQ_FIRST(&RunModeOutputs))) {
-        SCLogDebug("Shutting down output %s.", output->tm_module->name);
-        TAILQ_REMOVE(&RunModeOutputs, output, entries);
-        SCFree(output);
-    }
-
-    /* reset logger pointers */
-    pkt_logger_module = NULL;
-    tx_logger_module = NULL;
-    file_logger_module = NULL;
-    filedata_logger_module = NULL;
-}
-
-/** \internal
- *  \brief add Sub RunModeOutput to list for Submodule so we can free
- *         the output ctx at shutdown and unix socket reload */
-static void AddOutputToFreeList(OutputModule *module, OutputCtx *output_ctx)
-{
-    TmModule *tm_module = TmModuleGetByName(module->name);
-    if (tm_module == NULL) {
-        SCLogError(SC_ERR_INVALID_ARGUMENT,
-                "TmModuleGetByName for %s failed", module->name);
-        exit(EXIT_FAILURE);
-    }
-    OutputFreeList *fl_output = SCCalloc(1, sizeof(OutputFreeList));
-    if (unlikely(fl_output == NULL))
-        return;
-    fl_output->tm_module = tm_module;
-    fl_output->output_ctx = output_ctx;
-    TAILQ_INSERT_TAIL(&output_free_list, fl_output, entries);
-}
-
 /** \brief Turn output into thread module */
 static void SetupOutput(const char *name, OutputModule *module, OutputCtx *output_ctx)
 {
-    /* flow logger doesn't run in the packet path */
-    if (module->FlowLogFunc) {
-        OutputRegisterFlowLogger(module->name, module->FlowLogFunc, output_ctx);
-        return;
-    }
-
     TmModule *tm_module = TmModuleGetByName(module->name);
     if (tm_module == NULL) {
         SCLogError(SC_ERR_INVALID_ARGUMENT,
@@ -713,16 +641,10 @@ void RunModeInitializeOutputs(void)
                         continue;
                     }
 
-                    AddOutputToFreeList(sub_module, sub_output_ctx);
                     SetupOutput(sub_module->name, sub_module, sub_output_ctx);
                 }
             }
-            /* add 'eve-log' to free list as it's the owner of the
-             * main output ctx from which the sub-modules share the
-             * LogFileCtx */
-            AddOutputToFreeList(module, output_ctx);
         } else {
-            AddOutputToFreeList(module, output_ctx);
             SetupOutput(module->name, module, output_ctx);
         }
     }

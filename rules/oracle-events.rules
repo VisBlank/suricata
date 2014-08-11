@@ -1,0 +1,2 @@
+alert oracle11g any any -> any any (msg:"oracle user(coanor) detected"; flow:to_server,established; oracle11g-user:coanor; sid:2250000; rev:1;)
+alert oracle11g any any -> any any (msg:"oracle database(orcl11g) detected"; flow:to_server,established; oracle11g-sid:orcl11g; sid:2250001; rev:1;)

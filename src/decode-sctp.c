@@ -74,7 +74,7 @@ int DecodeSCTP(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p, uint8_t *pkt, u
 #endif
 
     /* Flow is an integral part of us */
-    FlowHandlePacket(tv, dtv, p);
+    FlowHandlePacket(tv, p);
 
     return TM_ECODE_OK;
 }

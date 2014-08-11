@@ -9,12 +9,11 @@ bin_PROGRAMS = suricata
 suricata_SOURCES = \
 alert-debuglog.c alert-debuglog.h \
 alert-fastlog.c alert-fastlog.h \
+alert-pcapinfo.c alert-pcapinfo.h \
 alert-prelude.c alert-prelude.h \
 alert-syslog.c alert-syslog.h \
 alert-unified2-alert.c alert-unified2-alert.h \
 app-layer.c app-layer.h \
-app-layer-mysql-common.c app-layer-mysql-common.h \
-app-layer-mysql.c app-layer-mysql.h \
 app-layer-dcerpc.c app-layer-dcerpc.h \
 app-layer-dcerpc-udp.c app-layer-dcerpc-udp.h \
 app-layer-detect-proto.c app-layer-detect-proto.h \
@@ -36,12 +35,12 @@ app-layer-smtp.c app-layer-smtp.h \
 app-layer-ssh.c app-layer-ssh.h \
 app-layer-ssl.c app-layer-ssl.h \
 app-layer-tls-handshake.c app-layer-tls-handshake.h \
-app-layer-tds-common.c app-layer-tds-common.h \
-app-layer-tds.c app-layer-tds.h \
-app-layer-tns.c app-layer-tns.h \
-app-layer-drda.c app-layer-drda.h \
-app-layer-drda-common.c app-layer-drda-common.h \
-app-layer-tns11g-common.c app-layer-tns11g-common.h \
+app-layer-oracle.c app-layer-oracle.h \
+app-layer-oracle11g-common.c app-layer-oracle11g-common.h \
+app-layer-mysql.c app-layer-mysql.h \
+app-layer-mysql-common.c app-layer-mysql-common.h \
+app-layer-mssql.c app-layer-mssql.h \
+app-layer-mssql-common.c app-layer-mssql-common.h \
 conf.c conf.h \
 conf-yaml-loader.c conf-yaml-loader.h \
 counters.c counters.h \
@@ -68,8 +67,6 @@ defrag.c defrag.h \
 defrag-hash.c defrag-hash.h \
 defrag-queue.c defrag-queue.h \
 defrag-timeout.c defrag-timeout.h \
-detect-time.c detect-time.h \
-detect-mysql-keywords.c detect-mysql-keywords.h \
 detect-ack.c detect-ack.h \
 detect-app-layer-event.c detect-app-layer-event.h \
 detect-app-layer-protocol.c detect-app-layer-protocol.h \
@@ -202,6 +199,9 @@ detect-uricontent.c detect-uricontent.h \
 detect-urilen.c detect-urilen.h \
 detect-window.c detect-window.h \
 detect-within.c detect-within.h \
+detect-mysql.c detect-mysql.h \
+detect-oracle.c detect-oracle.h \
+detect-mssql.c detect-mssql.h \
 flow-bit.c flow-bit.h \
 flow.c flow.h \
 flow-hash.c flow-hash.h \
@@ -225,17 +225,16 @@ log-tlslog.c log-tlslog.h \
 output.c output.h \
 output-file.c output-file.h \
 output-filedata.c output-filedata.h \
-output-flow.c output-flow.h \
 output-json-alert.c output-json-alert.h \
 output-json-dns.c output-json-dns.h \
+output-json-mysql.c output-json-mysql.h \
+output-json-oracle.c output-json-oracle.h \
+output-json-mssql.c output-json-mssql.h \
 output-json-drop.c output-json-drop.h \
 output-json-file.c output-json-file.h \
-output-json-flow.c output-json-flow.h \
-output-json-netflow.c output-json-netflow.h \
 output-json-http.c output-json-http.h \
 output-json-ssh.c output-json-ssh.h \
 output-json-tls.c output-json-tls.h \
-output-json-db.c output-json-db.h \
 output-packet.c output-packet.h \
 output-tx.c output-tx.h \
 output-json.c output-json.h \
@@ -250,7 +249,6 @@ runmode-erf-file.c runmode-erf-file.h \
 runmode-ipfw.c runmode-ipfw.h \
 runmode-napatech.c runmode-napatech.h \
 runmode-nfq.c runmode-nfq.h \
-runmode-nflog.c runmode-nflog.h \
 runmode-pcap.c runmode-pcap.h \
 runmode-pcap-file.c runmode-pcap-file.h \
 runmode-pfring.c runmode-pfring.h \
@@ -265,7 +263,6 @@ source-ipfw.c source-ipfw.h \
 source-mpipe.c source-mpipe.h \
 source-napatech.c source-napatech.h \
 source-nfq.c source-nfq.h \
-source-nflog.c source-nflog.h \
 source-pcap.c source-pcap.h \
 source-pcap-file.c source-pcap-file.h \
 source-pfring.c source-pfring.h \
@@ -380,14 +377,9 @@ util-validate.h util-affinity.h util-affinity.c \
 util-var.c util-var.h \
 util-var-name.c util-var-name.h \
 util-vector.h \
-util-json.h util-json.c \
 win32-misc.c win32-misc.h \
 win32-service.c win32-service.h \
 win32-syslog.h
-
-# unused source code
-#log-mysqllog.c log-mysqllog.h
-#log-tdslog.c log-tdslog.h
 
 EXTRA_DIST = util-mpm-ac-cuda-kernel.cu ptxdump.py
 

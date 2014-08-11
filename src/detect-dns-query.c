@@ -64,8 +64,7 @@ static void DetectDnsQueryRegisterTests(void);
 /**
  * \brief Registration function for keyword: http_uri
  */
-void DetectDnsQueryRegister (void)
-{
+void DetectDnsQueryRegister (void) {
     sigmatch_table[DETECT_AL_DNS_QUERY].name = "dns_query";
     sigmatch_table[DETECT_AL_DNS_QUERY].desc = "content modifier to match specifically and only on the DNS query-buffer";
     sigmatch_table[DETECT_AL_DNS_QUERY].Match = NULL;
@@ -134,8 +133,7 @@ uint32_t DetectDnsQueryInspectMpm(DetectEngineThreadCtx *det_ctx, Flow *f,
 
 #ifdef UNITTESTS
 /** \test simple google.com query matching */
-static int DetectDnsQueryTest01(void)
-{
+static int DetectDnsQueryTest01(void) {
     /* google.com */
     uint8_t buf[] = {   0x10, 0x32, 0x01, 0x00, 0x00, 0x01,
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -226,8 +224,7 @@ end:
 }
 
 /** \test multi tx google.(com|net) query matching */
-static int DetectDnsQueryTest02(void)
-{
+static int DetectDnsQueryTest02(void) {
     /* google.com */
     uint8_t buf1[] = {  0x10, 0x32, 0x01, 0x00, 0x00, 0x01,
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -412,8 +409,7 @@ end:
 }
 
 /** \test simple google.com query matching (TCP) */
-static int DetectDnsQueryTest03(void)
-{
+static int DetectDnsQueryTest03(void) {
     /* google.com */
     uint8_t buf[] = {   0x00, 28,
                         0x10, 0x32, 0x01, 0x00, 0x00, 0x01,
@@ -511,8 +507,7 @@ end:
 }
 
 /** \test simple google.com query matching (TCP splicing) */
-static int DetectDnsQueryTest04(void)
-{
+static int DetectDnsQueryTest04(void) {
     /* google.com */
     uint8_t buf1[] = {  0x00, 28,
                         0x10, 0x32, 0x01, 0x00, 0x00, 0x01,
@@ -635,8 +630,7 @@ end:
 }
 
 /** \test simple google.com query matching (TCP splicing) */
-static int DetectDnsQueryTest05(void)
-{
+static int DetectDnsQueryTest05(void) {
     /* google.com in 2 chunks (buf1 and buf2) */
     uint8_t buf1[] = {  0x00, 28,                               /* len 28 */
                         0x10, 0x32, 0x01, 0x00, 0x00, 0x01,
@@ -857,8 +851,7 @@ end:
 }
 
 /** \test simple google.com query matching, pcre */
-static int DetectDnsQueryTest06(void)
-{
+static int DetectDnsQueryTest06(void) {
     /* google.com */
     uint8_t buf[] = {   0x10, 0x32, 0x01, 0x00, 0x00, 0x01,
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -963,8 +956,7 @@ end:
 
 /** \test multi tx google.(com|net) query matching +
  *        app layer event */
-static int DetectDnsQueryTest07(void)
-{
+static int DetectDnsQueryTest07(void) {
     /* google.com */
     uint8_t buf1[] = {  0x10, 0x32, 0x01, 0x00, 0x00, 0x01,
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1165,8 +1157,7 @@ end:
 
 #endif
 
-static void DetectDnsQueryRegisterTests(void)
-{
+static void DetectDnsQueryRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("DetectDnsQueryTest01", DetectDnsQueryTest01, 1);
     UtRegisterTest("DetectDnsQueryTest02", DetectDnsQueryTest02, 1);

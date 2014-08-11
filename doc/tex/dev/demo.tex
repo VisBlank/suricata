@@ -1,0 +1,143 @@
+\chapter{Suricata 预研 Demo}\label{chap:demo}
+
+\section{主要内容}
+
+\begin{itemize}
+    \item 环境搭建
+    \item 协议分析（在前面的章节中，此处不表）
+    \item 效果展示（IDS/IPS）
+\end{itemize}
+
+\section{网络结构}
+Suricata 和数据库客户端均位于同一台机器。数据库服务器位于 182 以及 194。其网络结构如图所示：
+
+\begin{tikzpicture}
+    %\draw[help lines](0,0) grid(14,3);
+
+    % 两个客户端工具
+    \node [above] at (1.5, 1.75) {\cf mysql\_cli};
+    \draw (0.5, 1.75) rectangle (2.5,2.25);
+    \node [below] at (1.5, 1.25) {\cf oracle\_cli};
+    \draw (0.5, 0.75) rectangle (2.5,1.25);
+
+    % 宿主机
+    \draw [rounded corners, purple, dashed](0,0) rectangle (7,3);
+    \node [below] at (3.5, 0.5) {\cf 宿主机器(174)};
+
+    % suricata
+    \draw (4.5, 1) rectangle (6.5,2);
+    \node at (5.5, 1.5) {\cf suricata};
+    
+    % db server
+    \node [above] at (10.5, 1.75) {\cf mysql\_srv(182)};
+    \draw (9, 1.75) rectangle (12,2.25);
+    \node [below] at (10.5, 1.25) {\cf oracle\_srv(194)};
+    \draw (9, 0.75) rectangle (12,1.25);
+
+    % lines
+    \draw[->,  teal] (1.5, 2.25) to [out=10,in=170] (10.5, 2.25);
+    \draw[->,  teal] (1.5, 2.25) to [out=10, in=150] (5.5, 2);
+    \draw[->,  teal] (1.5, 0.75) to [out=350,in=190] (10.5, 0.75);
+    \draw[->,  teal] (1.5, 0.75) to [out=350, in=210] (5.5, 1);
+    
+    \draw[->,  blue] (2.5, 2) -- (4.5, 1.75);
+    \draw[->,  blue] (6.5, 1.75) -- (9, 2);
+    \draw[->,  blue] (2.5, 1) -- (4.5, 1.25);
+    \draw[->,  blue] (6.5, 1.25) -- (9, 1);
+
+    \draw[->, blue] (10,3.25) -- (11, 3.25);
+    \node [right] at (11, 3.25) {\cf \scriptsize NFQ IPS 模式};
+    \draw[->,  teal] (10,2.75) -- (11, 2.75);
+    \node [right] at (11, 2.75) {\cf \scriptsize PCAP IDS 模式};
+\end{tikzpicture}
+
+\section{Suricata IDS/IPS 对现有数据库协议支持的展示}
+目前对 MySQL 的协议以及基本支持，能获取对应的 SQL 语句以及更详细的信息。对 Oracle 11g 数据库而言，目前可以拿到其基本的 SQL 语句信息，其它更深入的信息（session 管理、返回的数据分析）尚不能获取。
+
+\subsection{IDS 功能演示}
+
+以命令 {\cf ./suricata r -c yaml/demo.yaml -i eth1} 启动 IDS 模式的 Suricata，此处使用 eth1 作为嗅探网卡。
+
+对 Oracle 以及 MySQL 数据库而言，分别对应如下两条检测规则：
+
+\begin{lstlisting}[language=python]
+alert `\hl{red}{oracle11g}` any any -> any any (msg:"oracle user(coanor) detected";
+    flow:to_server,established; `\hl{blue}{oracle11g-user}`:coanor; sid:2250000; rev:1;)
+alert oracle11g any any -> any any (msg:"oracle database(orcl11g) detected";
+    flow:to_server,established; `\hl{blue}{oracle11g-sid}`:orcl11g; sid:2250001; rev:1;)
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+alert `\hl{red}{mysql}` any any -> any any (msg:"mysql user(root) detected";
+    flow:to_server,established; `\hl{blue}{mysql-user}`:root; sid:2240000; rev:1;)
+alert mysql any any -> any any (msg:"mysql database(aap_log) detected";
+    flow:to_server,established; `\hl{blue}{mysql-database}`:aap_log; sid:2240001; rev:1;)
+\end{lstlisting}
+
+对这两条规则而言，如果满足其检测条件，就会在 {\ff fast.log} 文件中记录相应的 alert 信息。同时，在 MySQL 以及 Oracle 的 JSON 文件日志中，也会记录这一行为(JSON 文件中的 {\cf action} 字段)。对其它几种行为而言，分别更改前面的 {\cf alert} 即可。
+
+alert 日志在常规的 JSON 日志中为：
+
+\begin{lstlisting}
+{
+    "timestamp":"2014-06-03T10:09:54.203021",
+    "event_type":"oracle11g",
+    "src_ip":"192.168.37.174",
+    "src_port":45827,
+    "dest_ip":"192.168.37.194",
+    "dest_port":1521,
+    "proto":"TCP",
+    "oracle11g":{"user":"coanor",
+        "db_name":"orcl11g",
+        `\hl{blue}{"action":"ALERT"}`,
+        "meta_info":{"sql":null, "cmd":"unkonw"}
+    }
+}
+\end{lstlisting}
+
+常规的 SQL 日志输出示例为：
+
+\begin{lstlisting}
+{
+    "timestamp":"2014-06-03T10:12:30.534439",
+    "event_type":"oracle11g",
+    "src_ip":"192.168.37.174",
+    "src_port":45827,
+    "dest_ip":"192.168.37.194",
+    "dest_port":1521,
+    "proto":"TCP",
+    "oracle11g":{
+        "user":"coanor",
+        "db_name":"orcl11g",
+        "action":"UNKNOWN",
+        "meta_info":{
+            "sql":`\hl{blue}{"insert into employee (EMPLOYEE\_ID, MANAGER\_ID,
+                   FIRST\_NAME, LAST\_NAME, TITLE, SALARY)
+                   values( 1 , 0 , 'James' , 'Smith' , 'CEO', 800000)"}`,
+            "cmd":"query"
+        }
+    }
+}
+\end{lstlisting}
+
+在 {\ff fast.log} 文件中的示例为
+
+\begin{lstlisting}
+06/03/2014-13:38:41.827922  [**] [1:2250000:1] oracle user(coanor) detected [**]
+    [Classification: (null)] [Priority: 3] {TCP} 192.168.37.174:46697 -> 192.168.37.194:1521
+\end{lstlisting}
+
+\subsection{IPS 功能演示}
+
+设置如下 iptables 规则后，再启动 Suricata {\cf ./suricata -c yaml/demo.yaml -q 0}。
+
+\begin{lstlisting}
+sudo iptables -A INPUT -j NFQUEUE
+sudo iptables -A OUTPUT -j NFQUEUE
+
+# 允许 SSH 访问，便于调试
+sudo iptables -I INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+sudo iptables -I OUTPUT -p tcp -m tcp --sport 22 -j ACCEPT
+\end{lstlisting}
+
+连接建立后，显示的结果数据和 IDS 模式下的一致。

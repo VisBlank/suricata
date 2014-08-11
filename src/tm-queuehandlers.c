@@ -36,8 +36,7 @@
 #include "tmqh-flow.h"
 #include "tmqh-ringbuffer.h"
 
-void TmqhSetup (void)
-{
+void TmqhSetup (void) {
     memset(&tmqh_table, 0, sizeof(tmqh_table));
 
     TmqhSimpleRegister();
@@ -48,13 +47,11 @@ void TmqhSetup (void)
 }
 
 /** \brief Clean up registration time allocs */
-void TmqhCleanup(void)
-{
+void TmqhCleanup(void) {
     TmqhRingBufferDestroy();
 }
 
-Tmqh* TmqhGetQueueHandlerByName(char *name)
-{
+Tmqh* TmqhGetQueueHandlerByName(char *name) {
     int i;
 
     for (i = 0; i < TMQH_SIZE; i++) {

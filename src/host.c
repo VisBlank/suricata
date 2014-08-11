@@ -47,19 +47,16 @@ static Host *HostGetUsedHost(void);
 /** queue with spare hosts */
 static HostQueue host_spare_q;
 
-uint32_t HostSpareQueueGetSize(void)
-{
+uint32_t HostSpareQueueGetSize(void) {
     return HostQueueLen(&host_spare_q);
 }
 
-void HostMoveToSpare(Host *h)
-{
+void HostMoveToSpare(Host *h) {
     HostEnqueue(&host_spare_q, h);
     (void) SC_ATOMIC_SUB(host_counter, 1);
 }
 
-Host *HostAlloc(void)
-{
+Host *HostAlloc(void) {
     size_t size = sizeof(Host) + HostStorageSize();
 
     if (!(HOST_CHECK_MEMCAP(size))) {
@@ -82,8 +79,7 @@ error:
     return NULL;
 }
 
-void HostFree(Host *h)
-{
+void HostFree(Host *h) {
     if (h != NULL) {
         HostClearMemory(h);
 
@@ -94,8 +90,7 @@ void HostFree(Host *h)
     }
 }
 
-Host *HostNew(Address *a)
-{
+Host *HostNew(Address *a) {
     Host *h = HostAlloc();
     if (h == NULL)
         goto error;
@@ -109,8 +104,7 @@ error:
     return NULL;
 }
 
-void HostClearMemory(Host *h)
-{
+void HostClearMemory(Host *h) {
     if (h->iprep != NULL) {
         SCFree(h->iprep);
         h->iprep = NULL;
@@ -343,8 +337,7 @@ void HostCleanup(void)
  *  hash_rand -- set at init time
  *  source address
  */
-uint32_t HostGetKey(Address *a)
-{
+uint32_t HostGetKey(Address *a) {
     uint32_t key;
 
     if (a->family == AF_INET) {
@@ -364,8 +357,7 @@ uint32_t HostGetKey(Address *a)
 #define CMP_HOST(h,a) \
     (CMP_ADDR(&(h)->a, (a)))
 
-static inline int HostCompare(Host *h, Address *a)
-{
+static inline int HostCompare(Host *h, Address *a) {
     return CMP_HOST(h, a);
 }
 
@@ -377,8 +369,7 @@ static inline int HostCompare(Host *h, Address *a)
  *
  *  \retval h *LOCKED* host on succes, NULL on error.
  */
-static Host *HostGetNew(Address *a)
-{
+static Host *HostGetNew(Address *a) {
     Host *h = NULL;
 
     /* get a host from the spare queue */
@@ -422,20 +413,17 @@ static Host *HostGetNew(Address *a)
     return h;
 }
 
-void HostInit(Host *h, Address *a)
-{
+void HostInit(Host *h, Address *a) {
     COPY_ADDRESS(a, &h->a);
     (void) HostIncrUsecnt(h);
 }
 
-void HostRelease(Host *h)
-{
+void HostRelease(Host *h) {
     (void) HostDecrUsecnt(h);
     SCMutexUnlock(&h->m);
 }
 
-void HostLock(Host *h)
-{
+void HostLock(Host *h) {
     SCMutexLock(&h->m);
 }
 
@@ -620,8 +608,7 @@ Host *HostLookupHostFromHash (Address *a)
  *
  *  \retval h host or NULL
  */
-static Host *HostGetUsedHost(void)
-{
+static Host *HostGetUsedHost(void) {
     uint32_t idx = SC_ATOMIC_GET(host_prune_idx) % host_config.hash_size;
     uint32_t cnt = host_config.hash_size;
 
@@ -678,8 +665,7 @@ static Host *HostGetUsedHost(void)
     return NULL;
 }
 
-void HostRegisterUnittests(void)
-{
+void HostRegisterUnittests(void) {
     RegisterHostStorageTests();
 }
 

@@ -136,8 +136,7 @@ int DecodePPP(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p, uint8_t *pkt, ui
  *  Decode malformed ip layer PPP packet
  *  Expected test value: 1
  */
-static int DecodePPPtest01 (void)
-{
+static int DecodePPPtest01 (void)   {
     uint8_t raw_ppp[] = { 0xff, 0x03, 0x00, 0x21, 0x45, 0xc0, 0x00 };
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -165,8 +164,7 @@ static int DecodePPPtest01 (void)
  *  Decode malformed ppp layer packet
  *  Expected test value: 1
  */
-static int DecodePPPtest02 (void)
-{
+static int DecodePPPtest02 (void)   {
     uint8_t raw_ppp[] = { 0xff, 0x03, 0x00, 0xff, 0x45, 0xc0, 0x00, 0x2c, 0x4d,
                            0xed, 0x00, 0x00, 0xff, 0x06, 0xd5, 0x17, 0xbf, 0x01,
                            0x0d, 0x01, 0xbf, 0x01, 0x0d, 0x03, 0xea, 0x37, 0x00,
@@ -200,8 +198,7 @@ static int DecodePPPtest02 (void)
  *  \retval 0 Test failed
  *  \retval 1 Test succeeded
  */
-static int DecodePPPtest03 (void)
-{
+static int DecodePPPtest03 (void)   {
     uint8_t raw_ppp[] = { 0xff, 0x03, 0x00, 0x21, 0x45, 0xc0, 0x00, 0x2c, 0x4d,
                            0xed, 0x00, 0x00, 0xff, 0x06, 0xd5, 0x17, 0xbf, 0x01,
                            0x0d, 0x01, 0xbf, 0x01, 0x0d, 0x03, 0xea, 0x37, 0x00,
@@ -258,8 +255,7 @@ static int DecodePPPtest03 (void)
  *  Expected test value: 1
  */
 
-static int DecodePPPtest04 (void)
-{
+static int DecodePPPtest04 (void)   {
     uint8_t raw_ppp[] = { 0xff, 0x03, 0x00, 0x21, 0x45, 0xc0, 0x00, 0x2c, 0x4d,
                            0xed, 0x00, 0x00, 0xff, 0x06, 0xd5, 0x17, 0xbf, 0x01,
                            0x0d, 0x01, 0xbf, 0x01, 0x0d, 0x03, 0xea, 0x37, 0x00,
@@ -297,8 +293,7 @@ static int DecodePPPtest04 (void)
 }
 #endif /* UNITTESTS */
 
-void DecodePPPRegisterTests(void)
-{
+void DecodePPPRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("DecodePPPtest01", DecodePPPtest01, 1);
     UtRegisterTest("DecodePPPtest02", DecodePPPtest02, 1);

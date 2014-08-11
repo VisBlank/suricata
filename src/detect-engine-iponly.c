@@ -66,8 +66,7 @@
  *
  * \retval IPOnlyCIDRItem address of the new instance
  */
-static IPOnlyCIDRItem *IPOnlyCIDRItemNew()
-{
+static IPOnlyCIDRItem *IPOnlyCIDRItemNew() {
     SCEnter();
     IPOnlyCIDRItem *item = NULL;
 
@@ -80,8 +79,7 @@ static IPOnlyCIDRItem *IPOnlyCIDRItemNew()
 }
 
 static uint8_t IPOnlyCIDRItemCompare(IPOnlyCIDRItem *head,
-                                         IPOnlyCIDRItem *item)
-{
+                                         IPOnlyCIDRItem *item) {
     uint8_t i = 0;
     for (; i < head->netmask / 32 || i < 1; i++) {
         if (item->ip[i] < head->ip[i])
@@ -293,8 +291,7 @@ error:
  * \retval  0 On success.
  * \retval -1 On failure.
  */
-static int IPOnlyCIDRItemSetup(IPOnlyCIDRItem *gh, char *s)
-{
+static int IPOnlyCIDRItemSetup(IPOnlyCIDRItem *gh, char *s) {
     SCLogDebug("gh %p, s %s", gh, s);
 
     /* parse the address */
@@ -405,8 +402,7 @@ static IPOnlyCIDRItem *IPOnlyCIDRItemInsert(IPOnlyCIDRItem *head,
  * \brief This function free a IPOnlyCIDRItem list
  * \param tmphead Pointer to the list
  */
-void IPOnlyCIDRListFree(IPOnlyCIDRItem *tmphead)
-{
+void IPOnlyCIDRListFree(IPOnlyCIDRItem *tmphead) {
     SCEnter();
     uint32_t i = 0;
 
@@ -439,8 +435,7 @@ void IPOnlyCIDRListFree(IPOnlyCIDRItem *tmphead)
  * \param tmphead Pointer to the list
  * \param i number of signature internal id
  */
-static void IPOnlyCIDRListSetSigNum(IPOnlyCIDRItem *tmphead, SigIntId i)
-{
+static void IPOnlyCIDRListSetSigNum(IPOnlyCIDRItem *tmphead, SigIntId i) {
     while (tmphead != NULL) {
         tmphead->signum = i;
         tmphead = tmphead->next;
@@ -452,8 +447,7 @@ static void IPOnlyCIDRListSetSigNum(IPOnlyCIDRItem *tmphead, SigIntId i)
  * \brief This function print a IPOnlyCIDRItem list
  * \param tmphead Pointer to the head of IPOnlyCIDRItems list
  */
-static void IPOnlyCIDRListPrint(IPOnlyCIDRItem *tmphead)
-{
+static void IPOnlyCIDRListPrint(IPOnlyCIDRItem *tmphead) {
     uint32_t i = 0;
 
     while (tmphead != NULL) {
@@ -473,8 +467,7 @@ static void IPOnlyCIDRListPrint(IPOnlyCIDRItem *tmphead)
  *        radix tree print function to help debugging
  * \param tmp Pointer to the head of SigNumArray
  */
-static void SigNumArrayPrint(void *tmp)
-{
+static void SigNumArrayPrint(void *tmp) {
     SigNumArray *sna = (SigNumArray *)tmp;
     uint32_t u;
 
@@ -533,8 +526,7 @@ static SigNumArray *SigNumArrayNew(DetectEngineCtx *de_ctx,
  *
  * \retval SigNumArray address of the new instance
  */
-static SigNumArray *SigNumArrayCopy(SigNumArray *orig)
-{
+static SigNumArray *SigNumArrayCopy(SigNumArray *orig) {
     SigNumArray *new = SCMalloc(sizeof(SigNumArray));
 
     if (unlikely(new == NULL)) {
@@ -558,8 +550,7 @@ static SigNumArray *SigNumArrayCopy(SigNumArray *orig)
  * \brief This function free() a SigNumArray
  * \param orig Pointer to the original SigNumArray to copy
  */
-static void SigNumArrayFree(void *tmp)
-{
+static void SigNumArrayFree(void *tmp) {
     SigNumArray *sna = (SigNumArray *)tmp;
 
     if (sna == NULL)
@@ -837,8 +828,7 @@ error:
  * \param de_ctx Pointer to the current detection engine
  * \param io_ctx Pointer to the current ip only detection engine
  */
-void IPOnlyInit(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx)
-{
+void IPOnlyInit(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx) {
     io_ctx->sig_init_size = DetectEngineGetMaxSigId(de_ctx) / 8 + 1;
 
     if ( (io_ctx->sig_init_array = SCMalloc(io_ctx->sig_init_size)) == NULL) {
@@ -865,8 +855,7 @@ void IPOnlyInit(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx)
  * \param io_ctx Pointer to the current ip only thread detection engine
  */
 void DetectEngineIPOnlyThreadInit(DetectEngineCtx *de_ctx,
-                                  DetectEngineIPOnlyThreadCtx *io_tctx)
-{
+                                  DetectEngineIPOnlyThreadCtx *io_tctx) {
     /* initialize the signature bitarray */
     io_tctx->sig_match_size = de_ctx->io_ctx.max_idx / 8 + 1;
     io_tctx->sig_match_array = SCMalloc(io_tctx->sig_match_size);
@@ -883,8 +872,7 @@ void DetectEngineIPOnlyThreadInit(DetectEngineCtx *de_ctx,
  * \param de_ctx Pointer to the current detection engine
  * \param io_ctx Pointer to the current ip only detection engine
  */
-void IPOnlyPrint(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx)
-{
+void IPOnlyPrint(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx) {
     /* XXX: how are we going to print the stats now? */
 }
 
@@ -894,8 +882,7 @@ void IPOnlyPrint(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx)
  * \param de_ctx Pointer to the current detection engine
  * \param io_ctx Pointer to the current ip only detection engine
  */
-void IPOnlyDeinit(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx)
-{
+void IPOnlyDeinit(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx) {
 
     if (io_ctx == NULL)
         return;
@@ -927,8 +914,7 @@ void IPOnlyDeinit(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx)
  * \param de_ctx Pointer to the current detection engine
  * \param io_ctx Pointer to the current ip only detection engine
  */
-void DetectEngineIPOnlyThreadDeinit(DetectEngineIPOnlyThreadCtx *io_tctx)
-{
+void DetectEngineIPOnlyThreadDeinit(DetectEngineIPOnlyThreadCtx *io_tctx) {
     SCFree(io_tctx->sig_match_array);
 }
 
@@ -1097,8 +1083,7 @@ void IPOnlyMatchPacket(ThreadVars *tv,
  *
  * \param de_ctx Pointer to the current detection engine
  */
-void IPOnlyPrepare(DetectEngineCtx *de_ctx)
-{
+void IPOnlyPrepare(DetectEngineCtx *de_ctx) {
     SCLogDebug("Preparing Final Lists");
 
     /*
@@ -1517,8 +1502,7 @@ void IPOnlyPrepare(DetectEngineCtx *de_ctx)
  * \param s Pointer to the current signature
  */
 void IPOnlyAddSignature(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx,
-                        Signature *s)
-{
+                        Signature *s) {
     if (!(s->flags & SIG_FLAG_IPONLY))
         return;
 
@@ -1551,8 +1535,7 @@ void IPOnlyAddSignature(DetectEngineCtx *de_ctx, DetectEngineIPOnlyCtx *io_ctx,
  *       option appending a SigMatch and no port is fixed
  */
 
-static int IPOnlyTestSig01(void)
-{
+static int IPOnlyTestSig01(void) {
     int result = 0;
     DetectEngineCtx de_ctx;
 
@@ -1579,8 +1562,7 @@ end:
  *       option appending a SigMatch but a port is fixed
  */
 
-static int IPOnlyTestSig02 (void)
-{
+static int IPOnlyTestSig02 (void) {
     int result = 0;
     DetectEngineCtx de_ctx;
     memset (&de_ctx, 0, sizeof(DetectEngineCtx));
@@ -1609,8 +1591,7 @@ end:
  *  because it has rule options appending a SigMatch like content, and pcre
  */
 
-static int IPOnlyTestSig03 (void)
-{
+static int IPOnlyTestSig03 (void) {
     int result = 1;
     DetectEngineCtx *de_ctx;
     Signature *s=NULL;
@@ -1737,8 +1718,7 @@ end:
 /**
  * \test
  */
-static int IPOnlyTestSig04 (void)
-{
+static int IPOnlyTestSig04 (void) {
     int result = 1;
 
     IPOnlyCIDRItem *head = NULL;
@@ -1805,8 +1785,7 @@ end:
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (all should match)
  */
-int IPOnlyTestSig05(void)
-{
+int IPOnlyTestSig05(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -1842,8 +1821,7 @@ int IPOnlyTestSig05(void)
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (none should match)
  */
-int IPOnlyTestSig06(void)
-{
+int IPOnlyTestSig06(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -1883,8 +1861,7 @@ int IPOnlyTestSig06(void)
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (all should match)
  */
-int IPOnlyTestSig07(void)
-{
+int IPOnlyTestSig07(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -1921,8 +1898,7 @@ int IPOnlyTestSig07(void)
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (none should match)
  */
-int IPOnlyTestSig08(void)
-{
+int IPOnlyTestSig08(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -1958,8 +1934,7 @@ int IPOnlyTestSig08(void)
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (all should match)
  */
-int IPOnlyTestSig09(void)
-{
+int IPOnlyTestSig09(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -1995,8 +1970,7 @@ int IPOnlyTestSig09(void)
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (none should match)
  */
-int IPOnlyTestSig10(void)
-{
+int IPOnlyTestSig10(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -2036,8 +2010,7 @@ int IPOnlyTestSig10(void)
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (all should match) with ipv4 and ipv6 mixed
  */
-int IPOnlyTestSig11(void)
-{
+int IPOnlyTestSig11(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -2075,8 +2048,7 @@ int IPOnlyTestSig11(void)
  * \test Test a set of ip only signatures making use a lot of
  * addresses for src and dst (none should match) with ipv4 and ipv6 mixed
  */
-int IPOnlyTestSig12(void)
-{
+int IPOnlyTestSig12(void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Hi all!";
     uint16_t buflen = strlen((char *)buf);
@@ -2273,8 +2245,7 @@ int IPOnlyTestSig17(void)
 
 #endif /* UNITTESTS */
 
-void IPOnlyRegisterTests(void)
-{
+void IPOnlyRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("IPOnlyTestSig01", IPOnlyTestSig01, 1);
     UtRegisterTest("IPOnlyTestSig02", IPOnlyTestSig02, 1);

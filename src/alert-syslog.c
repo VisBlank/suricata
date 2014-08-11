@@ -57,6 +57,7 @@
 #define DEFAULT_ALERT_SYSLOG_LEVEL              LOG_ERR
 #define MODULE_NAME                             "AlertSyslog"
 
+extern uint8_t engine_mode;
 static int alert_syslog_level = DEFAULT_ALERT_SYSLOG_LEVEL;
 
 typedef struct AlertSyslogThread_ {
@@ -220,7 +221,7 @@ static TmEcode AlertSyslogIPv4(ThreadVars *tv, const Packet *p, void *data)
         PrintInet(AF_INET, (const void *)GET_IPV4_SRC_ADDR_PTR(p), srcip, sizeof(srcip));
         PrintInet(AF_INET, (const void *)GET_IPV4_DST_ADDR_PTR(p), dstip, sizeof(dstip));
 
-        if ((pa->action & ACTION_DROP) && EngineModeIsIPS()) {
+        if ((pa->action & ACTION_DROP) && IS_ENGINE_MODE_IPS(engine_mode)) {
             action = "[Drop] ";
         } else if (pa->action & ACTION_DROP) {
             action = "[wDrop] ";
@@ -278,7 +279,7 @@ static TmEcode AlertSyslogIPv6(ThreadVars *tv, const Packet *p, void *data)
         PrintInet(AF_INET6, (const void *)GET_IPV6_SRC_ADDR(p), srcip, sizeof(srcip));
         PrintInet(AF_INET6, (const void *)GET_IPV6_DST_ADDR(p), dstip, sizeof(dstip));
 
-        if ((pa->action & ACTION_DROP) && EngineModeIsIPS()) {
+        if ((pa->action & ACTION_DROP) && IS_ENGINE_MODE_IPS(engine_mode)) {
             action = "[Drop] ";
         } else if (pa->action & ACTION_DROP) {
             action = "[wDrop] ";
@@ -340,7 +341,7 @@ static TmEcode AlertSyslogDecoderEvent(ThreadVars *tv, const Packet *p, void *da
             continue;
         }
 
-        if ((pa->action & ACTION_DROP) && EngineModeIsIPS()) {
+        if ((pa->action & ACTION_DROP) && IS_ENGINE_MODE_IPS(engine_mode)) {
             action = "[Drop] ";
         } else if (pa->action & ACTION_DROP) {
             action = "[wDrop] ";
@@ -377,8 +378,7 @@ static TmEcode AlertSyslogDecoderEvent(ThreadVars *tv, const Packet *p, void *da
  * \param tv    Pointer to the output threadvars
  * \param data  Pointer to the AlertSyslogThread data
  */
-static void AlertSyslogExitPrintStats(ThreadVars *tv, void *data)
-{
+static void AlertSyslogExitPrintStats(ThreadVars *tv, void *data) {
     AlertSyslogThread *ast = (AlertSyslogThread *)data;
     if (ast == NULL) {
         return;
@@ -387,13 +387,11 @@ static void AlertSyslogExitPrintStats(ThreadVars *tv, void *data)
     SCLogInfo("(%s) Alerts %" PRIu64 "", tv->name, ast->file_ctx->alerts);
 }
 
-static int AlertSyslogCondition(ThreadVars *tv, const Packet *p)
-{
+static int AlertSyslogCondition(ThreadVars *tv, const Packet *p) {
     return (p->alerts.cnt > 0 ? TRUE : FALSE);
 }
 
-static int AlertSyslogLogger(ThreadVars *tv, void *thread_data, const Packet *p)
-{
+static int AlertSyslogLogger(ThreadVars *tv, void *thread_data, const Packet *p) {
     if (PKT_IS_IPV4(p)) {
         return AlertSyslogIPv4(tv, p, thread_data);
     } else if (PKT_IS_IPV6(p)) {
@@ -408,8 +406,7 @@ static int AlertSyslogLogger(ThreadVars *tv, void *thread_data, const Packet *p)
 #endif /* !OS_WIN32 */
 
 /** \brief   Function to register the AlertSyslog module */
-void TmModuleAlertSyslogRegister (void)
-{
+void TmModuleAlertSyslogRegister (void) {
 #ifndef OS_WIN32
     tmm_modules[TMM_ALERTSYSLOG].name = MODULE_NAME;
     tmm_modules[TMM_ALERTSYSLOG].ThreadInit = AlertSyslogThreadInit;

@@ -75,8 +75,7 @@
  *  \retval 1 true
  *  \retval 0 false
  */
-int SignatureHasPacketContent(Signature *s)
-{
+int SignatureHasPacketContent(Signature *s) {
     SCEnter();
 
     if (s == NULL) {
@@ -109,8 +108,7 @@ int SignatureHasPacketContent(Signature *s)
  *  \retval 1 true
  *  \retval 0 false
  */
-int SignatureHasStreamContent(Signature *s)
-{
+int SignatureHasStreamContent(Signature *s) {
     SCEnter();
 
     if (s == NULL) {
@@ -141,8 +139,7 @@ int SignatureHasStreamContent(Signature *s)
  *
  *  \retval mpm algo value
  */
-uint16_t PatternMatchDefaultMatcher(void)
-{
+uint16_t PatternMatchDefaultMatcher(void) {
     char *mpm_algo;
     uint16_t mpm_algo_val = DEFAULT_MPM;
 
@@ -738,8 +735,7 @@ uint32_t StreamPatternSearch(DetectEngineThreadCtx *det_ctx, Packet *p,
 }
 
 /** \brief cleans up the mpm instance after a match */
-void PacketPatternCleanup(ThreadVars *t, DetectEngineThreadCtx *det_ctx)
-{
+void PacketPatternCleanup(ThreadVars *t, DetectEngineThreadCtx *det_ctx) {
     PmqReset(&det_ctx->pmq);
 
     if (det_ctx->sgh == NULL)
@@ -785,8 +781,7 @@ void PacketPatternCleanup(ThreadVars *t, DetectEngineThreadCtx *det_ctx)
     return;
 }
 
-void StreamPatternCleanup(ThreadVars *t, DetectEngineThreadCtx *det_ctx, StreamMsg *smsg)
-{
+void StreamPatternCleanup(ThreadVars *t, DetectEngineThreadCtx *det_ctx, StreamMsg *smsg) {
     uint8_t cnt = 0;
 
     while (smsg != NULL) {
@@ -797,38 +792,32 @@ void StreamPatternCleanup(ThreadVars *t, DetectEngineThreadCtx *det_ctx, StreamM
     }
 }
 
-void PatternMatchDestroy(MpmCtx *mpm_ctx, uint16_t mpm_matcher)
-{
+void PatternMatchDestroy(MpmCtx *mpm_ctx, uint16_t mpm_matcher) {
     SCLogDebug("mpm_ctx %p, mpm_matcher %"PRIu16"", mpm_ctx, mpm_matcher);
     mpm_table[mpm_matcher].DestroyCtx(mpm_ctx);
 }
 
-void PatternMatchPrepare(MpmCtx *mpm_ctx, uint16_t mpm_matcher)
-{
+void PatternMatchPrepare(MpmCtx *mpm_ctx, uint16_t mpm_matcher) {
     SCLogDebug("mpm_ctx %p, mpm_matcher %"PRIu16"", mpm_ctx, mpm_matcher);
     MpmInitCtx(mpm_ctx, mpm_matcher);
 }
 
-void PatternMatchThreadPrint(MpmThreadCtx *mpm_thread_ctx, uint16_t mpm_matcher)
-{
+void PatternMatchThreadPrint(MpmThreadCtx *mpm_thread_ctx, uint16_t mpm_matcher) {
     SCLogDebug("mpm_thread_ctx %p, mpm_matcher %"PRIu16" defunct", mpm_thread_ctx, mpm_matcher);
     //mpm_table[mpm_matcher].PrintThreadCtx(mpm_thread_ctx);
 }
-void PatternMatchThreadDestroy(MpmThreadCtx *mpm_thread_ctx, uint16_t mpm_matcher)
-{
+void PatternMatchThreadDestroy(MpmThreadCtx *mpm_thread_ctx, uint16_t mpm_matcher) {
     SCLogDebug("mpm_thread_ctx %p, mpm_matcher %"PRIu16"", mpm_thread_ctx, mpm_matcher);
     mpm_table[mpm_matcher].DestroyThreadCtx(NULL, mpm_thread_ctx);
 }
-void PatternMatchThreadPrepare(MpmThreadCtx *mpm_thread_ctx, uint16_t mpm_matcher, uint32_t max_id)
-{
+void PatternMatchThreadPrepare(MpmThreadCtx *mpm_thread_ctx, uint16_t mpm_matcher, uint32_t max_id) {
     SCLogDebug("mpm_thread_ctx %p, type %"PRIu16", max_id %"PRIu32"", mpm_thread_ctx, mpm_matcher, max_id);
     MpmInitThreadCtx(mpm_thread_ctx, mpm_matcher, max_id);
 }
 
 
 /* free the pattern matcher part of a SigGroupHead */
-void PatternMatchDestroyGroup(SigGroupHead *sh)
-{
+void PatternMatchDestroyGroup(SigGroupHead *sh) {
     /* content */
     if (!(sh->flags & SIG_GROUP_HEAD_MPM_COPY)) {
         SCLogDebug("destroying mpm_ctx %p (sh %p)",
@@ -1070,8 +1059,7 @@ typedef struct UricontentHash_ {
     uint8_t use; /* use no matter what */
 } UricontentHash;
 
-uint32_t ContentHashFunc(HashTable *ht, void *data, uint16_t datalen)
-{
+uint32_t ContentHashFunc(HashTable *ht, void *data, uint16_t datalen) {
      ContentHash *ch = (ContentHash *)data;
      DetectContentData *co = ch->ptr;
      uint32_t hash = 0;
@@ -1084,8 +1072,7 @@ uint32_t ContentHashFunc(HashTable *ht, void *data, uint16_t datalen)
      return hash;
 }
 
-uint32_t UricontentHashFunc(HashTable *ht, void *data, uint16_t datalen)
-{
+uint32_t UricontentHashFunc(HashTable *ht, void *data, uint16_t datalen) {
      UricontentHash *ch = (UricontentHash *)data;
      DetectContentData *ud = ch->ptr;
      uint32_t hash = 0;
@@ -1098,8 +1085,7 @@ uint32_t UricontentHashFunc(HashTable *ht, void *data, uint16_t datalen)
      return hash;
 }
 
-char ContentHashCompareFunc(void *data1, uint16_t len1, void *data2, uint16_t len2)
-{
+char ContentHashCompareFunc(void *data1, uint16_t len1, void *data2, uint16_t len2) {
     ContentHash *ch1 = (ContentHash *)data1;
     ContentHash *ch2 = (ContentHash *)data2;
     DetectContentData *co1 = ch1->ptr;
@@ -1113,8 +1099,7 @@ char ContentHashCompareFunc(void *data1, uint16_t len1, void *data2, uint16_t le
     return 0;
 }
 
-char UricontentHashCompareFunc(void *data1, uint16_t len1, void *data2, uint16_t len2)
-{
+char UricontentHashCompareFunc(void *data1, uint16_t len1, void *data2, uint16_t len2) {
     UricontentHash *ch1 = (UricontentHash *)data1;
     UricontentHash *ch2 = (UricontentHash *)data2;
     DetectContentData *ud1 = ch1->ptr;
@@ -1128,8 +1113,7 @@ char UricontentHashCompareFunc(void *data1, uint16_t len1, void *data2, uint16_t
     return 0;
 }
 
-ContentHash *ContentHashAlloc(DetectContentData *ptr)
-{
+ContentHash *ContentHashAlloc(DetectContentData *ptr) {
     ContentHash *ch = SCMalloc(sizeof(ContentHash));
     if (unlikely(ch == NULL))
         return NULL;
@@ -1141,8 +1125,7 @@ ContentHash *ContentHashAlloc(DetectContentData *ptr)
     return ch;
 }
 
-UricontentHash *UricontentHashAlloc(DetectContentData *ptr)
-{
+UricontentHash *UricontentHashAlloc(DetectContentData *ptr) {
     UricontentHash *ch = SCMalloc(sizeof(UricontentHash));
     if (unlikely(ch == NULL))
         return NULL;
@@ -1154,13 +1137,11 @@ UricontentHash *UricontentHashAlloc(DetectContentData *ptr)
     return ch;
 }
 
-void ContentHashFree(void *ch)
-{
+void ContentHashFree(void *ch) {
     SCFree(ch);
 }
 
-void UricontentHashFree(void *ch)
-{
+void UricontentHashFree(void *ch) {
     SCFree(ch);
 }
 
@@ -1177,8 +1158,7 @@ void UricontentHashFree(void *ch)
  *
  *  \retval s pattern score
  */
-uint32_t PatternStrength(uint8_t *pat, uint16_t patlen)
-{
+uint32_t PatternStrength(uint8_t *pat, uint16_t patlen) {
     uint8_t a[256];
     memset(&a, 0 ,sizeof(a));
 
@@ -2308,8 +2288,7 @@ int PatternMatchPrepareGroup(DetectEngineCtx *de_ctx, SigGroupHead *sh)
         has_co_huad ||
         has_co_hhhd ||
         has_co_hrhhd ||
-        has_co_dnsquery)
-{
+        has_co_dnsquery) {
 
         PatternMatchPreparePopulateMpm(de_ctx, sh);
 
@@ -2677,8 +2656,7 @@ typedef struct MpmPatternIdTableElmt_ {
  *  \retval 1 patterns are the same
  *  \retval 0 patterns are not the same
  **/
-static char MpmPatternIdCompare(void *p1, uint16_t len1, void *p2, uint16_t len2)
-{
+static char MpmPatternIdCompare(void *p1, uint16_t len1, void *p2, uint16_t len2) {
     SCEnter();
     BUG_ON(len1 < sizeof(MpmPatternIdTableElmt));
     BUG_ON(len2 < sizeof(MpmPatternIdTableElmt));
@@ -2701,8 +2679,7 @@ static char MpmPatternIdCompare(void *p1, uint16_t len1, void *p2, uint16_t len2
 /** \brief Hash func for MpmPatternId api
  *  \retval hash hash value
  */
-static uint32_t MpmPatternIdHashFunc(HashTable *ht, void *p, uint16_t len)
-{
+static uint32_t MpmPatternIdHashFunc(HashTable *ht, void *p, uint16_t len) {
     SCEnter();
     BUG_ON(len < sizeof(MpmPatternIdTableElmt));
 
@@ -2718,8 +2695,7 @@ static uint32_t MpmPatternIdHashFunc(HashTable *ht, void *p, uint16_t len)
 }
 
 /** \brief free a MpmPatternIdTableElmt */
-static void MpmPatternIdTableElmtFree(void *e)
-{
+static void MpmPatternIdTableElmtFree(void *e) {
     SCEnter();
     MpmPatternIdTableElmt *c = (MpmPatternIdTableElmt *)e;
     SCFree(c->pattern);
@@ -2728,8 +2704,7 @@ static void MpmPatternIdTableElmtFree(void *e)
 }
 
 /** \brief alloc initialize the MpmPatternIdHash */
-MpmPatternIdStore *MpmPatternIdTableInitHash(void)
-{
+MpmPatternIdStore *MpmPatternIdTableInitHash(void) {
     SCEnter();
 
     MpmPatternIdStore *ht = SCMalloc(sizeof(MpmPatternIdStore));
@@ -2742,8 +2717,7 @@ MpmPatternIdStore *MpmPatternIdTableInitHash(void)
     SCReturnPtr(ht, "MpmPatternIdStore");
 }
 
-void MpmPatternIdTableFreeHash(MpmPatternIdStore *ht)
-{
+void MpmPatternIdTableFreeHash(MpmPatternIdStore *ht) {
    SCEnter();
 
     if (ht == NULL) {
@@ -2758,8 +2732,7 @@ void MpmPatternIdTableFreeHash(MpmPatternIdStore *ht)
     SCReturn;
 }
 
-uint32_t MpmPatternIdStoreGetMaxId(MpmPatternIdStore *ht)
-{
+uint32_t MpmPatternIdStoreGetMaxId(MpmPatternIdStore *ht) {
     if (ht == NULL) {
         return 0;
     }
@@ -2776,8 +2749,7 @@ uint32_t MpmPatternIdStoreGetMaxId(MpmPatternIdStore *ht)
  *  \retval id pattern id
  *  \initonly
  */
-uint32_t DetectContentGetId(MpmPatternIdStore *ht, DetectContentData *co)
-{
+uint32_t DetectContentGetId(MpmPatternIdStore *ht, DetectContentData *co) {
     SCEnter();
 
     BUG_ON(ht == NULL || ht->hash == NULL);

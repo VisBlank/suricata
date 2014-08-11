@@ -73,8 +73,7 @@ static void DetectFragBitsFree(void *);
  * \brief Registration function for fragbits: keyword
  */
 
-void DetectFragBitsRegister (void)
-{
+void DetectFragBitsRegister (void) {
     sigmatch_table[DETECT_FRAGBITS].name = "fragbits";
     sigmatch_table[DETECT_FRAGBITS].desc = "check if the fragmentation and reserved bits are set in the IP header";
     sigmatch_table[DETECT_FRAGBITS].url = "https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Header_keywords#Fragbits";
@@ -321,8 +320,7 @@ error:
  *
  * \param de pointer to DetectFragBitsData
  */
-static void DetectFragBitsFree(void *de_ptr)
-{
+static void DetectFragBitsFree(void *de_ptr) {
     DetectFragBitsData *de = (DetectFragBitsData *)de_ptr;
     if(de) SCFree(de);
 }
@@ -338,8 +336,7 @@ static void DetectFragBitsFree(void *de_ptr)
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int FragBitsTestParse01 (void)
-{
+static int FragBitsTestParse01 (void) {
     DetectFragBitsData *de = NULL;
     de = DetectFragBitsParse("M");
     if (de && (de->fragbits == FRAGBITS_HAVE_MF) ) {
@@ -356,8 +353,7 @@ static int FragBitsTestParse01 (void)
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int FragBitsTestParse02 (void)
-{
+static int FragBitsTestParse02 (void) {
     DetectFragBitsData *de = NULL;
     de = DetectFragBitsParse("G");
     if (de) {
@@ -374,8 +370,7 @@ static int FragBitsTestParse02 (void)
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FragBitsTestParse03 (void)
-{
+static int FragBitsTestParse03 (void) {
     uint8_t raw_eth[] = {
         0x00 ,0x40 ,0x33 ,0xd9 ,0x7c ,0xfd ,0x00 ,0x00,
         0x39 ,0xcf ,0xd9 ,0xcd ,0x08 ,0x00 ,0x45 ,0x00,
@@ -471,8 +466,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FragBitsTestParse04 (void)
-{
+static int FragBitsTestParse04 (void) {
     uint8_t raw_eth[] = {
         0x00 ,0x40 ,0x33 ,0xd9 ,0x7c ,0xfd ,0x00 ,0x00,
         0x39 ,0xcf ,0xd9 ,0xcd ,0x08 ,0x00 ,0x45 ,0x00,
@@ -570,8 +564,7 @@ error:
 /**
  * \brief this function registers unit tests for FragBits
  */
-void FragBitsRegisterTests(void)
-{
+void FragBitsRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("FragBitsTestParse01", FragBitsTestParse01, 1);
     UtRegisterTest("FragBitsTestParse02", FragBitsTestParse02, 0);

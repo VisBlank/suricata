@@ -48,8 +48,7 @@
  * \param mode mode of the file to open
  * \retval pointer to the file; NULL if something is wrong
  */
-FILE *SCFmemopen(void *buf, size_t size, const char *mode)
-{
+FILE *SCFmemopen(void *buf, size_t size, const char *mode) {
     char temppath[MAX_PATH - 13];
     if (0 == GetTempPath(sizeof(temppath), temppath))
         return NULL;
@@ -83,8 +82,7 @@ typedef struct SCFmem_ {
  * \param whence SEEK_SET, SEEK_CUR, SEEK_END
  * \retval pos the position by the last operation, -1 if sizes are out of bounds
  */
-static fpos_t SeekFn(void *handler, fpos_t offset, int whence)
-{
+static fpos_t SeekFn(void *handler, fpos_t offset, int whence) {
     size_t pos = 0;
     SCFmem *mem = handler;
 
@@ -115,8 +113,7 @@ static fpos_t SeekFn(void *handler, fpos_t offset, int whence)
  * \param number of bytes to read
  * \retval count , the number of bytes read
  */
-static int ReadFn(void *handler, char *buf, int size)
-{
+static int ReadFn(void *handler, char *buf, int size) {
     size_t count = 0;
     SCFmem *mem = handler;
     size_t available = mem->size - mem->pos;
@@ -146,8 +143,7 @@ static int ReadFn(void *handler, char *buf, int size)
  * \param number of bytes to write
  * \retval count , the number of bytes writen
  */
-static int WriteFn(void *handler, const char *buf, int size)
-{
+static int WriteFn(void *handler, const char *buf, int size) {
     size_t count = 0;
     SCFmem *mem = handler;
     size_t available = mem->size - mem->pos;
@@ -168,8 +164,7 @@ static int WriteFn(void *handler, const char *buf, int size)
  * \param handler pointer to the memfile
  * \retval 0 on succesful
  */
-static int CloseFn(void *handler)
-{
+static int CloseFn(void *handler) {
     SCFree(handler);
     return 0;
 }
@@ -181,8 +176,7 @@ static int CloseFn(void *handler)
  * \param mode mode of the file to open
  * \retval pointer to the file; NULL if something is wrong
  */
-FILE *SCFmemopen(void *buf, size_t size, const char *mode)
-{
+FILE *SCFmemopen(void *buf, size_t size, const char *mode) {
     SCFmem *mem = (SCFmem *) SCMalloc(sizeof(SCFmem));
     if (mem == NULL)
         return NULL;

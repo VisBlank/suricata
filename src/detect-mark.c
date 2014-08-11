@@ -50,8 +50,7 @@ void DetectMarkDataFree(void *ptr);
  * \brief Registration function for nfq_set_mark: keyword
  */
 
-void DetectMarkRegister (void)
-{
+void DetectMarkRegister (void) {
     sigmatch_table[DETECT_MARK].name = "nfq_set_mark";
     sigmatch_table[DETECT_MARK].Match = DetectMarkPacket;
     sigmatch_table[DETECT_MARK].Setup = DetectMarkSetup;
@@ -261,8 +260,7 @@ int DetectMarkPacket(ThreadVars *t, DetectEngineThreadCtx *det_ctx, Packet *p, S
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int MarkTestParse01 (void)
-{
+static int MarkTestParse01 (void) {
     DetectMarkData *data;
 
     data = DetectMarkParse("1/1");
@@ -281,8 +279,7 @@ static int MarkTestParse01 (void)
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int MarkTestParse02 (void)
-{
+static int MarkTestParse02 (void) {
     DetectMarkData *data;
 
     data = DetectMarkParse("4");
@@ -301,8 +298,7 @@ static int MarkTestParse02 (void)
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int MarkTestParse03 (void)
-{
+static int MarkTestParse03 (void) {
     DetectMarkData *data;
 
     data = DetectMarkParse("0x10/0xff");
@@ -321,8 +317,7 @@ static int MarkTestParse03 (void)
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int MarkTestParse04 (void)
-{
+static int MarkTestParse04 (void) {
     DetectMarkData *data;
 
     data = DetectMarkParse("0x1g/0xff");
@@ -342,8 +337,7 @@ static int MarkTestParse04 (void)
 /**
  * \brief this function registers unit tests for Mark
  */
-void MarkRegisterTests(void)
-{
+void MarkRegisterTests(void) {
 #if defined UNITTESTS && defined NFQ
     UtRegisterTest("MarkTestParse01", MarkTestParse01, 1);
     UtRegisterTest("MarkTestParse02", MarkTestParse02, 0);

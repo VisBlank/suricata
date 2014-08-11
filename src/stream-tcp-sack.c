@@ -30,8 +30,7 @@
 #include "util-unittest.h"
 
 #ifdef DEBUG
-void StreamTcpSackPrintList(TcpStream *stream)
-{
+void StreamTcpSackPrintList(TcpStream *stream) {
     StreamTcpSackRecord *rec = stream->sack_head;
     for (; rec != NULL; rec = rec->next) {
         SCLogDebug("record %8u - %8u", rec->le, rec->re);
@@ -39,8 +38,7 @@ void StreamTcpSackPrintList(TcpStream *stream)
 }
 #endif /* DEBUG */
 
-static StreamTcpSackRecord *StreamTcpSackRecordAlloc(void)
-{
+static StreamTcpSackRecord *StreamTcpSackRecordAlloc(void) {
     if (StreamTcpCheckMemcap((uint32_t)sizeof(StreamTcpSackRecord)) == 0)
         return NULL;
 
@@ -52,8 +50,7 @@ static StreamTcpSackRecord *StreamTcpSackRecordAlloc(void)
     return rec;
 }
 
-static void StreamTcpSackRecordFree(StreamTcpSackRecord *rec)
-{
+static void StreamTcpSackRecordFree(StreamTcpSackRecord *rec) {
     SCFree(rec);
     StreamTcpDecrMemuse((uint64_t)sizeof(*rec));
 }
@@ -67,8 +64,7 @@ static void StreamTcpSackRecordFree(StreamTcpSackRecord *rec)
  *  \retval 0 all is good
  *  \retval -1 error
  */
-static int StreamTcpSackInsertRange(TcpStream *stream, uint32_t le, uint32_t re)
-{
+static int StreamTcpSackInsertRange(TcpStream *stream, uint32_t le, uint32_t re) {
     SCLogDebug("le %u, re %u", le, re);
 #ifdef DEBUG
     StreamTcpSackPrintList(stream);
@@ -238,8 +234,7 @@ end:
  *  \retval -1 error
  *  \retval 0 ok
  */
-int StreamTcpSackUpdatePacket(TcpStream *stream, Packet *p)
-{
+int StreamTcpSackUpdatePacket(TcpStream *stream, Packet *p) {
     int records = TCP_GET_SACK_CNT(p);
     int record = 0;
 
@@ -281,8 +276,7 @@ int StreamTcpSackUpdatePacket(TcpStream *stream, Packet *p)
     SCReturnInt(0);
 }
 
-void StreamTcpSackPruneList(TcpStream *stream)
-{
+void StreamTcpSackPruneList(TcpStream *stream) {
     SCEnter();
 
     StreamTcpSackRecord *rec = stream->sack_head;
@@ -323,8 +317,7 @@ void StreamTcpSackPruneList(TcpStream *stream)
  *
  *  \param stream Stream to cleanup
  */
-void StreamTcpSackFreeList(TcpStream *stream)
-{
+void StreamTcpSackFreeList(TcpStream *stream) {
     SCEnter();
 
     StreamTcpSackRecord *rec = stream->sack_head;
@@ -350,8 +343,7 @@ void StreamTcpSackFreeList(TcpStream *stream)
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest01 (void)
-{
+static int StreamTcpSackTest01 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -387,8 +379,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest02 (void)
-{
+static int StreamTcpSackTest02 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -422,8 +413,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest03 (void)
-{
+static int StreamTcpSackTest03 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -459,8 +449,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest04 (void)
-{
+static int StreamTcpSackTest04 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -493,8 +482,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest05 (void)
-{
+static int StreamTcpSackTest05 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -527,8 +515,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest06 (void)
-{
+static int StreamTcpSackTest06 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -563,8 +550,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest07 (void)
-{
+static int StreamTcpSackTest07 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -608,8 +594,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest08 (void)
-{
+static int StreamTcpSackTest08 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -653,8 +638,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest09 (void)
-{
+static int StreamTcpSackTest09 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -699,8 +683,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest10 (void)
-{
+static int StreamTcpSackTest10 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -744,8 +727,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest11 (void)
-{
+static int StreamTcpSackTest11 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -789,8 +771,7 @@ end:
  *  \retval On success it returns 1 and on failure 0.
  */
 
-static int StreamTcpSackTest12 (void)
-{
+static int StreamTcpSackTest12 (void) {
     TcpStream stream;
     int retval = 0;
 
@@ -837,8 +818,7 @@ end:
 
 #endif /* UNITTESTS */
 
-void StreamTcpSackRegisterTests (void)
-{
+void StreamTcpSackRegisterTests (void) {
 #ifdef UNITTESTS
     UtRegisterTest("StreamTcpSackTest01 -- Insertion",
                     StreamTcpSackTest01, 1);

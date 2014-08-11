@@ -71,12 +71,6 @@ const char *AppProtoToString(AppProto alproto)
         case ALPROTO_DNS:
             proto_name = "dns";
             break;
-        case ALPROTO_MYSQL:
-            proto_name = "mysql";
-            break;
-        case ALPROTO_TDS:
-            proto_name = "tds";
-            break;
         case ALPROTO_FAILED:
 #ifdef UNITTESTS
         case ALPROTO_TEST:

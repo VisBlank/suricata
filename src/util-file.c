@@ -54,39 +54,32 @@ static int g_file_force_tracking = 0;
 static void FileFree(File *);
 static void FileDataFree(FileData *);
 
-void FileForceMagicEnable(void)
-{
+void FileForceMagicEnable(void) {
     g_file_force_magic = 1;
 }
 
-void FileForceMd5Enable(void)
-{
+void FileForceMd5Enable(void) {
     g_file_force_md5 = 1;
 }
 
-int FileForceMagic(void)
-{
+int FileForceMagic(void) {
     return g_file_force_magic;
 }
 
-int FileForceMd5(void)
-{
+int FileForceMd5(void) {
     return g_file_force_md5;
 }
 
-void FileForceTrackingEnable(void)
-{
+void FileForceTrackingEnable(void) {
     g_file_force_tracking = 1;
 }
 
-int FileMagicSize(void)
-{
+int FileMagicSize(void) {
     /** \todo make this size configurable */
     return 512;
 }
 
-static int FileAppendFileDataFilePtr(File *ff, FileData *ffd)
-{
+static int FileAppendFileDataFilePtr(File *ff, FileData *ffd) {
     SCEnter();
 
     if (ff == NULL) {
@@ -114,8 +107,7 @@ static int FileAppendFileDataFilePtr(File *ff, FileData *ffd)
     SCReturnInt(0);
 }
 
-static int FileAppendFileData(FileContainer *ffc, FileData *ffd)
-{
+static int FileAppendFileData(FileContainer *ffc, FileData *ffd) {
     SCEnter();
 
     if (ffc == NULL) {
@@ -132,8 +124,7 @@ static int FileAppendFileData(FileContainer *ffc, FileData *ffd)
 
 
 
-static void FilePruneFile(File *file)
-{
+static void FilePruneFile(File *file) {
     SCEnter();
 
     SCLogDebug("file %p, file->chunks_cnt %"PRIu64, file, file->chunks_cnt);
@@ -175,8 +166,7 @@ static void FilePruneFile(File *file)
     SCReturn;
 }
 
-void FilePrune(FileContainer *ffc)
-{
+void FilePrune(FileContainer *ffc) {
     File *file;
 
     for (file = ffc->head; file != NULL; file = file->next) {
@@ -190,8 +180,7 @@ void FilePrune(FileContainer *ffc)
  *  \retval new newly allocated FileContainer
  *  \retval NULL error
  */
-FileContainer *FileContainerAlloc(void)
-{
+FileContainer *FileContainerAlloc(void) {
     FileContainer *new = SCMalloc(sizeof(FileContainer));
     if (unlikely(new == NULL)) {
         SCLogError(SC_ERR_MEM_ALLOC, "Error allocating mem");
@@ -207,8 +196,7 @@ FileContainer *FileContainerAlloc(void)
  *
  *  \param ffc FileContainer
  */
-void FileContainerRecycle(FileContainer *ffc)
-{
+void FileContainerRecycle(FileContainer *ffc) {
     if (ffc == NULL)
         return;
 
@@ -226,8 +214,7 @@ void FileContainerRecycle(FileContainer *ffc)
  *
  *  \param ffc FileContainer
  */
-void FileContainerFree(FileContainer *ffc)
-{
+void FileContainerFree(FileContainer *ffc) {
     if (ffc == NULL)
         return;
 
@@ -251,8 +238,7 @@ void FileContainerFree(FileContainer *ffc)
  *
  *  \retval new FileData object
  */
-static FileData *FileDataAlloc(uint8_t *data, uint32_t data_len)
-{
+static FileData *FileDataAlloc(uint8_t *data, uint32_t data_len) {
     FileData *new = SCMalloc(sizeof(FileData));
     if (unlikely(new == NULL)) {
         return NULL;
@@ -279,8 +265,7 @@ static FileData *FileDataAlloc(uint8_t *data, uint32_t data_len)
  *
  *  \param ffd the flow file data object to free
  */
-static void FileDataFree(FileData *ffd)
-{
+static void FileDataFree(FileData *ffd) {
     if (ffd == NULL)
         return;
 
@@ -299,8 +284,7 @@ static void FileDataFree(FileData *ffd)
  *
  *  \retval new File object or NULL on error
  */
-static File *FileAlloc(uint8_t *name, uint16_t name_len)
-{
+static File *FileAlloc(uint8_t *name, uint16_t name_len) {
     File *new = SCMalloc(sizeof(File));
     if (unlikely(new == NULL)) {
         SCLogError(SC_ERR_MEM_ALLOC, "Error allocating mem");
@@ -320,8 +304,7 @@ static File *FileAlloc(uint8_t *name, uint16_t name_len)
     return new;
 }
 
-static void FileFree(File *ff)
-{
+static void FileFree(File *ff) {
     if (ff == NULL)
         return;
 
@@ -351,8 +334,7 @@ static void FileFree(File *ff)
     SCFree(ff);
 }
 
-void FileContainerAdd(FileContainer *ffc, File *ff)
-{
+void FileContainerAdd(FileContainer *ffc, File *ff) {
     if (ffc->head == NULL || ffc->tail == NULL) {
         ffc->head = ffc->tail = ff;
     } else {
@@ -366,8 +348,7 @@ void FileContainerAdd(FileContainer *ffc, File *ff)
  *
  *  \param ff The file to store
  */
-int FileStore(File *ff)
-{
+int FileStore(File *ff) {
     ff->flags |= FILE_STORE;
     SCReturnInt(0);
 }
@@ -378,8 +359,7 @@ int FileStore(File *ff)
  *  \param ff The file to store
  *  \param txid the tx id
  */
-int FileSetTx(File *ff, uint64_t txid)
-{
+int FileSetTx(File *ff, uint64_t txid) {
     SCLogDebug("ff %p txid %"PRIu64, ff, txid);
     if (ff != NULL)
         ff->txid = txid;
@@ -394,8 +374,7 @@ int FileSetTx(File *ff, uint64_t txid)
  *  \retval 0 limit not reached yet
  *  \retval 1 limit reached
  */
-static int FileStoreNoStoreCheck(File *ff)
-{
+static int FileStoreNoStoreCheck(File *ff) {
     SCEnter();
 
     if (ff == NULL) {
@@ -425,8 +404,7 @@ static int FileStoreNoStoreCheck(File *ff)
  *  \retval -1 error
  *  \retval -2 no store for this file
  */
-int FileAppendData(FileContainer *ffc, uint8_t *data, uint32_t data_len)
-{
+int FileAppendData(FileContainer *ffc, uint8_t *data, uint32_t data_len) {
     SCEnter();
 
     if (ffc == NULL || ffc->tail == NULL || data == NULL || data_len == 0) {
@@ -653,8 +631,7 @@ int FileCloseFile(FileContainer *ffc, uint8_t *data,
  *  \param f *LOCKED* flow
  *  \param direction flow direction
  */
-void FileDisableStoring(Flow *f, uint8_t direction)
-{
+void FileDisableStoring(Flow *f, uint8_t direction) {
     File *ptr = NULL;
 
     SCEnter();
@@ -685,8 +662,7 @@ void FileDisableStoring(Flow *f, uint8_t direction)
  *  \param f *LOCKED* flow
  *  \param direction flow direction
  */
-void FileDisableMagic(Flow *f, uint8_t direction)
-{
+void FileDisableMagic(Flow *f, uint8_t direction) {
     File *ptr = NULL;
 
     SCEnter();
@@ -716,8 +692,7 @@ void FileDisableMagic(Flow *f, uint8_t direction)
  *  \param f *LOCKED* flow
  *  \param direction flow direction
  */
-void FileDisableMd5(Flow *f, uint8_t direction)
-{
+void FileDisableMd5(Flow *f, uint8_t direction) {
     File *ptr = NULL;
 
     SCEnter();
@@ -755,8 +730,7 @@ void FileDisableMd5(Flow *f, uint8_t direction)
  *  \param f *LOCKED* flow
  *  \param direction flow direction
  */
-void FileDisableFilesize(Flow *f, uint8_t direction)
-{
+void FileDisableFilesize(Flow *f, uint8_t direction) {
     File *ptr = NULL;
 
     SCEnter();
@@ -786,8 +760,7 @@ void FileDisableFilesize(Flow *f, uint8_t direction)
  *
  *  \param ff file
  */
-void FileDisableStoringForFile(File *ff)
-{
+void FileDisableStoringForFile(File *ff) {
     SCEnter();
 
     if (ff == NULL) {
@@ -810,8 +783,7 @@ void FileDisableStoringForFile(File *ff)
  *  \param direction flow direction
  *  \param tx_id transaction id
  */
-void FileDisableStoringForTransaction(Flow *f, uint8_t direction, uint64_t tx_id)
-{
+void FileDisableStoringForTransaction(Flow *f, uint8_t direction, uint64_t tx_id) {
     File *ptr = NULL;
 
     DEBUG_ASSERT_FLOW_LOCKED(f);
@@ -841,8 +813,7 @@ void FileDisableStoringForTransaction(Flow *f, uint8_t direction, uint64_t tx_id
  *  \param fc file store
  *  \param file_id the file's id
  */
-void FileStoreFileById(FileContainer *fc, uint16_t file_id)
-{
+void FileStoreFileById(FileContainer *fc, uint16_t file_id) {
     File *ptr = NULL;
 
     SCEnter();
@@ -856,8 +827,7 @@ void FileStoreFileById(FileContainer *fc, uint16_t file_id)
     }
 }
 
-void FileStoreAllFilesForTx(FileContainer *fc, uint16_t tx_id)
-{
+void FileStoreAllFilesForTx(FileContainer *fc, uint16_t tx_id) {
     File *ptr = NULL;
 
     SCEnter();
@@ -871,8 +841,7 @@ void FileStoreAllFilesForTx(FileContainer *fc, uint16_t tx_id)
     }
 }
 
-void FileStoreAllFiles(FileContainer *fc)
-{
+void FileStoreAllFiles(FileContainer *fc) {
     File *ptr = NULL;
 
     SCEnter();
@@ -884,8 +853,7 @@ void FileStoreAllFiles(FileContainer *fc)
     }
 }
 
-void FileTruncateAllOpenFiles(FileContainer *fc)
-{
+void FileTruncateAllOpenFiles(FileContainer *fc) {
     File *ptr = NULL;
 
     SCEnter();

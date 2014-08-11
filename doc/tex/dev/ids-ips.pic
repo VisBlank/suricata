@@ -1,0 +1,20 @@
+.PS
+#######################
+bw=.6; bh=.2; mv_dist=.3
+#######################
+right
+C:box "\fIclient\fR" wid bw ht bh
+move mv_dist * 5
+S:box "\fIserver\fR" wid bw ht bh
+
+COMM:spline from C.e to S.w <-> 
+
+SURICATA: box "\fIsuricata\fR" wid bw ht bh at  COMM.c + (.2, -.5)
+
+L:line from S.sw to SURICATA.ne invisible
+B:box at L.c wid 1.6 ht bh * 4 rad .1 dotted
+box "\fI\s7www.example.com\fR" at B.n + (-.3, .1) invisible
+
+line dashed "\fI\s6IDS\fR" rjust  from COMM.c + (.4, 0) to SURICATA.n + (0.2, 0) -> 
+line dashed "\fI\s6IPS\fR" ljust  from COMM.c + (.0, 0) to SURICATA.n + (-0.2, 0) -> 
+.PE

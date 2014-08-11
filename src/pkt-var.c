@@ -35,8 +35,7 @@
 #include "util-debug.h"
 
 /* puts a new value into a pktvar */
-void PktVarUpdate(PktVar *pv, uint8_t *value, uint16_t size)
-{
+void PktVarUpdate(PktVar *pv, uint8_t *value, uint16_t size) {
     if (pv->value) SCFree(pv->value);
     pv->value = value;
     pv->value_len = size;
@@ -45,8 +44,7 @@ void PktVarUpdate(PktVar *pv, uint8_t *value, uint16_t size)
 /* get the pktvar with name 'name' from the pkt
  *
  * name is a normal string*/
-PktVar *PktVarGet(Packet *p, char *name)
-{
+PktVar *PktVarGet(Packet *p, char *name) {
     PktVar *pv = p->pktvar;
 
     for (;pv != NULL; pv = pv->next) {
@@ -58,8 +56,7 @@ PktVar *PktVarGet(Packet *p, char *name)
 }
 
 /* add a pktvar to the pkt, or update it */
-void PktVarAdd(Packet *p, char *name, uint8_t *value, uint16_t size)
-{
+void PktVarAdd(Packet *p, char *name, uint8_t *value, uint16_t size) {
     //printf("Adding packet var \"%s\" with value(%" PRId32 ") \"%s\"\n", name, size, value);
 
     PktVar *pv = PktVarGet(p, name);
@@ -89,8 +86,7 @@ void PktVarAdd(Packet *p, char *name, uint8_t *value, uint16_t size)
     }
 }
 
-void PktVarFree(PktVar *pv)
-{
+void PktVarFree(PktVar *pv) {
     if (pv == NULL)
         return;
 
@@ -105,8 +101,7 @@ void PktVarFree(PktVar *pv)
         PktVarFree(pv_next);
 }
 
-void PktVarPrint(PktVar *pv)
-{
+void PktVarPrint(PktVar *pv) {
     uint16_t i;
 
     if (pv == NULL)

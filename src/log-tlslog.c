@@ -169,7 +169,7 @@ static int CreateFileName(LogTlsFileCtx *log, const Packet *p, SSLState *state, 
      * On a live device, we will not be able to overwrite */
     snprintf(filename, filenamelen, "%s/%ld.%ld-%d.pem",
              tls_logfile_base_dir,
-             (long int)p->ts.tv_sec,
+             p->ts.tv_sec,
              (long int)p->ts.tv_usec,
              file_id);
     return 1;
@@ -379,10 +379,7 @@ static TmEcode LogTlsLogThreadDeinit(ThreadVars *t, void *data)
 
 static void LogTlsLogDeInitCtx(OutputCtx *output_ctx)
 {
-    OutputTlsLoggerDisable();
-
     LogTlsFileCtx *tlslog_ctx = (LogTlsFileCtx *) output_ctx->data;
-    OutputUnregisterFileRotationFlag(&tlslog_ctx->file_ctx->rotation_flag);
     LogFileFreeCtx(tlslog_ctx->file_ctx);
     SCFree(tlslog_ctx);
     SCFree(output_ctx);
@@ -439,7 +436,6 @@ static OutputCtx *LogTlsLogInitCtx(ConfNode *conf)
     if (SCConfLogOpenGeneric(conf, file_ctx, DEFAULT_LOG_FILENAME) < 0) {
         goto filectx_error;
     }
-    OutputRegisterFileRotationFlag(&file_ctx->rotation_flag);
 
     LogTlsFileCtx *tlslog_ctx = SCCalloc(1, sizeof(LogTlsFileCtx));
     if (unlikely(tlslog_ctx == NULL))
@@ -479,8 +475,7 @@ filectx_error:
  *  \brief Condition function for TLS logger
  *  \retval bool true or false -- log now?
  */
-static int LogTlsCondition(ThreadVars *tv, const Packet *p)
-{
+static int LogTlsCondition(ThreadVars *tv, const Packet *p) {
     if (p->flow == NULL) {
         return FALSE;
     }
@@ -519,8 +514,7 @@ dontlog:
     return FALSE;
 }
 
-static int LogTlsLogger(ThreadVars *tv, void *thread_data, const Packet *p)
-{
+static int LogTlsLogger(ThreadVars *tv, void *thread_data, const Packet *p) {
     LogTlsLogThread *aft = (LogTlsLogThread *)thread_data;
     LogTlsFileCtx *hlog = aft->tlslog_ctx;
     char timebuf[64];
@@ -578,8 +572,8 @@ static int LogTlsLogger(ThreadVars *tv, void *thread_data, const Packet *p)
     aft->tls_cnt++;
 
     SCMutexLock(&hlog->file_ctx->fp_mutex);
-    hlog->file_ctx->Write((const char *)MEMBUFFER_BUFFER(aft->buffer),
-        MEMBUFFER_OFFSET(aft->buffer), hlog->file_ctx);
+    MemBufferPrintToFPAsString(aft->buffer, hlog->file_ctx->fp);
+    fflush(hlog->file_ctx->fp);
     SCMutexUnlock(&hlog->file_ctx->fp_mutex);
 
     /* we only log the state once */

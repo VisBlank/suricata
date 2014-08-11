@@ -26,10 +26,5 @@
 
 void TmModuleJsonHttpLogRegister (void);
 
-#ifdef HAVE_LIBJANSSON
-void JsonHttpLogJSONBasic(json_t *js, htp_tx_t *tx);
-void JsonHttpLogJSONExtended(json_t *js, htp_tx_t *tx);
-#endif /* HAVE_LIBJANSSON */
-
 #endif /* __OUTPUT_JSON_HTTP_H__ */
 

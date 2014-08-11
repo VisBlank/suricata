@@ -41,13 +41,10 @@ enum {
     ALPROTO_IRC,
 
     ALPROTO_DNS,
-    ALPROTO_DNS_UDP,
-    ALPROTO_DNS_TCP,
 
-    ALPROTO_MYSQL,
-    ALPROTO_TDS,
-    ALPROTO_DRDA,
-    ALPROTO_TNS11G,
+    ALPROTO_ORACLE11G, /* Oracle 11g R2 */
+    ALPROTO_MYSQL, /* Mysql */
+    ALPROTO_MSSQL, /* ms sql server TDS */
 
     /* used by the probing parser when alproto detection fails
      * permanently for that particular stream */

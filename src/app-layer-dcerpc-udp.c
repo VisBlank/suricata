@@ -767,8 +767,7 @@ static int DCERPCUDPParse(Flow *f, void *dcerpc_state,
 	SCReturnInt(1);
 }
 
-static void *DCERPCUDPStateAlloc(void)
-{
+static void *DCERPCUDPStateAlloc(void) {
 	void *s = SCMalloc(sizeof(DCERPCUDPState));
 	if (unlikely(s == NULL))
 		return NULL;
@@ -777,8 +776,7 @@ static void *DCERPCUDPStateAlloc(void)
 	return s;
 }
 
-static void DCERPCUDPStateFree(void *s)
-{
+static void DCERPCUDPStateFree(void *s) {
 	DCERPCUDPState *sstate = (DCERPCUDPState *) s;
 
 	DCERPCUuidEntry *item;
@@ -812,8 +810,7 @@ static int DCERPCUDPRegisterPatternsForProtocolDetection(void)
     return 0;
 }
 
-void RegisterDCERPCUDPParsers(void)
-{
+void RegisterDCERPCUDPParsers(void) {
     char *proto_name = "dcerpc";
 
     if (AppLayerProtoDetectConfProtoDetectionEnabled("udp", proto_name)) {
@@ -850,8 +847,7 @@ void RegisterDCERPCUDPParsers(void)
 /** \test DCERPC UDP Header Parsing and UUID handling
  */
 
-int DCERPCUDPParserTest01(void)
-{
+int DCERPCUDPParserTest01(void) {
 	int result = 1;
 	Flow f;
 	uint8_t dcerpcrequest[] = {
@@ -1101,8 +1097,7 @@ end:
 	return result;
 }
 
-void DCERPCUDPParserRegisterTests(void)
-{
+void DCERPCUDPParserRegisterTests(void) {
 	UtRegisterTest("DCERPCUDPParserTest01", DCERPCUDPParserTest01, 1);
 }
 #endif

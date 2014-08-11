@@ -1,0 +1,2 @@
+alert mysql any any -> any any (msg:"mysql user(root) detected"; flow:to_server,established; mysql-user:root; sid:2240000; rev:1;)
+alert mysql any any -> any any (msg:"mysql database(aap_log) detected"; flow:to_server,established; mysql-database:aap_log; sid:2240001; rev:1;)

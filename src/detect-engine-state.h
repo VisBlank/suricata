@@ -162,6 +162,7 @@ int DeStateFlowHasInspectableState(Flow *f, AppProto alproto, uint16_t alversion
  * \param s Pointer to the signature.
  * \param f Pointer to the flow.
  * \param flags Flags.
+ * \param alstate App state.
  * \param alproto App protocol.
  * \param alversion Current app layer version.
  *
@@ -170,7 +171,8 @@ int DeStateFlowHasInspectableState(Flow *f, AppProto alproto, uint16_t alversion
 int DeStateDetectStartDetection(ThreadVars *tv, DetectEngineCtx *de_ctx,
                                 DetectEngineThreadCtx *det_ctx,
                                 Signature *s, Packet *p, Flow *f, uint8_t flags,
-                                AppProto alproto, uint16_t alversion);
+                                void *alstate, AppProto alproto,
+                                uint16_t alversion);
 
 /**
  * \brief Continue DeState detection of the signatures stored in the state.
@@ -180,12 +182,13 @@ int DeStateDetectStartDetection(ThreadVars *tv, DetectEngineCtx *de_ctx,
  * \param det_ctx DetectEngineThreadCtx instance.
  * \param f Pointer to the flow.
  * \param flags Flags.
+ * \param alstate App state.
  * \param alproto App protocol.
  * \param alversion Current app layer version.
  */
 void DeStateDetectContinueDetection(ThreadVars *tv, DetectEngineCtx *de_ctx,
                                     DetectEngineThreadCtx *det_ctx,
-                                    Packet *p, Flow *f, uint8_t flags,
+                                    Packet *p, Flow *f, uint8_t flags, void *alstate,
                                     AppProto alproto, uint16_t alversion);
 
 /**

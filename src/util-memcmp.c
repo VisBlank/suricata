@@ -33,8 +33,7 @@
 /* UNITTESTS */
 #ifdef UNITTESTS
 
-static int MemcmpTest01 (void)
-{
+static int MemcmpTest01 (void) {
     uint8_t a[] = "abcd";
     uint8_t b[] = "abcd";
 
@@ -44,8 +43,7 @@ static int MemcmpTest01 (void)
     return 1;
 }
 
-static int MemcmpTest02 (void)
-{
+static int MemcmpTest02 (void) {
     uint8_t a[] = "abcdabcdabcdabcd";
     uint8_t b[] = "abcdabcdabcdabcd";
 
@@ -55,8 +53,7 @@ static int MemcmpTest02 (void)
     return 1;
 }
 
-static int MemcmpTest03 (void)
-{
+static int MemcmpTest03 (void) {
     uint8_t a[] = "abcdabcd";
     uint8_t b[] = "abcdabcd";
 
@@ -66,8 +63,7 @@ static int MemcmpTest03 (void)
     return 1;
 }
 
-static int MemcmpTest04 (void)
-{
+static int MemcmpTest04 (void) {
     uint8_t a[] = "abcd";
     uint8_t b[] = "abcD";
 
@@ -80,8 +76,7 @@ static int MemcmpTest04 (void)
     return 1;
 }
 
-static int MemcmpTest05 (void)
-{
+static int MemcmpTest05 (void) {
     uint8_t a[] = "abcdabcdabcdabcd";
     uint8_t b[] = "abcDabcdabcdabcd";
 
@@ -91,8 +86,7 @@ static int MemcmpTest05 (void)
     return 1;
 }
 
-static int MemcmpTest06 (void)
-{
+static int MemcmpTest06 (void) {
     uint8_t a[] = "abcdabcd";
     uint8_t b[] = "abcDabcd";
 
@@ -102,8 +96,7 @@ static int MemcmpTest06 (void)
     return 1;
 }
 
-static int MemcmpTest07 (void)
-{
+static int MemcmpTest07 (void) {
     uint8_t a[] = "abcd";
     uint8_t b[] = "abcde";
 
@@ -113,8 +106,7 @@ static int MemcmpTest07 (void)
     return 1;
 }
 
-static int MemcmpTest08 (void)
-{
+static int MemcmpTest08 (void) {
     uint8_t a[] = "abcdabcdabcdabcd";
     uint8_t b[] = "abcdabcdabcdabcde";
 
@@ -124,8 +116,7 @@ static int MemcmpTest08 (void)
     return 1;
 }
 
-static int MemcmpTest09 (void)
-{
+static int MemcmpTest09 (void) {
     uint8_t a[] = "abcdabcd";
     uint8_t b[] = "abcdabcde";
 
@@ -135,8 +126,7 @@ static int MemcmpTest09 (void)
     return 1;
 }
 
-static int MemcmpTest10 (void)
-{
+static int MemcmpTest10 (void) {
     uint8_t a[] = "abcd";
     uint8_t b[] = "Zbcde";
 
@@ -146,8 +136,7 @@ static int MemcmpTest10 (void)
     return 1;
 }
 
-static int MemcmpTest11 (void)
-{
+static int MemcmpTest11 (void) {
     uint8_t a[] = "abcdabcdabcdabcd";
     uint8_t b[] = "Zbcdabcdabcdabcde";
 
@@ -157,8 +146,7 @@ static int MemcmpTest11 (void)
     return 1;
 }
 
-static int MemcmpTest12 (void)
-{
+static int MemcmpTest12 (void) {
     uint8_t a[] = "abcdabcd";
     uint8_t b[] = "Zbcdabcde";
 
@@ -168,8 +156,7 @@ static int MemcmpTest12 (void)
     return 1;
 }
 
-static int MemcmpTest13 (void)
-{
+static int MemcmpTest13 (void) {
     uint8_t a[] = "abcdefgh";
     uint8_t b[] = "AbCdEfGhIjK";
 
@@ -183,8 +170,7 @@ static int MemcmpTest13 (void)
 
 #define TEST_RUNS 1000000
 
-static int MemcmpTest14 (void)
-{
+static int MemcmpTest14 (void) {
 #ifdef PROFILING
     uint64_t ticks_start = 0;
     uint64_t ticks_end = 0;
@@ -222,8 +208,7 @@ static int MemcmpTest14 (void)
     return 1;
 }
 
-static int MemcmpTest15 (void)
-{
+static int MemcmpTest15 (void) {
 #ifdef PROFILING
     uint64_t ticks_start = 0;
     uint64_t ticks_end = 0;
@@ -261,8 +246,7 @@ static int MemcmpTest15 (void)
     return 1;
 }
 
-static int MemcmpTest16 (void)
-{
+static int MemcmpTest16 (void) {
 #ifdef PROFILING
     uint64_t ticks_start = 0;
     uint64_t ticks_end = 0;
@@ -300,8 +284,7 @@ static int MemcmpTest16 (void)
     return 1;
 }
 
-static int MemcmpTest17 (void)
-{
+static int MemcmpTest17 (void) {
 #ifdef PROFILING
     uint64_t ticks_start = 0;
     uint64_t ticks_end = 0;
@@ -341,8 +324,7 @@ static int MemcmpTest17 (void)
 
 #endif /* UNITTESTS */
 
-void MemcmpRegisterTests(void)
-{
+void MemcmpRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("MemcmpTest01", MemcmpTest01, 1);
     UtRegisterTest("MemcmpTest02", MemcmpTest02, 1);

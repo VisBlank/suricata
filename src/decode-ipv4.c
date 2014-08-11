@@ -54,8 +54,7 @@
  *
  * See: RFC 791
  */
-static int IPV4OptValidateGeneric(Packet *p, const IPV4Opt *o)
-{
+static int IPV4OptValidateGeneric(Packet *p, const IPV4Opt *o) {
     switch (o->type) {
         /* See: RFC 4782 */
         case IPV4_OPT_QS:
@@ -99,8 +98,7 @@ static int IPV4OptValidateGeneric(Packet *p, const IPV4Opt *o)
  *
  * See: RFC 791
  */
-static int IPV4OptValidateRoute(Packet *p, const IPV4Opt *o)
-{
+static int IPV4OptValidateRoute(Packet *p, const IPV4Opt *o) {
     uint8_t ptr;
 
     /* Check length */
@@ -135,8 +133,7 @@ static int IPV4OptValidateRoute(Packet *p, const IPV4Opt *o)
  *
  * See: RFC 781
  */
-static int IPV4OptValidateTimestamp(Packet *p, const IPV4Opt *o)
-{
+static int IPV4OptValidateTimestamp(Packet *p, const IPV4Opt *o) {
     uint8_t ptr;
     uint8_t flag;
     uint8_t rec_size;
@@ -183,8 +180,7 @@ static int IPV4OptValidateTimestamp(Packet *p, const IPV4Opt *o)
  * See: draft-ietf-cipso-ipsecurity-01.txt
  * See: FIPS 188 (tags 6 & 7)
  */
-static int IPV4OptValidateCIPSO(Packet *p, const IPV4Opt *o)
-{
+static int IPV4OptValidateCIPSO(Packet *p, const IPV4Opt *o) {
 //    uint32_t doi;
     uint8_t *tag;
     uint16_t len;
@@ -609,8 +605,7 @@ int DecodeIPV4(ThreadVars *tv, DecodeThreadVars *dtv, Packet *p, uint8_t *pkt, u
 /* UNITTESTS */
 #ifdef UNITTESTS
 
-void DecodeIPV4OptionsPrint(Packet *p)
-{
+void DecodeIPV4OptionsPrint(Packet *p) {
     IPV4Vars *pv = &p->ip4vars;
 
     printf("DecodeIPV4Options: cnt=%" PRIu8
@@ -637,8 +632,7 @@ void DecodeIPV4OptionsPrint(Packet *p)
 }
 
 /** \test IPV4 with no options. */
-int DecodeIPV4OptionsNONETest01(void)
-{
+int DecodeIPV4OptionsNONETest01(void) {
     uint8_t raw_opts[] = { };
     Packet *p = PacketGetFromAlloc();
     if (unlikely(p == NULL))
@@ -669,8 +663,7 @@ int DecodeIPV4OptionsNONETest01(void)
 }
 
 /** \test IPV4 with EOL option. */
-int DecodeIPV4OptionsEOLTest01(void)
-{
+int DecodeIPV4OptionsEOLTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_EOL, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
@@ -703,8 +696,7 @@ int DecodeIPV4OptionsEOLTest01(void)
 }
 
 /** \test IPV4 with NOP option. */
-int DecodeIPV4OptionsNOPTest01(void)
-{
+int DecodeIPV4OptionsNOPTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_NOP, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
@@ -737,8 +729,7 @@ int DecodeIPV4OptionsNOPTest01(void)
 }
 
 /** \test IPV4 with RR option. */
-int DecodeIPV4OptionsRRTest01(void)
-{
+int DecodeIPV4OptionsRRTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_RR, 0x27, 0x08, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -769,8 +760,7 @@ int DecodeIPV4OptionsRRTest01(void)
 }
 
 /** \test IPV4 with RR option (len too large). */
-int DecodeIPV4OptionsRRTest02(void)
-{
+int DecodeIPV4OptionsRRTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_RR, 0xff, 0x08, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -796,8 +786,7 @@ int DecodeIPV4OptionsRRTest02(void)
 }
 
 /** \test IPV4 with RR option (ptr too large). */
-int DecodeIPV4OptionsRRTest03(void)
-{
+int DecodeIPV4OptionsRRTest03(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_RR, 0x27, 0xff, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -823,8 +812,7 @@ int DecodeIPV4OptionsRRTest03(void)
 }
 
 /** \test IPV4 with RR option (ptr not in 4 byte increment). */
-int DecodeIPV4OptionsRRTest04(void)
-{
+int DecodeIPV4OptionsRRTest04(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_RR, 0x27, 0x05, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -850,8 +838,7 @@ int DecodeIPV4OptionsRRTest04(void)
 }
 
 /** \test IPV4 with QS option. */
-int DecodeIPV4OptionsQSTest01(void)
-{
+int DecodeIPV4OptionsQSTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_QS, 0x08, 0x0d, 0x00, 0xbe, 0xef, 0x00, 0x00
     };
@@ -878,8 +865,7 @@ int DecodeIPV4OptionsQSTest01(void)
 }
 
 /** \test IPV4 with QS option (len too small) */
-int DecodeIPV4OptionsQSTest02(void)
-{
+int DecodeIPV4OptionsQSTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_QS, 0x07, 0x0d, 0x00, 0xbe, 0xef, 0x00, 0x00
     };
@@ -901,8 +887,7 @@ int DecodeIPV4OptionsQSTest02(void)
 }
 
 /** \test IPV4 with TS option. */
-int DecodeIPV4OptionsTSTest01(void)
-{
+int DecodeIPV4OptionsTSTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_TS, 0x24, 0x0d, 0x01, 0x0a, 0x0a, 0x0a, 0x69,
         0x04, 0xce, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -933,8 +918,7 @@ int DecodeIPV4OptionsTSTest01(void)
 }
 
 /** \test IPV4 with TS option (ptr too small). */
-int DecodeIPV4OptionsTSTest02(void)
-{
+int DecodeIPV4OptionsTSTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_TS, 0x24, 0x04, 0x01, 0x0a, 0x0a, 0x0a, 0x69,
         0x04, 0xce, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -960,8 +944,7 @@ int DecodeIPV4OptionsTSTest02(void)
 }
 
 /** \test IPV4 with TS option (ptr too large). */
-int DecodeIPV4OptionsTSTest03(void)
-{
+int DecodeIPV4OptionsTSTest03(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_TS, 0x24, 0xff, 0x01, 0x0a, 0x0a, 0x0a, 0x69,
         0x04, 0xce, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -987,8 +970,7 @@ int DecodeIPV4OptionsTSTest03(void)
 }
 
 /** \test IPV4 with TS option (ptr not valid). */
-int DecodeIPV4OptionsTSTest04(void)
-{
+int DecodeIPV4OptionsTSTest04(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_TS, 0x24, 0x0a, 0x01, 0x0a, 0x0a, 0x0a, 0x69,
         0x04, 0xce, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1014,8 +996,7 @@ int DecodeIPV4OptionsTSTest04(void)
 }
 
 /** \test IPV4 with SEC option. */
-int DecodeIPV4OptionsSECTest01(void)
-{
+int DecodeIPV4OptionsSECTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SEC, 0x0b, 0xf1, 0x35, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -1043,8 +1024,7 @@ int DecodeIPV4OptionsSECTest01(void)
 }
 
 /** \test IPV4 with SEC option (invalid length). */
-int DecodeIPV4OptionsSECTest02(void)
-{
+int DecodeIPV4OptionsSECTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SEC, 0x0a, 0xf1, 0x35, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -1067,8 +1047,7 @@ int DecodeIPV4OptionsSECTest02(void)
 }
 
 /** \test IPV4 with LSRR option. */
-int DecodeIPV4OptionsLSRRTest01(void)
-{
+int DecodeIPV4OptionsLSRRTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_LSRR, 0x27, 0x08, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1099,8 +1078,7 @@ int DecodeIPV4OptionsLSRRTest01(void)
 }
 
 /** \test IPV4 with LSRR option (len too large). */
-int DecodeIPV4OptionsLSRRTest02(void)
-{
+int DecodeIPV4OptionsLSRRTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_LSRR, 0xff, 0x08, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1126,8 +1104,7 @@ int DecodeIPV4OptionsLSRRTest02(void)
 }
 
 /** \test IPV4 with LSRR option (ptr too large). */
-int DecodeIPV4OptionsLSRRTest03(void)
-{
+int DecodeIPV4OptionsLSRRTest03(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_LSRR, 0x27, 0xff, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1153,8 +1130,7 @@ int DecodeIPV4OptionsLSRRTest03(void)
 }
 
 /** \test IPV4 with LSRR option (ptr not in 4 byte increment). */
-int DecodeIPV4OptionsLSRRTest04(void)
-{
+int DecodeIPV4OptionsLSRRTest04(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_LSRR, 0x27, 0x05, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1180,8 +1156,7 @@ int DecodeIPV4OptionsLSRRTest04(void)
 }
 
 /** \test IPV4 with CIPSO option. */
-int DecodeIPV4OptionsCIPSOTest01(void)
-{
+int DecodeIPV4OptionsCIPSOTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_CIPSO, 0x18, 0x00, 0x00, 0x00, 0x05, 0x05, 0x12,
         0x00, 0x03, 0x00, 0xef, 0x00, 0xef, 0x00, 0x06,
@@ -1210,8 +1185,7 @@ int DecodeIPV4OptionsCIPSOTest01(void)
 }
 
 /** \test IPV4 with SID option. */
-int DecodeIPV4OptionsSIDTest01(void)
-{
+int DecodeIPV4OptionsSIDTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SID, 0x04, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00
     };
@@ -1238,8 +1212,7 @@ int DecodeIPV4OptionsSIDTest01(void)
 }
 
 /** \test IPV4 with SID option (len invalid. */
-int DecodeIPV4OptionsSIDTest02(void)
-{
+int DecodeIPV4OptionsSIDTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SID, 0x05, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00
     };
@@ -1261,8 +1234,7 @@ int DecodeIPV4OptionsSIDTest02(void)
 }
 
 /** \test IPV4 with SSRR option. */
-int DecodeIPV4OptionsSSRRTest01(void)
-{
+int DecodeIPV4OptionsSSRRTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SSRR, 0x27, 0x08, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1293,8 +1265,7 @@ int DecodeIPV4OptionsSSRRTest01(void)
 }
 
 /** \test IPV4 with SSRR option (len too large). */
-int DecodeIPV4OptionsSSRRTest02(void)
-{
+int DecodeIPV4OptionsSSRRTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SSRR, 0xff, 0x08, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1320,8 +1291,7 @@ int DecodeIPV4OptionsSSRRTest02(void)
 }
 
 /** \test IPV4 with SSRR option (ptr too large). */
-int DecodeIPV4OptionsSSRRTest03(void)
-{
+int DecodeIPV4OptionsSSRRTest03(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SSRR, 0x27, 0xff, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1347,8 +1317,7 @@ int DecodeIPV4OptionsSSRRTest03(void)
 }
 
 /** \test IPV4 with SSRR option (ptr not in 4 byte increment). */
-int DecodeIPV4OptionsSSRRTest04(void)
-{
+int DecodeIPV4OptionsSSRRTest04(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_SSRR, 0x27, 0x05, 0xc0, 0xa8, 0x2a, 0x64, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1374,8 +1343,7 @@ int DecodeIPV4OptionsSSRRTest04(void)
 }
 
 /** \test IPV4 with RTRALT option. */
-int DecodeIPV4OptionsRTRALTTest01(void)
-{
+int DecodeIPV4OptionsRTRALTTest01(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_RTRALT, 0x04, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00
     };
@@ -1402,8 +1370,7 @@ int DecodeIPV4OptionsRTRALTTest01(void)
 }
 
 /** \test IPV4 with RTRALT option (len invalid. */
-int DecodeIPV4OptionsRTRALTTest02(void)
-{
+int DecodeIPV4OptionsRTRALTTest02(void) {
     uint8_t raw_opts[] = {
         IPV4_OPT_RTRALT, 0x05, 0xbe, 0xef, 0x00, 0x00, 0x00, 0x00
     };
@@ -1868,8 +1835,7 @@ end:
 
 #endif /* UNITTESTS */
 
-void DecodeIPV4RegisterTests(void)
-{
+void DecodeIPV4RegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("DecodeIPV4OptionsNONETest01", DecodeIPV4OptionsNONETest01, 1);
     UtRegisterTest("DecodeIPV4OptionsEOLTest01", DecodeIPV4OptionsEOLTest01, 1);

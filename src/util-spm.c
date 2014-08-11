@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2014 Open Information Security Foundation
+/* Copyright (C) 2007-2013 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -103,10 +103,16 @@ uint8_t *Bs2bmNocaseSearch(uint8_t *text, uint32_t textlen, uint8_t *needle, uin
  */
 uint8_t *BoyerMooreSearch(uint8_t *text, uint32_t textlen, uint8_t *needle, uint16_t needlelen)
 {
-    BmCtx *bm_ctx = BoyerMooreCtxInit(needle, needlelen);
+    uint16_t bmBc[ALPHABET_SIZE];
+    uint16_t *bmGs = SCMalloc(sizeof(uint16_t)*(needlelen + 1));
+    if (unlikely(bmGs == NULL))
+        return NULL;
 
-    uint8_t *ret = BoyerMoore(needle, needlelen, text, textlen, bm_ctx);
-    BoyerMooreCtxDeInit(bm_ctx);
+    PreBmGs(needle, needlelen, bmGs);
+    PreBmBc(needle, needlelen, bmBc);
+
+    uint8_t *ret = BoyerMoore(needle, needlelen, text, textlen, bmGs, bmBc);
+    SCFree(bmGs);
 
     return ret;
 }
@@ -122,10 +128,16 @@ uint8_t *BoyerMooreSearch(uint8_t *text, uint32_t textlen, uint8_t *needle, uint
  */
 uint8_t *BoyerMooreNocaseSearch(uint8_t *text, uint32_t textlen, uint8_t *needle, uint16_t needlelen)
 {
-    BmCtx *bm_ctx = BoyerMooreNocaseCtxInit(needle, needlelen);
+    uint16_t bmBc[ALPHABET_SIZE];
+    uint16_t *bmGs = SCMalloc(sizeof(uint16_t)*(needlelen + 1));
+    if (unlikely(bmGs == NULL))
+        return NULL;
 
-    uint8_t *ret = BoyerMooreNocase(needle, needlelen, text, textlen, bm_ctx);
-    BoyerMooreCtxDeInit(bm_ctx);
+    PreBmGsNocase(needle, needlelen, bmGs);
+    PreBmBcNocase(needle, needlelen, bmBc);
+
+    uint8_t *ret = BoyerMooreNocase(needle, needlelen, text, textlen, bmGs, bmBc);
+    SCFree(bmGs);
 
     return ret;
 }
@@ -229,45 +241,50 @@ uint8_t *BoyerMooreWrapper(uint8_t *text, uint8_t *needle, int times)
     uint32_t textlen = strlen((char *)text);
     uint16_t needlelen = strlen((char *)needle);
 
-    BmCtx *bm_ctx = BoyerMooreCtxInit(needle, needlelen);
+    uint16_t bmBc[ALPHABET_SIZE];
+    uint16_t *bmGs = SCMalloc(sizeof(uint16_t)*(needlelen + 1));
+    if (unlikely(bmGs == NULL))
+        return NULL;
 
     uint8_t *ret = NULL;
     int i = 0;
 
+    PreBmGs(needle, needlelen, bmGs);
+    PreBmBc(needle, needlelen, bmBc);
+
     CLOCK_INIT;
     if (times > 1) CLOCK_START;
     for (i = 0; i < times; i++) {
-        ret = BoyerMoore(needle, needlelen, text, textlen, bm_ctx);
+        ret = BoyerMoore(needle, needlelen, text, textlen, bmGs, bmBc);
     }
     if (times > 1) { CLOCK_END; CLOCK_PRINT_SEC; };
-    BoyerMooreCtxDeInit(bm_ctx);
+    SCFree(bmGs);
     return ret;
 }
 
-uint8_t *BoyerMooreNocaseWrapper(uint8_t *text, uint8_t *in_needle, int times)
+uint8_t *BoyerMooreNocaseWrapper(uint8_t *text, uint8_t *needle, int times)
 {
     uint32_t textlen = strlen((char *)text);
-    uint16_t needlelen = strlen((char *)in_needle);
+    uint16_t needlelen = strlen((char *)needle);
 
-    /* Make a copy of in_needle to be able to convert it to lowercase. */
-    uint8_t *needle = SCMalloc(needlelen);
-    if (needle == NULL)
+    uint16_t bmBc[ALPHABET_SIZE];
+    uint16_t *bmGs = SCMalloc(sizeof(uint16_t)*(needlelen + 1));
+    if (unlikely(bmGs == NULL))
         return NULL;
-    memcpy(needle, in_needle, needlelen);
-
-    BmCtx *bm_ctx = BoyerMooreNocaseCtxInit(needle, needlelen);
 
     uint8_t *ret = NULL;
     int i = 0;
 
+    PreBmGsNocase(needle, needlelen, bmGs);
+    PreBmBcNocase(needle, needlelen, bmBc);
+
     CLOCK_INIT;
     if (times > 1) CLOCK_START;
     for (i = 0; i < times; i++) {
-        ret = BoyerMooreNocase(needle, needlelen, text, textlen, bm_ctx);
+        ret = BoyerMooreNocase(needle, needlelen, text, textlen, bmGs, bmBc);
     }
     if (times > 1) { CLOCK_END; CLOCK_PRINT_SEC; };
-    BoyerMooreCtxDeInit(bm_ctx);
-    free(needle);
+    SCFree(bmGs);
     return ret;
 
 }
@@ -362,7 +379,10 @@ uint8_t *BoyerMooreCtxWrapper(uint8_t *text, uint8_t *needle, int times)
     uint32_t textlen = strlen((char *)text);
     uint16_t needlelen = strlen((char *)needle);
 
-    BmCtx *bm_ctx = BoyerMooreCtxInit(needle, needlelen);
+    uint16_t bmBc[ALPHABET_SIZE];
+    uint16_t *bmGs = SCMalloc(sizeof(uint16_t)*(needlelen + 1));
+    if (unlikely(bmGs == NULL))
+        return NULL;
 
     uint8_t *ret = NULL;
     int i = 0;
@@ -371,11 +391,13 @@ uint8_t *BoyerMooreCtxWrapper(uint8_t *text, uint8_t *needle, int times)
     if (times > 1) CLOCK_START;
     for (i = 0; i < times; i++) {
         /* Stats including context building */
-        ret = BoyerMoore(needle, needlelen, text, textlen, bm_ctx);
+        PreBmGs(needle, needlelen, bmGs);
+        PreBmBc(needle, needlelen, bmBc);
+
+        ret = BoyerMoore(needle, needlelen, text, textlen, bmGs, bmBc);
     }
     if (times > 1) { CLOCK_END; CLOCK_PRINT_SEC; };
-    BoyerMooreCtxDeInit(bm_ctx);
-
+    SCFree(bmGs);
     return ret;
 }
 
@@ -396,18 +418,15 @@ uint8_t *RawCtxWrapper(uint8_t *text, uint8_t *needle, int times)
     return ret;
 }
 
-uint8_t *BoyerMooreNocaseCtxWrapper(uint8_t *text, uint8_t *in_needle, int times)
+uint8_t *BoyerMooreNocaseCtxWrapper(uint8_t *text, uint8_t *needle, int times)
 {
     uint32_t textlen = strlen((char *)text);
-    uint16_t needlelen = strlen((char *)in_needle);
+    uint16_t needlelen = strlen((char *)needle);
 
-    /* Make a copy of in_needle to be able to convert it to lowercase. */
-    uint8_t *needle = SCMalloc(needlelen);
-    if (needle == NULL)
+    uint16_t bmBc[ALPHABET_SIZE];
+    uint16_t *bmGs = SCMalloc(sizeof(uint16_t)*(needlelen + 1));
+    if (unlikely(bmGs == NULL))
         return NULL;
-    memcpy(needle, in_needle, needlelen);
-
-    BmCtx *bm_ctx = BoyerMooreNocaseCtxInit(needle, needlelen);
 
     uint8_t *ret = NULL;
     int i = 0;
@@ -415,11 +434,13 @@ uint8_t *BoyerMooreNocaseCtxWrapper(uint8_t *text, uint8_t *in_needle, int times
     CLOCK_INIT;
     if (times > 1) CLOCK_START;
     for (i = 0; i < times; i++) {
-        ret = BoyerMooreNocase(needle, needlelen, text, textlen, bm_ctx);
+        /* Stats including context building */
+        PreBmGsNocase(needle, needlelen, bmGs);
+        PreBmBcNocase(needle, needlelen, bmBc);
+        ret = BoyerMooreNocase(needle, needlelen, text, textlen, bmGs, bmBc);
     }
     if (times > 1) { CLOCK_END; CLOCK_PRINT_SEC; };
-    BoyerMooreCtxDeInit(bm_ctx);
-    free(needle);
+    SCFree(bmGs);
     return ret;
 
 }
@@ -2315,8 +2336,7 @@ int UtilSpmNocaseSearchStatsTest07()
 #endif
 
 /* Register unittests */
-void UtilSpmSearchRegistertests(void)
-{
+void UtilSpmSearchRegistertests(void) {
 #ifdef UNITTESTS
     /* Generic tests */
     UtRegisterTest("UtilSpmBasicSearchTest01", UtilSpmBasicSearchTest01, 1);

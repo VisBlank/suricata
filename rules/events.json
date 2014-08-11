@@ -1,0 +1,19 @@
+{
+	"action": "alert",
+	"protocol": "mysql",
+	"socket":{
+		"client":{"ip":"192.168.1.101", "port": 3456},
+		"server":{"ip":"192.168.1.101", "port": 3456},
+		"direction":["to_server", "to_client"],
+	}
+
+	"msg":"xxxx",
+	"connection":"established",
+	"key1":"value1",
+	"key2":"value2",
+	"key3":"value3",
+}
+
+{
+		
+}

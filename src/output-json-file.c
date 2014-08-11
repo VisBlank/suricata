@@ -74,31 +74,28 @@ typedef struct JsonFileLogThread_ {
     MemBuffer *buffer;
 } JsonFileLogThread;
 
-static json_t *LogFileMetaGetUri(const Packet *p, const File *ff)
-{
+static json_t *LogFileMetaGetUri(const Packet *p, const File *ff) {
     HtpState *htp_state = (HtpState *)p->flow->alstate;
     json_t *js = NULL;
     if (htp_state != NULL) {
         htp_tx_t *tx = AppLayerParserGetTx(IPPROTO_TCP, ALPROTO_HTTP, htp_state, ff->txid);
         if (tx != NULL) {
             HtpTxUserData *tx_ud = htp_tx_get_user_data(tx);
-            if (tx_ud != NULL && tx_ud->request_uri_normalized != NULL) {
+            if (tx_ud->request_uri_normalized != NULL) {
                 char *s = bstr_util_strdup_to_c(tx_ud->request_uri_normalized);
                 if (s != NULL) {
                     js = json_string(s);
                     SCFree(s);
-                    if (js != NULL)
-                        return js;
                 }
             }
+            return js;
         }
     }
 
-    return NULL;
+    return json_string("<unknown>");
 }
 
-static json_t *LogFileMetaGetHost(const Packet *p, const File *ff)
-{
+static json_t *LogFileMetaGetHost(const Packet *p, const File *ff) {
     HtpState *htp_state = (HtpState *)p->flow->alstate;
     json_t *js = NULL;
     if (htp_state != NULL) {
@@ -108,17 +105,15 @@ static json_t *LogFileMetaGetHost(const Packet *p, const File *ff)
             if (s != NULL) {
                 js = json_string(s);
                 SCFree(s);
-                if (js != NULL)
-                    return js;
             }
+            return js;
         }
     }
 
-    return NULL;
+    return json_string("<unknown>");
 }
 
-static json_t *LogFileMetaGetReferer(const Packet *p, const File *ff)
-{
+static json_t *LogFileMetaGetReferer(const Packet *p, const File *ff) {
     HtpState *htp_state = (HtpState *)p->flow->alstate;
     json_t *js = NULL;
     if (htp_state != NULL) {
@@ -132,18 +127,16 @@ static json_t *LogFileMetaGetReferer(const Packet *p, const File *ff)
                 if (s != NULL) {
                     js = json_string(s);
                     SCFree(s);
-                    if (js != NULL)
-                        return js;
                 }
+                return js;
             }
         }
     }
 
-    return NULL;
+    return json_string("<unknown>");
 }
 
-static json_t *LogFileMetaGetUserAgent(const Packet *p, const File *ff)
-{
+static json_t *LogFileMetaGetUserAgent(const Packet *p, const File *ff) {
     HtpState *htp_state = (HtpState *)p->flow->alstate;
     json_t *js = NULL;
     if (htp_state != NULL) {
@@ -157,22 +150,20 @@ static json_t *LogFileMetaGetUserAgent(const Packet *p, const File *ff)
                 if (s != NULL) {
                     js = json_string(s);
                     SCFree(s);
-                    if (js != NULL)
-                        return js;
                 }
+                return js;
             }
         }
     }
 
-    return NULL;
+    return json_string("<unknown>");
 }
 
 /**
  *  \internal
  *  \brief Write meta data on a single line json record
  */
-static void FileWriteJsonRecord(JsonFileLogThread *aft, const Packet *p, const File *ff)
-{
+static void FileWriteJsonRecord(JsonFileLogThread *aft, const Packet *p, const File *ff) {
     MemBuffer *buffer = (MemBuffer *)aft->buffer;
     json_t *js = CreateJSONHeader((Packet *)p, 0, "fileinfo"); //TODO const
     if (unlikely(js == NULL))
@@ -206,6 +197,8 @@ static void FileWriteJsonRecord(JsonFileLogThread *aft, const Packet *p, const F
         SCFree(s);
     if (ff->magic)
         json_object_set_new(fjs, "magic", json_string((char *)ff->magic));
+    else
+        json_object_set_new(fjs, "magic", json_string("unknown"));
     switch (ff->state) {
         case FILE_STATE_CLOSED:
             json_object_set_new(fjs, "state", json_string("CLOSED"));
@@ -237,7 +230,6 @@ static void FileWriteJsonRecord(JsonFileLogThread *aft, const Packet *p, const F
     json_object_set_new(fjs, "stored",
                         (ff->flags & FILE_STORED) ? json_true() : json_false());
     json_object_set_new(fjs, "size", json_integer(ff->size));
-    json_object_set_new(fjs, "tx_id", json_integer(ff->txid));
 
     /* originally just 'file', but due to bug 1127 naming it fileinfo */
     json_object_set_new(js, "fileinfo", fjs);
@@ -306,12 +298,6 @@ static TmEcode JsonFileLogThreadDeinit(ThreadVars *t, void *data)
     return TM_ECODE_OK;
 }
 
-static void OutputFileLogDeinitSub(OutputCtx *output_ctx)
-{
-    OutputFileCtx *ff_ctx = output_ctx->data;
-    SCFree(ff_ctx);
-    SCFree(output_ctx);
-}
 
 /** \brief Create a new http log LogFileCtx.
  *  \param conf Pointer to ConfNode containing this loggers configuration.
@@ -352,14 +338,12 @@ OutputCtx *OutputFileLogInitSub(ConfNode *conf, OutputCtx *parent_ctx)
     }
 
     output_ctx->data = output_file_ctx;
-    output_ctx->DeInit = OutputFileLogDeinitSub;
 
     FileForceTrackingEnable();
     return output_ctx;
 }
 
-void TmModuleJsonFileLogRegister (void)
-{
+void TmModuleJsonFileLogRegister (void) {
     tmm_modules[TMM_JSONFILELOG].name = "JsonFileLog";
     tmm_modules[TMM_JSONFILELOG].ThreadInit = JsonFileLogThreadInit;
     tmm_modules[TMM_JSONFILELOG].ThreadDeinit = JsonFileLogThreadDeinit;

@@ -33,8 +33,7 @@
 
 void TmqhOutputVerdictNfq(ThreadVars *t, Packet *p);
 
-void TmqhNfqRegister (void)
-{
+void TmqhNfqRegister (void) {
     tmqh_table[TMQH_NFQ].name = "nfq";
     tmqh_table[TMQH_NFQ].InHandler = NULL;
     tmqh_table[TMQH_NFQ].OutHandler = TmqhOutputVerdictNfq;

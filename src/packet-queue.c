@@ -32,8 +32,7 @@
 #include "pkt-var.h"
 
 #ifdef DEBUG
-void PacketQueueValidateDebug(PacketQueue *q)
-{
+void PacketQueueValidateDebug(PacketQueue *q) {
     SCLogDebug("q->len %u, q->top %p, q->bot %p", q->len, q->top, q->bot);
 
     if (q->len == 0) {
@@ -91,8 +90,7 @@ void PacketQueueValidateDebug(PacketQueue *q)
     } \
 }
 
-void PacketQueueValidate(PacketQueue *q)
-{
+void PacketQueueValidate(PacketQueue *q) {
     if (q->len == 0) {
         BUGGER_ON(q->top != NULL);
         BUGGER_ON(q->bot != NULL);
@@ -133,8 +131,7 @@ void PacketQueueValidate(PacketQueue *q)
 }
 #endif /* DEBUG */
 
-void PacketEnqueue (PacketQueue *q, Packet *p)
-{
+void PacketEnqueue (PacketQueue *q, Packet *p) {
     //PacketQueueValidateDebug(q);
 
     if (p == NULL)
@@ -161,8 +158,7 @@ void PacketEnqueue (PacketQueue *q, Packet *p)
     //PacketQueueValidateDebug(q);
 }
 
-Packet *PacketDequeue (PacketQueue *q)
-{
+Packet *PacketDequeue (PacketQueue *q) {
     Packet *p = NULL;
 
     //PacketQueueValidateDebug(q);

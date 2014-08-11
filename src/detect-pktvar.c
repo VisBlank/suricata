@@ -42,8 +42,7 @@ static pcre_extra *parse_regex_study;
 int DetectPktvarMatch (ThreadVars *, DetectEngineThreadCtx *, Packet *, Signature *, SigMatch *);
 static int DetectPktvarSetup (DetectEngineCtx *, Signature *, char *);
 
-void DetectPktvarRegister (void)
-{
+void DetectPktvarRegister (void) {
     sigmatch_table[DETECT_PKTVAR].name = "pktvar";
     sigmatch_table[DETECT_PKTVAR].Match = DetectPktvarMatch;
     sigmatch_table[DETECT_PKTVAR].Setup = DetectPktvarSetup;

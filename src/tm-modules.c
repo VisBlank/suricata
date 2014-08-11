@@ -30,8 +30,7 @@
 #include "threads.h"
 #include "util-logopenfile.h"
 
-void TmModuleDebugList(void)
-{
+void TmModuleDebugList(void) {
     TmModule *t;
     uint16_t i;
 
@@ -48,8 +47,7 @@ void TmModuleDebugList(void)
 /** \brief get a tm module ptr by name
  *  \param name name string
  *  \retval ptr to the module or NULL */
-TmModule *TmModuleGetByName(const char *name)
-{
+TmModule *TmModuleGetByName(const char *name) {
     TmModule *t;
     uint16_t i;
 
@@ -69,8 +67,7 @@ TmModule *TmModuleGetByName(const char *name)
 /** \brief get the id of a module from it's name
  *  \param name registered name of the module
  *  \retval id the id or -1 in case of error */
-int TmModuleGetIdByName(const char *name)
-{
+int TmModuleGetIdByName(const char *name) {
     TmModule *tm = TmModuleGetByName(name);
     if (tm == NULL)
         return -1;;
@@ -123,8 +120,7 @@ int TmModuleGetIDForTM(TmModule *tm)
 }
 
 
-void TmModuleRunInit(void)
-{
+void TmModuleRunInit(void) {
     TmModule *t;
     uint16_t i;
 
@@ -141,8 +137,7 @@ void TmModuleRunInit(void)
     }
 }
 
-void TmModuleRunDeInit(void)
-{
+void TmModuleRunDeInit(void) {
     TmModule *t;
     uint16_t i;
 
@@ -160,8 +155,7 @@ void TmModuleRunDeInit(void)
 }
 
 /** \brief register all unittests for the tm modules */
-void TmModuleRegisterTests(void)
-{
+void TmModuleRegisterTests(void) {
 #ifdef UNITTESTS
     TmModule *t;
     uint16_t i;
@@ -199,9 +193,10 @@ void TmModuleRegisterTests(void)
 const char * TmModuleTmmIdToString(TmmId id)
 {
     switch (id) {
-        CASE_CODE (TMM_RECEIVENFLOG);
-        CASE_CODE (TMM_DECODENFLOG);
         CASE_CODE (TMM_DECODENFQ);
+        CASE_CODE (TMM_JSON_MYSQL_LOG);
+        CASE_CODE (TMM_JSON_MSSQL_LOG);
+        CASE_CODE (TMM_JSON_ORACLE_11G_LOG);
         CASE_CODE (TMM_VERDICTNFQ);
         CASE_CODE (TMM_RECEIVENFQ);
         CASE_CODE (TMM_RECEIVEPCAP);
@@ -256,13 +251,9 @@ const char * TmModuleTmmIdToString(TmmId id)
         CASE_CODE (TMM_JSONDNSLOG);
         CASE_CODE (TMM_JSONHTTPLOG);
         CASE_CODE (TMM_JSONFILELOG);
-        CASE_CODE (TMM_JSONFLOWLOG);
-        CASE_CODE (TMM_JSONNETFLOWLOG);
         CASE_CODE (TMM_JSONSSHLOG);
         CASE_CODE (TMM_JSONTLSLOG);
         CASE_CODE (TMM_OUTPUTJSON);
-        CASE_CODE (TMM_FLOWMANAGER);
-        CASE_CODE (TMM_FLOWRECYCLER);
 
         CASE_CODE (TMM_SIZE);
     }

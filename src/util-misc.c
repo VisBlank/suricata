@@ -32,8 +32,7 @@
 static pcre *parse_regex = NULL;
 static pcre_extra *parse_regex_study = NULL;
 
-void ParseSizeInit(void)
-{
+void ParseSizeInit(void) {
     const char *eb;
     int eo;
     int opts = 0;
@@ -51,8 +50,7 @@ void ParseSizeInit(void)
     }
 }
 
-void ParseSizeDeinit(void)
-{
+void ParseSizeDeinit(void) {
 
     if (parse_regex != NULL)
         pcre_free(parse_regex);

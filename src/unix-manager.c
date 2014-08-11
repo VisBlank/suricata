@@ -495,7 +495,6 @@ int UnixMain(UnixCommand * this)
     int ret;
     fd_set select_set;
     UnixClient *uclient;
-    UnixClient *tclient;
 
     /* Wait activity on the socket */
     FD_ZERO(&select_set);
@@ -527,7 +526,7 @@ int UnixMain(UnixCommand * this)
         return 1;
     }
 
-    TAILQ_FOREACH_SAFE(uclient, &this->clients, next, tclient) {
+    TAILQ_FOREACH(uclient, &this->clients, next) {
         if (FD_ISSET(uclient->fd, &select_set)) {
             UnixCommandRun(this, uclient);
         }

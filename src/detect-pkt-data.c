@@ -49,8 +49,7 @@ static void DetectPktDataTestRegister(void);
 /**
  * \brief Registration function for keyword: file_data
  */
-void DetectPktDataRegister(void)
-{
+void DetectPktDataRegister(void) {
     sigmatch_table[DETECT_PKT_DATA].name = "pkt_data";
     sigmatch_table[DETECT_PKT_DATA].Match = NULL;
     sigmatch_table[DETECT_PKT_DATA].AppLayerMatch = NULL;
@@ -142,8 +141,7 @@ end:
 }
 #endif
 
-static void DetectPktDataTestRegister(void)
-{
+static void DetectPktDataTestRegister(void){
 #ifdef UNITTESTS
     UtRegisterTest("DetectPktDataTest01", DetectPktDataTest01, 1);
 #endif

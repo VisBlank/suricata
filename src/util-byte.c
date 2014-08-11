@@ -71,6 +71,72 @@ char *BytesToString(const uint8_t *bytes, size_t nbytes)
     return string;
 }
 
+/**
+ * Show bytes in following format:
+ *   0x01 0x02 abc 0x03 0x04
+ * this makes it more suitable to debug 7th layer according to wireshark
+ */
+char *BytesToString2(const uint8_t *bytes, size_t nbytes, int32_t limit) {
+    if (!bytes || nbytes == 0)
+        return NULL;
+
+#if 0
+    if (nbytes > 512) {
+        return NULL;
+    }
+#endif
+
+    if (limit > 0 && limit < nbytes) {
+        nbytes = limit;
+    }
+
+    char *out = SCCalloc(nbytes * 5, 1);
+    if (!out)
+        return NULL;
+
+    char *q = out;
+    uint32_t idx = 0;
+#if 0
+    char hex_flag = 0;
+    while (idx < nbytes) {
+        if (isprint(bytes[idx])) {
+            if (hex_flag) {
+                *q++ = ' ';
+                hex_flag = 0;
+            }
+
+            *q++ = bytes[idx];
+        } else {
+			hex_flag = 1;
+			*q++ = ' ';
+            sprintf(q, "0x%02x", bytes[idx]);
+            q +=4;
+        }
+
+        ++idx;
+    }
+#else
+    while (idx < nbytes) {
+        if (isprint(bytes[idx])) {
+            if (bytes[idx] == ' ') {
+                sprintf(q, " %02x", bytes[idx]);
+                q += 2;
+            } else {
+                sprintf(q, "% 2c", bytes[idx]);
+                q += 2;
+            }
+        } else {
+            sprintf(q, "%02x", bytes[idx]);
+            q += 2;
+        }
+        *q++ = ' ';
+
+        ++idx;
+    }
+#endif
+    return out;
+}
+
 int ByteExtractUint64(uint64_t *res, int e, uint16_t len, const uint8_t *bytes)
 {
     uint64_t i64;
@@ -378,8 +444,7 @@ int ByteExtractStringInt8(int8_t *res, int base, uint16_t len, const char *str)
 /* UNITTESTS */
 #ifdef UNITTESTS
 
-static int ByteTest01 (void)
-{
+static int ByteTest01 (void) {
     uint16_t val = 0x0102;
     uint16_t i16 = 0xbfbf;
     uint8_t bytes[2] = { 0x02, 0x01 };
@@ -392,8 +457,7 @@ static int ByteTest01 (void)
     return 0;
 }
 
-static int ByteTest02 (void)
-{
+static int ByteTest02 (void) {
     uint16_t val = 0x0102;
     uint16_t i16 = 0xbfbf;
     uint8_t bytes[2] = { 0x01, 0x02 };
@@ -406,8 +470,7 @@ static int ByteTest02 (void)
     return 0;
 }
 
-static int ByteTest03 (void)
-{
+static int ByteTest03 (void) {
     uint32_t val = 0x01020304;
     uint32_t i32 = 0xbfbfbfbf;
     uint8_t bytes[4] = { 0x04, 0x03, 0x02, 0x01 };
@@ -420,8 +483,7 @@ static int ByteTest03 (void)
     return 0;
 }
 
-static int ByteTest04 (void)
-{
+static int ByteTest04 (void) {
     uint32_t val = 0x01020304;
     uint32_t i32 = 0xbfbfbfbf;
     uint8_t bytes[4] = { 0x01, 0x02, 0x03, 0x04 };
@@ -434,8 +496,7 @@ static int ByteTest04 (void)
     return 0;
 }
 
-static int ByteTest05 (void)
-{
+static int ByteTest05 (void) {
     uint64_t val = 0x0102030405060708ULL;
     uint64_t i64 = 0xbfbfbfbfbfbfbfbfULL;
     uint8_t bytes[8] = { 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 };
@@ -448,8 +509,7 @@ static int ByteTest05 (void)
     return 0;
 }
 
-static int ByteTest06 (void)
-{
+static int ByteTest06 (void) {
     uint64_t val = 0x0102030405060708ULL;
     uint64_t i64 = 0xbfbfbfbfbfbfbfbfULL;
     uint8_t bytes[8] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
@@ -462,8 +522,7 @@ static int ByteTest06 (void)
     return 0;
 }
 
-static int ByteTest07 (void)
-{
+static int ByteTest07 (void) {
     const char *str = "1234567890";
     uint64_t val = 1234567890;
     uint64_t i64 = 0xbfbfbfbfbfbfbfbfULL;
@@ -476,8 +535,7 @@ static int ByteTest07 (void)
     return 0;
 }
 
-static int ByteTest08 (void)
-{
+static int ByteTest08 (void) {
     const char *str = "1234567890";
     uint32_t val = 1234567890;
     uint32_t i32 = 0xbfbfbfbf;
@@ -490,8 +548,7 @@ static int ByteTest08 (void)
     return 0;
 }
 
-static int ByteTest09 (void)
-{
+static int ByteTest09 (void) {
     const char *str = "12345";
     uint16_t val = 12345;
     uint16_t i16 = 0xbfbf;
@@ -504,8 +561,7 @@ static int ByteTest09 (void)
     return 0;
 }
 
-static int ByteTest10 (void)
-{
+static int ByteTest10 (void) {
     const char *str = "123";
     uint8_t val = 123;
     uint8_t i8 = 0xbf;
@@ -518,8 +574,7 @@ static int ByteTest10 (void)
     return 0;
 }
 
-static int ByteTest11 (void)
-{
+static int ByteTest11 (void) {
     const char *str = "-1234567890";
     int64_t val = -1234567890;
     int64_t i64 = 0xbfbfbfbfbfbfbfbfULL;
@@ -532,8 +587,7 @@ static int ByteTest11 (void)
     return 0;
 }
 
-static int ByteTest12 (void)
-{
+static int ByteTest12 (void) {
     const char *str = "-1234567890";
     int32_t val = -1234567890;
     int32_t i32 = 0xbfbfbfbf;
@@ -546,8 +600,7 @@ static int ByteTest12 (void)
     return 0;
 }
 
-static int ByteTest13 (void)
-{
+static int ByteTest13 (void) {
     const char *str = "-12345";
     int16_t val = -12345;
     int16_t i16 = 0xbfbf;
@@ -560,8 +613,7 @@ static int ByteTest13 (void)
     return 0;
 }
 
-static int ByteTest14 (void)
-{
+static int ByteTest14 (void) {
     const char *str = "-123";
     int8_t val = -123;
     int8_t i8 = 0xbf;
@@ -575,8 +627,7 @@ static int ByteTest14 (void)
 }
 
 /** \test max u32 value */
-static int ByteTest15 (void)
-{
+static int ByteTest15 (void) {
     const char *str = "4294967295";
     uint32_t val = 4294967295UL;
     uint32_t u32 = 0xffffffff;
@@ -590,8 +641,7 @@ static int ByteTest15 (void)
 }
 
 /** \test max u32 value + 1 */
-static int ByteTest16 (void)
-{
+static int ByteTest16 (void) {
     const char *str = "4294967296";
     uint32_t u32 = 0;
 
@@ -604,8 +654,7 @@ static int ByteTest16 (void)
 }
 #endif /* UNITTESTS */
 
-void ByteRegisterTests(void)
-{
+void ByteRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("ByteTest01", ByteTest01, 1);
     UtRegisterTest("ByteTest02", ByteTest02, 1);

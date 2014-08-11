@@ -87,7 +87,6 @@ int StreamTcpReassembleInlineAppLayer(ThreadVars *tv,
 void StreamTcpCreateTestPacket(uint8_t *, uint8_t, uint8_t, uint8_t);
 
 void StreamTcpSetSessionNoReassemblyFlag (TcpSession *, char );
-void StreamTcpSetDisableRawReassemblyFlag (TcpSession *ssn, char direction);
 
 void StreamTcpSetOSPolicy(TcpStream *, Packet *);
 void StreamTcpReassemblePause (TcpSession *, char );

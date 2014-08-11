@@ -41,8 +41,7 @@ extern int stream_inline;
  *  \retval 0 no
  *  \retval 1 yes
  */
-int StreamTcpInlineMode(void)
-{
+int StreamTcpInlineMode(void) {
     return stream_inline;
 }
 
@@ -57,8 +56,7 @@ int StreamTcpInlineMode(void)
  *  \retval 0 shared data is the same (or no data is shared)
  *  \retval 1 shared data is different
  */
-int StreamTcpInlineSegmentCompare(TcpSegment *seg1, TcpSegment *seg2)
-{
+int StreamTcpInlineSegmentCompare(TcpSegment *seg1, TcpSegment *seg2) {
     SCEnter();
 
     if (seg1 == NULL || seg2 == NULL) {
@@ -133,8 +131,7 @@ int StreamTcpInlineSegmentCompare(TcpSegment *seg1, TcpSegment *seg2)
  *  \todo What about reassembled fragments?
  *  \todo What about unwrapped tunnel packets?
  */
-void StreamTcpInlineSegmentReplacePacket(Packet *p, TcpSegment *seg)
-{
+void StreamTcpInlineSegmentReplacePacket(Packet *p, TcpSegment *seg) {
     SCEnter();
 
     uint32_t pseq = TCP_GET_SEQ(p);
@@ -186,8 +183,7 @@ void StreamTcpInlineSegmentReplacePacket(Packet *p, TcpSegment *seg)
 #ifdef UNITTESTS
 
 /** \test full overlap */
-static int StreamTcpInlineTest01(void)
-{
+static int StreamTcpInlineTest01(void) {
     SCEnter();
 
     uint8_t payload1[] = "AAC"; /* packet */
@@ -247,8 +243,7 @@ end:
 }
 
 /** \test full overlap */
-static int StreamTcpInlineTest02(void)
-{
+static int StreamTcpInlineTest02(void) {
     SCEnter();
 
     uint8_t payload1[] = "xxx"; /* packet */
@@ -313,8 +308,7 @@ end:
 }
 
 /** \test partial overlap */
-static int StreamTcpInlineTest03(void)
-{
+static int StreamTcpInlineTest03(void) {
     SCEnter();
 
     uint8_t payload1[] = "xxxxxxxxxxxx"; /* packet */
@@ -379,8 +373,7 @@ end:
 }
 
 /** \test partial overlap */
-static int StreamTcpInlineTest04(void)
-{
+static int StreamTcpInlineTest04(void) {
     SCEnter();
 
     uint8_t payload1[] = "xxxxxxxxxxxx"; /* packet */
@@ -444,8 +437,7 @@ end:
     SCReturnInt(result);
 }
 /** \test partial overlap */
-static int StreamTcpInlineTest05(void)
-{
+static int StreamTcpInlineTest05(void) {
     SCEnter();
 
     uint8_t payload1[] = "xxxxxxxxxxxx"; /* packet */
@@ -510,8 +502,7 @@ end:
 }
 
 /** \test no overlap */
-static int StreamTcpInlineTest06(void)
-{
+static int StreamTcpInlineTest06(void) {
     SCEnter();
 
     uint8_t payload1[] = "xxxxxxxxxxxx"; /* packet */
@@ -576,8 +567,7 @@ end:
 }
 
 /** \test no overlap */
-static int StreamTcpInlineTest07(void)
-{
+static int StreamTcpInlineTest07(void) {
     SCEnter();
 
     uint8_t payload1[] = "xxxxxxxxxxxx"; /* packet */
@@ -642,8 +632,7 @@ end:
 }
 #endif /* UNITTESTS */
 
-void StreamTcpInlineRegisterTests(void)
-{
+void StreamTcpInlineRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("StreamTcpInlineTest01", StreamTcpInlineTest01, 1);
     UtRegisterTest("StreamTcpInlineTest02", StreamTcpInlineTest02, 1);

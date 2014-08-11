@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2014 Open Information Security Foundation
+/* Copyright (C) 2007-2013 Open Information Security Foundation
  *
  * You can copy, redistribute or modify this Program under the terms of
  * the GNU General Public License version 2 as published by the Free
@@ -124,8 +124,7 @@ static SCMutex pcap_bpf_compile_lock = SCMUTEX_INITIALIZER;
  * \brief Registration Function for RecievePcap.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleReceivePcapRegister (void)
-{
+void TmModuleReceivePcapRegister (void) {
     tmm_modules[TMM_RECEIVEPCAP].name = "ReceivePcap";
     tmm_modules[TMM_RECEIVEPCAP].ThreadInit = ReceivePcapThreadInit;
     tmm_modules[TMM_RECEIVEPCAP].Func = NULL;
@@ -141,8 +140,7 @@ void TmModuleReceivePcapRegister (void)
  * \brief Registration Function for DecodePcap.
  * \todo Unit tests are needed for this module.
  */
-void TmModuleDecodePcapRegister (void)
-{
+void TmModuleDecodePcapRegister (void) {
     tmm_modules[TMM_DECODEPCAP].name = "DecodePcap";
     tmm_modules[TMM_DECODEPCAP].ThreadInit = DecodePcapThreadInit;
     tmm_modules[TMM_DECODEPCAP].Func = DecodePcap;
@@ -229,8 +227,7 @@ static int PcapTryReopen(PcapThreadVars *ptv)
 
 #endif
 
-void PcapCallbackLoop(char *user, struct pcap_pkthdr *h, u_char *pkt)
-{
+void PcapCallbackLoop(char *user, struct pcap_pkthdr *h, u_char *pkt) {
     SCEnter();
 
     PcapThreadVars *ptv = (PcapThreadVars *)user;
@@ -297,7 +294,7 @@ TmEcode ReceivePcapLoop(ThreadVars *tv, void *data, void *slot)
 {
     SCEnter();
 
-    int packet_q_len = 64;
+    uint16_t packet_q_len = 0;
     PcapThreadVars *ptv = (PcapThreadVars *)data;
     int r;
     TmSlot *s = (TmSlot *)slot;
@@ -312,10 +309,15 @@ TmEcode ReceivePcapLoop(ThreadVars *tv, void *data, void *slot)
 
         /* make sure we have at least one packet in the packet pool, to prevent
          * us from alloc'ing packets at line rate */
-        PacketPoolWait();
+        do {
+            packet_q_len = PacketPoolSize();
+            if (unlikely(packet_q_len == 0)) {
+                PacketPoolWait();
+            }
+        } while (packet_q_len == 0);
 
         /* Right now we just support reading packets one at a time. */
-        r = pcap_dispatch(ptv->pcap_handle, packet_q_len,
+        r = pcap_dispatch(ptv->pcap_handle, (int)packet_q_len,
                           (pcap_handler)PcapCallbackLoop, (u_char *)ptv);
         if (unlikely(r < 0)) {
             int dbreak = 0;
@@ -366,8 +368,7 @@ TmEcode ReceivePcapLoop(ThreadVars *tv, void *data, void *slot)
  * \todo Create a general pcap setup function.
  */
 #if LIBPCAP_VERSION_MAJOR == 1
-TmEcode ReceivePcapThreadInit(ThreadVars *tv, void *initdata, void **data)
-{
+TmEcode ReceivePcapThreadInit(ThreadVars *tv, void *initdata, void **data) {
     SCEnter();
     PcapIfaceConfig *pcapconfig = initdata;
 
@@ -540,8 +541,7 @@ TmEcode ReceivePcapThreadInit(ThreadVars *tv, void *initdata, void **data)
     SCReturnInt(TM_ECODE_OK);
 }
 #else /* implied LIBPCAP_VERSION_MAJOR == 0 */
-TmEcode ReceivePcapThreadInit(ThreadVars *tv, void *initdata, void **data)
-{
+TmEcode ReceivePcapThreadInit(ThreadVars *tv, void *initdata, void **data) {
     SCEnter();
     PcapIfaceConfig *pcapconfig = initdata;
 
@@ -654,8 +654,7 @@ TmEcode ReceivePcapThreadInit(ThreadVars *tv, void *initdata, void **data)
  * \param tv pointer to ThreadVars
  * \param data pointer that gets cast into PcapThreadVars for ptv
  */
-void ReceivePcapThreadExitStats(ThreadVars *tv, void *data)
-{
+void ReceivePcapThreadExitStats(ThreadVars *tv, void *data) {
     SCEnter();
     PcapThreadVars *ptv = (PcapThreadVars *)data;
     struct pcap_stat pcap_s;
@@ -688,8 +687,7 @@ void ReceivePcapThreadExitStats(ThreadVars *tv, void *data)
  * \param tv pointer to ThreadVars
  * \param data pointer that gets cast into PcapThreadVars for ptv
  */
-TmEcode ReceivePcapThreadDeinit(ThreadVars *tv, void *data)
-{
+TmEcode ReceivePcapThreadDeinit(ThreadVars *tv, void *data) {
     PcapThreadVars *ptv = (PcapThreadVars *)data;
 
     pcap_close(ptv->pcap_handle);
@@ -780,7 +778,7 @@ TmEcode DecodePcapThreadInit(ThreadVars *tv, void *initdata, void **data)
 TmEcode DecodePcapThreadDeinit(ThreadVars *tv, void *data)
 {
     if (data != NULL)
-        DecodeThreadVarsFree(tv, data);
+        DecodeThreadVarsFree(data);
     SCReturnInt(TM_ECODE_OK);
 }
 

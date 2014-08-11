@@ -64,46 +64,6 @@ enum client_flags {
     CLIENT_MULTI_RESULTS       = 131072 , /* Enable/disable multi-results */
 };
 
-typedef struct MysqlPkt_ {
-    uint8_t *pkt;
-    uint32_t len;
-    int flags;
-} MysqlPkt;
-
-#if 0
-/* not in use */
-typedef struct MysqlServerHandshake_{
-    MysqlPktHeader hdr;
-    char reserved_0;
-    char reserved_1;
-    char reserved_10[10]; /* reserved 10 bytes */
-    char crypt_part2[12];
-    int conn_id;
-    char crypt_part1[8];
-    short server_attr_l; /* low 2 bytes */
-    short server_attr_h; /* high 2 bytes */
-    short server_state;
-    char *client_version; /* dynamic length */
-} MysqlServerHandshake;
-
-typedef struct MysqlServerAuthResponse_ {
-    MysqlPktHeader hdr;
-    char status;
-    char affected_rows[9]; /* lenenc_int, maybe 1,3,4,9 bytes */
-    char last_insert_id[9]; /* lenenc_int, maybe 1,3,4,9 bytes */
-    short warnings;
-    char *msg;
-} MysqlServerAuthResponse;
-
-/* not use */
-typedef struct MysqlResponse_ {
-    MysqlPktHeader hdr;
-    /* TODO */
-} MysqlResponse;
-#endif
-
-//------------------------------------------------------------------------
-
 /**
  * \brief mysql package header (4 bytes)
  */
@@ -112,27 +72,13 @@ typedef struct MysqlPktHeader_ {
     int sequence_id:8;
 } MysqlPktHeader;
 
-typedef struct MysqlClientCommand_ {
-    MysqlPktHeader hdr;
-    MysqlCommand cmd;
-    uint16_t sql_size;
-    char *sql;
-} MysqlClientCommand;
-
 typedef struct MysqlClient_ {
     char *username;
     int client_attr; /* attributes the client support */
     int max_pkt_len;
 
-	/* TODO: only support IPv4 */
-    char *src_ip, *dst_ip;
-    uint16_t src_port, dst_port;
-
     char *db_name;
-    char *password; /* crypted, in hex bytes */
     char charset;
-    char password_len;
-    /* more to add */
 } MysqlClient;
 
 enum ppkt_flags {
@@ -152,27 +98,21 @@ typedef struct PendingPkt_ {
 /**
  * \brief MySQL transaction, request/reply with same TX id
  */
+typedef struct MysqlState_ MysqlState;
 typedef struct MysqlTransaction_ {
-    uint16_t tx_num;
+    MysqlState *s;
     uint16_t tx_id;
-
-    /* flags */
-    uint8_t hs;     /* server handshake */
-    uint8_t try_auth; /* client auth */
-    uint8_t auth_ok;  /* auth passed */
 
     uint8_t replied; /* bool indicating request is replied to. */
     uint8_t reply_lost;
     uint8_t reply_error; /* server say error or no on command */
+    uint8_t logged, detected;
 
-    TAILQ_HEAD(, PendingPkt_) ppkt_list;
-    PendingPkt *cur_ppkt;
+    uint8_t *sql;
+    uint32_t sql_len;
+    MysqlCommand cmd;
 
-    MysqlClientCommand cmd;
-
-    MysqlClient cli; /* transaction must map to a client */
-
-    /* need list to the next? */
+    int action; /* detect module related */
     TAILQ_ENTRY(MysqlTransaction_) next;
 } MysqlTransaction;
 
@@ -184,23 +124,37 @@ typedef struct MysqlTransaction_ {
 typedef struct MysqlState_ {
     TAILQ_HEAD(, MysqlTransaction_) tx_list;
     MysqlTransaction *cur_tx;
+    MysqlPktHeader hdr;
 
-    uint8_t *input;
-    uint32_t input_len;
+    MysqlClient cli; /* transaction must map to a client */
     uint8_t *protocol_name;
+
+    uint8_t pending;
+    uint8_t *payload;
+    uint32_t recved_len, payload_len;
+
+    /* flags */
+    uint8_t hs;     /* server handshake */
+    uint8_t try_auth; /* client auth */
+    uint8_t auth_ok;  /* auth passed */
+    uint16_t tx_num;
 } MysqlState;
 
 int MysqlParseClientRecord(Flow *f, void *alstate, AppLayerParserState *pstate,
         uint8_t *input, uint32_t input_len, void *local_data);
 
-int MysqlParseServerRecord(Flow *f, void *mysql_state,
+int MysqlParseServerRecord(Flow *f, void *alstate,
         AppLayerParserState *pstate, uint8_t *input,
         uint32_t input_len, void *local_data);
 
 void *MysqlStateAlloc(void);
 void MysqlStateFree(void *state);
 int MysqlRequestParse(uint8_t *input, uint32_t input_len);
-void MysqlStateClean(MysqlState *s);
-void *MysqlTransactionAlloc(void);
 const char *CmdStr(MysqlCommand cmd);
+
+uint64_t MysqlGetTxCnt(void *alstate);
+void *MysqlGetTx(void *alstate, uint64_t tx_id);
+void MysqlStateTxFree(void *state, uint64_t tx_id);
+int MysqlGetAlstateProgressCompletionStatus(uint8_t dir);
+int MysqlGetAlstateProgress(void *tx, uint8_t direction);
 #endif

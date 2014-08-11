@@ -76,8 +76,7 @@ void B2gmPrintInfo(MpmCtx *mpm_ctx);
 void B2gmPrintSearchStats(MpmThreadCtx *mpm_thread_ctx);
 void B2gmRegisterTests(void);
 
-void MpmB2gmRegister (void)
-{
+void MpmB2gmRegister (void) {
     mpm_table[MPM_B2GM].name = "b2gm";
     mpm_table[MPM_B2GM].max_pattern_length = B2GM_WORD_SIZE;
 
@@ -96,8 +95,7 @@ void MpmB2gmRegister (void)
 }
 
 #ifdef PRINTMATCH
-static void prt (uint8_t *buf, uint16_t buflen)
-{
+static void prt (uint8_t *buf, uint16_t buflen) {
     uint16_t i;
 
     for (i = 0; i < buflen; i++) {
@@ -108,8 +106,7 @@ static void prt (uint8_t *buf, uint16_t buflen)
 }
 #endif
 
-void B2gmPrintInfo(MpmCtx *mpm_ctx)
-{
+void B2gmPrintInfo(MpmCtx *mpm_ctx) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 
     printf("MPM B2gm Information:\n");
@@ -127,8 +124,7 @@ void B2gmPrintInfo(MpmCtx *mpm_ctx)
     printf("\n");
 }
 
-static inline B2gmPattern *B2gmAllocPattern(MpmCtx *mpm_ctx)
-{
+static inline B2gmPattern *B2gmAllocPattern(MpmCtx *mpm_ctx) {
     B2gmPattern *p = SCMalloc(sizeof(B2gmPattern));
     if (unlikely(p == NULL))
         return NULL;
@@ -140,8 +136,7 @@ static inline B2gmPattern *B2gmAllocPattern(MpmCtx *mpm_ctx)
 }
 
 static inline B2gmPattern *
-B2gmAllocHashItem(MpmCtx *mpm_ctx)
-{
+B2gmAllocHashItem(MpmCtx *mpm_ctx) {
     B2gmPattern *hi = SCMalloc(sizeof(B2gmPattern));
     if (unlikely(hi == NULL))
         return NULL;
@@ -152,8 +147,7 @@ B2gmAllocHashItem(MpmCtx *mpm_ctx)
     return hi;
 }
 
-static void B2gmHashFree(MpmCtx *mpm_ctx, B2gmPattern *hi)
-{
+static void B2gmHashFree(MpmCtx *mpm_ctx, B2gmPattern *hi) {
     if (hi == NULL)
         return;
 
@@ -165,8 +159,7 @@ static void B2gmHashFree(MpmCtx *mpm_ctx, B2gmPattern *hi)
     B2gmHashFree(mpm_ctx, t);
 }
 
-static inline void memcpy_tolower(uint8_t *d, uint8_t *s, uint16_t len)
-{
+static inline void memcpy_tolower(uint8_t *d, uint8_t *s, uint16_t len) {
     uint16_t i;
     for (i = 0; i < len; i++) {
         d[i] = u8_tolower(s[i]);
@@ -176,8 +169,7 @@ static inline void memcpy_tolower(uint8_t *d, uint8_t *s, uint16_t len)
 /*
  * INIT HASH START
  */
-static inline uint32_t B2gmInitHash(B2gmPattern *p)
-{
+static inline uint32_t B2gmInitHash(B2gmPattern *p) {
     uint32_t hash = p->len * p->pat[0];
     if (p->len > 1)
         hash += p->pat[1];
@@ -185,8 +177,7 @@ static inline uint32_t B2gmInitHash(B2gmPattern *p)
     return (hash % INIT_HASH_SIZE);
 }
 
-static inline uint32_t B2gmInitHashRaw(uint8_t *pat, uint16_t patlen)
-{
+static inline uint32_t B2gmInitHashRaw(uint8_t *pat, uint16_t patlen) {
     uint32_t hash = patlen * pat[0];
     if (patlen > 1)
         hash += pat[1];
@@ -194,8 +185,7 @@ static inline uint32_t B2gmInitHashRaw(uint8_t *pat, uint16_t patlen)
     return (hash % INIT_HASH_SIZE);
 }
 
-static inline int B2gmInitHashAdd(B2gmCtx *ctx, B2gmPattern *p)
-{
+static inline int B2gmInitHashAdd(B2gmCtx *ctx, B2gmPattern *p) {
     uint32_t hash = B2gmInitHash(p);
 
     if (ctx->init_hash[hash] == NULL) {
@@ -219,8 +209,7 @@ static inline int B2gmInitHashAdd(B2gmCtx *ctx, B2gmPattern *p)
 
 static inline int B2gmCmpPattern(B2gmPattern *p, uint8_t *pat, uint16_t patlen, char flags);
 
-static inline B2gmPattern *B2gmInitHashLookup(B2gmCtx *ctx, uint8_t *pat, uint16_t patlen, char flags)
-{
+static inline B2gmPattern *B2gmInitHashLookup(B2gmCtx *ctx, uint8_t *pat, uint16_t patlen, char flags) {
     uint32_t hash = B2gmInitHashRaw(pat,patlen);
 
     if (ctx->init_hash[hash] == NULL) {
@@ -236,8 +225,7 @@ static inline B2gmPattern *B2gmInitHashLookup(B2gmCtx *ctx, uint8_t *pat, uint16
     return NULL;
 }
 
-static inline int B2gmCmpPattern(B2gmPattern *p, uint8_t *pat, uint16_t patlen, char flags)
-{
+static inline int B2gmCmpPattern(B2gmPattern *p, uint8_t *pat, uint16_t patlen, char flags) {
     if (p->len != patlen)
         return 0;
 
@@ -254,8 +242,7 @@ static inline int B2gmCmpPattern(B2gmPattern *p, uint8_t *pat, uint16_t patlen, 
  * INIT HASH END
  */
 
-void B2gmFreePattern(MpmCtx *mpm_ctx, B2gmPattern *p)
-{
+void B2gmFreePattern(MpmCtx *mpm_ctx, B2gmPattern *p) {
     if (p != NULL) {
         if (p->pat != NULL) {
             SCFree(p->pat);
@@ -278,8 +265,7 @@ void B2gmFreePattern(MpmCtx *mpm_ctx, B2gmPattern *p)
  *  \param sid signature id (internal id)
  *  \param flags pattern MPM_PATTERN_* flags
  */
-static int B2gmAddPattern(MpmCtx *mpm_ctx, uint8_t *pat, uint16_t patlen, uint16_t offset, uint16_t depth, uint32_t pid, uint32_t sid, uint8_t flags)
-{
+static int B2gmAddPattern(MpmCtx *mpm_ctx, uint8_t *pat, uint16_t patlen, uint16_t offset, uint16_t depth, uint32_t pid, uint32_t sid, uint8_t flags) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 
     SCLogDebug("ctx %p len %"PRIu16" pid %" PRIu32, ctx, patlen, pid);
@@ -357,8 +343,7 @@ int B2gmAddPatternCS(MpmCtx *mpm_ctx, uint8_t *pat, uint16_t patlen,
     return B2gmAddPattern(mpm_ctx, pat, patlen, offset, depth, pid, sid, flags);
 }
 
-static uint32_t B2gmHashPatternSortHash1(HashListTable *ht, void *pattern, uint16_t len)
-{
+static uint32_t B2gmHashPatternSortHash1(HashListTable *ht, void *pattern, uint16_t len) {
     BUG_ON(len != sizeof(B2gmPattern));
     BUG_ON(pattern == NULL);
 
@@ -367,8 +352,7 @@ static uint32_t B2gmHashPatternSortHash1(HashListTable *ht, void *pattern, uint1
 }
 
 static char B2gmHashPatternCompare(void *pattern1, uint16_t len1,
-        void *pattern2, uint16_t len2)
-{
+        void *pattern2, uint16_t len2) {
     BUG_ON(len1 != sizeof(B2gmPattern));
     BUG_ON(len2 != sizeof(B2gmPattern));
 
@@ -382,8 +366,7 @@ static char B2gmHashPatternCompare(void *pattern1, uint16_t len1,
     return 1;
 }
 
-static inline uint32_t B2gmBloomHash(void *data, uint16_t datalen, uint8_t iter, uint32_t hash_size)
-{
+static inline uint32_t B2gmBloomHash(void *data, uint16_t datalen, uint8_t iter, uint32_t hash_size) {
      uint8_t *d = (uint8_t *)data;
      uint16_t i;
      uint32_t hash = (uint32_t)u8_tolower(*d);
@@ -398,8 +381,7 @@ static inline uint32_t B2gmBloomHash(void *data, uint16_t datalen, uint8_t iter,
      return hash;
 }
 
-static void B2gmPrepareHashAddPattern(MpmCtx *mpm_ctx, uint16_t idx, uint32_t i)
-{
+static void B2gmPrepareHashAddPattern(MpmCtx *mpm_ctx, uint16_t idx, uint32_t i) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 
     if (ctx->lookup[idx].hash == NULL) {
@@ -439,8 +421,7 @@ error:
     return;
 }
 
-static void B2gmPrepareHash(MpmCtx *mpm_ctx)
-{
+static void B2gmPrepareHash(MpmCtx *mpm_ctx) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
     uint16_t i;
     uint16_t size1 = 1;
@@ -584,8 +565,7 @@ static void B2gmPrepareHash(MpmCtx *mpm_ctx)
     return;
 }
 
-static void B2gmAddToMatchArray(MpmCtx *mpm_ctx, B2gmPattern *p, int j)
-{
+static void B2gmAddToMatchArray(MpmCtx *mpm_ctx, B2gmPattern *p, int j) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 
     if (p->flags & MPM_PATTERN_FLAG_NOCASE) {
@@ -613,8 +593,7 @@ static void B2gmAddToMatchArray(MpmCtx *mpm_ctx, B2gmPattern *p, int j)
     }
 }
 
-int B2gmBuildMatchArray(MpmCtx *mpm_ctx)
-{
+int B2gmBuildMatchArray(MpmCtx *mpm_ctx) {
     SCEnter();
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 
@@ -651,8 +630,7 @@ int B2gmBuildMatchArray(MpmCtx *mpm_ctx)
     SCReturnInt(0);
 }
 
-int B2gmPreparePatterns(MpmCtx *mpm_ctx)
-{
+int B2gmPreparePatterns(MpmCtx *mpm_ctx) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 
     /* alloc the lookup array */
@@ -721,8 +699,7 @@ error:
     return -1;
 }
 
-void B2gmPrintSearchStats(MpmThreadCtx *mpm_thread_ctx)
-{
+void B2gmPrintSearchStats(MpmThreadCtx *mpm_thread_ctx) {
 #ifdef B2GM_COUNTERS
     B2gmThreadCtx *tctx = (B2gmThreadCtx *)mpm_thread_ctx->ctx;
 
@@ -746,8 +723,7 @@ void B2gmPrintSearchStats(MpmThreadCtx *mpm_thread_ctx)
 }
 
 static inline int
-memcmp_lowercase(const uint8_t *s1, const uint8_t *s2, const uint16_t n)
-{
+memcmp_lowercase(const uint8_t *s1, const uint8_t *s2, const uint16_t n) {
     size_t i;
 
     /* check backwards because we already tested the first
@@ -832,8 +808,7 @@ static void B2gmGetConfig()
     }
 }
 
-void B2gmInitCtx (MpmCtx *mpm_ctx)
-{
+void B2gmInitCtx (MpmCtx *mpm_ctx) {
     SCLogDebug("mpm_ctx %p, ctx %p", mpm_ctx, mpm_ctx->ctx);
 
     BUG_ON(mpm_ctx->ctx != NULL);
@@ -872,8 +847,7 @@ void B2gmInitCtx (MpmCtx *mpm_ctx)
     SCReturn;
 }
 
-void B2gmDestroyCtx(MpmCtx *mpm_ctx)
-{
+void B2gmDestroyCtx(MpmCtx *mpm_ctx) {
     SCLogDebug("mpm_ctx %p", mpm_ctx);
 
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
@@ -929,8 +903,7 @@ void B2gmDestroyCtx(MpmCtx *mpm_ctx)
     mpm_ctx->memory_size -= sizeof(B2gmCtx);
 }
 
-void B2gmThreadInitCtx(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, uint32_t matchsize)
-{
+void B2gmThreadInitCtx(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, uint32_t matchsize) {
     memset(mpm_thread_ctx, 0, sizeof(MpmThreadCtx));
 
     if (sizeof(B2gmThreadCtx) > 0) { /* size can be null when optimized */
@@ -946,8 +919,7 @@ void B2gmThreadInitCtx(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, uint32_t m
     }
 }
 
-void B2gmThreadDestroyCtx(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx)
-{
+void B2gmThreadDestroyCtx(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx) {
     B2gmThreadCtx *ctx = (B2gmThreadCtx *)mpm_thread_ctx->ctx;
 
     B2gmPrintSearchStats(mpm_thread_ctx);
@@ -959,14 +931,12 @@ void B2gmThreadDestroyCtx(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx)
     }
 }
 
-uint32_t B2gmSearchWrap(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen)
-{
+uint32_t B2gmSearchWrap(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
     return ctx ? ctx->Search(mpm_ctx, mpm_thread_ctx, pmq, buf, buflen) : 0;
 }
 
-uint32_t B2gmSearchBNDMq(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen)
-{
+uint32_t B2gmSearchBNDMq(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 #ifdef B2GM_COUNTERS
     B2gmThreadCtx *tctx = (B2gmThreadCtx *)mpm_thread_ctx->ctx;
@@ -1065,8 +1035,7 @@ uint32_t B2gmSearchBNDMq(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternM
     return matches;
 }
 
-uint32_t B2gmSearch(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen)
-{
+uint32_t B2gmSearch(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen) {
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
 #ifdef B2GM_COUNTERS
     B2gmThreadCtx *tctx = (B2gmThreadCtx *)mpm_thread_ctx->ctx;
@@ -1159,8 +1128,7 @@ skip_loop:
     return matches;
 }
 
-uint32_t B2gmSearch1(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen)
-{
+uint32_t B2gmSearch1(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatcherQueue *pmq, uint8_t *buf, uint16_t buflen) {
     SCEnter();
 
     B2gmCtx *ctx = (B2gmCtx *)mpm_ctx->ctx;
@@ -1216,8 +1184,7 @@ uint32_t B2gmSearch1(MpmCtx *mpm_ctx, MpmThreadCtx *mpm_thread_ctx, PatternMatch
  */
 
 #ifdef UNITTESTS
-static int B2gmTestInit01 (void)
-{
+static int B2gmTestInit01 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1238,8 +1205,7 @@ static int B2gmTestInit01 (void)
 }
 
 #if 0
-static int B2gmTestS0Init01 (void)
-{
+static int B2gmTestS0Init01 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     MpmInitCtx(&mpm_ctx, MPM_B2GM);
@@ -1258,8 +1224,7 @@ static int B2gmTestS0Init01 (void)
     return result;
 }
 
-static int B2gmTestS0Init02 (void)
-{
+static int B2gmTestS0Init02 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     MpmInitCtx(&mpm_ctx, MPM_B2GM);
@@ -1279,8 +1244,7 @@ static int B2gmTestS0Init02 (void)
     return result;
 }
 
-static int B2gmTestS0Init03 (void)
-{
+static int B2gmTestS0Init03 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     MpmInitCtx(&mpm_ctx, MPM_B2GM);
@@ -1300,8 +1264,7 @@ static int B2gmTestS0Init03 (void)
     return result;
 }
 
-static int B2gmTestS0Init04 (void)
-{
+static int B2gmTestS0Init04 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     MpmInitCtx(&mpm_ctx, MPM_B2GM);
@@ -1320,8 +1283,7 @@ static int B2gmTestS0Init04 (void)
     return result;
 }
 
-static int B2gmTestS0Init05 (void)
-{
+static int B2gmTestS0Init05 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     MpmInitCtx(&mpm_ctx, MPM_B2GM);
@@ -1341,8 +1303,7 @@ static int B2gmTestS0Init05 (void)
 }
 #endif
 
-static int B2gmTestSearch01 (void)
-{
+static int B2gmTestSearch01 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1367,8 +1328,7 @@ static int B2gmTestSearch01 (void)
     return result;
 }
 
-static int B2gmTestSearch02 (void)
-{
+static int B2gmTestSearch02 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1393,8 +1353,7 @@ static int B2gmTestSearch02 (void)
     return result;
 }
 
-static int B2gmTestSearch02a (void)
-{
+static int B2gmTestSearch02a (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1419,8 +1378,7 @@ static int B2gmTestSearch02a (void)
     return result;
 }
 
-static int B2gmTestSearch02b (void)
-{
+static int B2gmTestSearch02b (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1445,8 +1403,7 @@ static int B2gmTestSearch02b (void)
     return result;
 }
 
-static int B2gmTestSearch03 (void)
-{
+static int B2gmTestSearch03 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1473,8 +1430,7 @@ static int B2gmTestSearch03 (void)
     return result;
 }
 
-static int B2gmTestSearch03a (void)
-{
+static int B2gmTestSearch03a (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1502,8 +1458,7 @@ static int B2gmTestSearch03a (void)
 }
 
 /* test patterns longer than 'm'. M is 4 here. */
-static int B2gmTestSearch04 (void)
-{
+static int B2gmTestSearch04 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1531,8 +1486,7 @@ static int B2gmTestSearch04 (void)
 }
 
 /* case insensitive test patterns longer than 'm'. M is 4 here. */
-static int B2gmTestSearch05 (void)
-{
+static int B2gmTestSearch05 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1559,8 +1513,7 @@ static int B2gmTestSearch05 (void)
     return result;
 }
 
-static int B2gmTestSearch05a (void)
-{
+static int B2gmTestSearch05a (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1590,8 +1543,7 @@ static int B2gmTestSearch05a (void)
     return result;
 }
 
-static int B2gmTestSearch06 (void)
-{
+static int B2gmTestSearch06 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1616,8 +1568,7 @@ static int B2gmTestSearch06 (void)
     return result;
 }
 
-static int B2gmTestSearch07 (void)
-{
+static int B2gmTestSearch07 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1651,8 +1602,7 @@ static int B2gmTestSearch07 (void)
     return result;
 }
 
-static int B2gmTestSearch08 (void)
-{
+static int B2gmTestSearch08 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1677,8 +1627,7 @@ static int B2gmTestSearch08 (void)
     return result;
 }
 
-static int B2gmTestSearch09 (void)
-{
+static int B2gmTestSearch09 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1703,8 +1652,7 @@ static int B2gmTestSearch09 (void)
     return result;
 }
 
-static int B2gmTestSearch10 (void)
-{
+static int B2gmTestSearch10 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1734,8 +1682,7 @@ static int B2gmTestSearch10 (void)
     return result;
 }
 
-static int B2gmTestSearch11 (void)
-{
+static int B2gmTestSearch11 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1761,8 +1708,7 @@ static int B2gmTestSearch11 (void)
     return result;
 }
 
-static int B2gmTestSearch12 (void)
-{
+static int B2gmTestSearch12 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1788,8 +1734,7 @@ static int B2gmTestSearch12 (void)
     return result;
 }
 
-static int B2gmTestSearch13 (void)
-{
+static int B2gmTestSearch13 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1814,8 +1759,7 @@ static int B2gmTestSearch13 (void)
     return result;
 }
 
-static int B2gmTestSearch14 (void)
-{
+static int B2gmTestSearch14 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1840,8 +1784,7 @@ static int B2gmTestSearch14 (void)
     return result;
 }
 
-static int B2gmTestSearch15 (void)
-{
+static int B2gmTestSearch15 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1866,8 +1809,7 @@ static int B2gmTestSearch15 (void)
     return result;
 }
 
-static int B2gmTestSearch16 (void)
-{
+static int B2gmTestSearch16 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1892,8 +1834,7 @@ static int B2gmTestSearch16 (void)
     return result;
 }
 
-static int B2gmTestSearch17 (void)
-{
+static int B2gmTestSearch17 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1918,8 +1859,7 @@ static int B2gmTestSearch17 (void)
     return result;
 }
 
-static int B2gmTestSearch18 (void)
-{
+static int B2gmTestSearch18 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1944,8 +1884,7 @@ static int B2gmTestSearch18 (void)
     return result;
 }
 
-static int B2gmTestSearch19 (void)
-{
+static int B2gmTestSearch19 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1970,8 +1909,7 @@ static int B2gmTestSearch19 (void)
     return result;
 }
 
-static int B2gmTestSearch20 (void)
-{
+static int B2gmTestSearch20 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -1998,8 +1936,7 @@ static int B2gmTestSearch20 (void)
     return result;
 }
 
-static int B2gmTestSearch21 (void)
-{
+static int B2gmTestSearch21 (void) {
     int result = 0;
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
@@ -2026,8 +1963,7 @@ static int B2gmTestSearch21 (void)
 #endif /* UNITTESTS */
 
 #if 0
-static int B2gmTestSearchXX (void)
-{
+static int B2gmTestSearchXX (void) {
     MpmCtx mpm_ctx;
     memset(&mpm_ctx, 0x00, sizeof(MpmCtx));
     MpmThreadCtx mpm_thread_ctx;
@@ -2744,8 +2680,7 @@ static int B2gmTestSearchXX (void)
 }
 #endif
 
-void B2gmRegisterTests(void)
-{
+void B2gmRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("B2gmTestInit01", B2gmTestInit01, 1);
 /*

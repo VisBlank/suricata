@@ -53,8 +53,7 @@ typedef struct OutputPacketLogger_ {
 
 static OutputPacketLogger *list = NULL;
 
-int OutputRegisterPacketLogger(const char *name, PacketLogger LogFunc, PacketLogCondition ConditionFunc, OutputCtx *output_ctx)
-{
+int OutputRegisterPacketLogger(const char *name, PacketLogger LogFunc, PacketLogCondition ConditionFunc, OutputCtx *output_ctx) {
     int module_id = TmModuleGetIdByName(name);
     if (module_id < 0)
         return -1;
@@ -83,8 +82,7 @@ int OutputRegisterPacketLogger(const char *name, PacketLogger LogFunc, PacketLog
     return 0;
 }
 
-static TmEcode OutputPacketLog(ThreadVars *tv, Packet *p, void *thread_data, PacketQueue *pq, PacketQueue *postpq)
-{
+static TmEcode OutputPacketLog(ThreadVars *tv, Packet *p, void *thread_data, PacketQueue *pq, PacketQueue *postpq) {
     BUG_ON(thread_data == NULL);
     BUG_ON(list == NULL);
 
@@ -118,8 +116,7 @@ static TmEcode OutputPacketLog(ThreadVars *tv, Packet *p, void *thread_data, Pac
 /** \brief thread init for the packet logger
  *  This will run the thread init functions for the individual registered
  *  loggers */
-static TmEcode OutputPacketLogThreadInit(ThreadVars *tv, void *initdata, void **data)
-{
+static TmEcode OutputPacketLogThreadInit(ThreadVars *tv, void *initdata, void **data) {
     OutputLoggerThreadData *td = SCMalloc(sizeof(*td));
     if (td == NULL)
         return TM_ECODE_FAILED;
@@ -167,8 +164,7 @@ static TmEcode OutputPacketLogThreadInit(ThreadVars *tv, void *initdata, void **
     return TM_ECODE_OK;
 }
 
-static TmEcode OutputPacketLogThreadDeinit(ThreadVars *tv, void *thread_data)
-{
+static TmEcode OutputPacketLogThreadDeinit(ThreadVars *tv, void *thread_data) {
     OutputLoggerThreadData *op_thread_data = (OutputLoggerThreadData *)thread_data;
     OutputLoggerThreadStore *store = op_thread_data->store;
     OutputPacketLogger *logger = list;
@@ -185,17 +181,13 @@ static TmEcode OutputPacketLogThreadDeinit(ThreadVars *tv, void *thread_data)
             tm_module->ThreadDeinit(tv, store->thread_data);
         }
 
-        OutputLoggerThreadStore *next_store = store->next;
-        SCFree(store);
-        store = next_store;
-
         logger = logger->next;
+        store = store->next;
     }
     return TM_ECODE_OK;
 }
 
-static void OutputPacketLogExitPrintStats(ThreadVars *tv, void *thread_data)
-{
+static void OutputPacketLogExitPrintStats(ThreadVars *tv, void *thread_data) {
     OutputLoggerThreadData *op_thread_data = (OutputLoggerThreadData *)thread_data;
     OutputLoggerThreadStore *store = op_thread_data->store;
     OutputPacketLogger *logger = list;
@@ -217,25 +209,11 @@ static void OutputPacketLogExitPrintStats(ThreadVars *tv, void *thread_data)
     }
 }
 
-void TmModulePacketLoggerRegister (void)
-{
+void TmModulePacketLoggerRegister (void) {
     tmm_modules[TMM_PACKETLOGGER].name = "__packet_logger__";
     tmm_modules[TMM_PACKETLOGGER].ThreadInit = OutputPacketLogThreadInit;
     tmm_modules[TMM_PACKETLOGGER].Func = OutputPacketLog;
     tmm_modules[TMM_PACKETLOGGER].ThreadExitPrintStats = OutputPacketLogExitPrintStats;
     tmm_modules[TMM_PACKETLOGGER].ThreadDeinit = OutputPacketLogThreadDeinit;
     tmm_modules[TMM_PACKETLOGGER].cap_flags = 0;
-}
-
-void OutputPacketShutdown(void)
-{
-    OutputPacketLogger *logger = list;
-    while (logger) {
-        OutputPacketLogger *next_logger = logger->next;
-        SCFree(logger);
-        logger = next_logger;
-    }
-
-    /* reset list pointer */
-    list = NULL;
 }

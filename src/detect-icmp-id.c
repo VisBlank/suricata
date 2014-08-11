@@ -50,8 +50,7 @@ void DetectIcmpIdFree(void *);
 /**
  * \brief Registration function for icode: icmp_id
  */
-void DetectIcmpIdRegister (void)
-{
+void DetectIcmpIdRegister (void) {
     sigmatch_table[DETECT_ICMP_ID].name = "icmp_id";
     sigmatch_table[DETECT_ICMP_ID].desc = "check for a ICMP id";
     sigmatch_table[DETECT_ICMP_ID].url = "https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Header_keywords#icmp_id";
@@ -92,8 +91,7 @@ error:
  * \retval 0 no match
  * \retval 1 match
  */
-int DetectIcmpIdMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, Packet *p, Signature *s, SigMatch *m)
-{
+int DetectIcmpIdMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, Packet *p, Signature *s, SigMatch *m) {
     uint16_t pid;
     DetectIcmpIdData *iid = (DetectIcmpIdData *)m->ctx;
 
@@ -153,8 +151,7 @@ int DetectIcmpIdMatch (ThreadVars *t, DetectEngineThreadCtx *det_ctx, Packet *p,
  * \retval iid pointer to DetectIcmpIdData on success
  * \retval NULL on failure
  */
-DetectIcmpIdData *DetectIcmpIdParse (char *icmpidstr)
-{
+DetectIcmpIdData *DetectIcmpIdParse (char *icmpidstr) {
     DetectIcmpIdData *iid = NULL;
     char *substr[3] = {NULL, NULL, NULL};
 #define MAX_SUBSTRINGS 30
@@ -228,8 +225,7 @@ error:
  * \retval 0 on Success
  * \retval -1 on Failure
  */
-static int DetectIcmpIdSetup (DetectEngineCtx *de_ctx, Signature *s, char *icmpidstr)
-{
+static int DetectIcmpIdSetup (DetectEngineCtx *de_ctx, Signature *s, char *icmpidstr) {
     DetectIcmpIdData *iid = NULL;
     SigMatch *sm = NULL;
 
@@ -259,8 +255,7 @@ error:
  *
  * \param ptr pointer to DetectIcmpIdData
  */
-void DetectIcmpIdFree (void *ptr)
-{
+void DetectIcmpIdFree (void *ptr) {
     DetectIcmpIdData *iid = (DetectIcmpIdData *)ptr;
     SCFree(iid);
 }
@@ -274,8 +269,7 @@ void DetectIcmpIdFree (void *ptr)
 /**
  * \test DetectIcmpIdParseTest01 is a test for setting a valid icmp_id value
  */
-int DetectIcmpIdParseTest01 (void)
-{
+int DetectIcmpIdParseTest01 (void) {
     DetectIcmpIdData *iid = NULL;
     iid = DetectIcmpIdParse("300");
     if (iid != NULL && iid->id == htons(300)) {
@@ -289,8 +283,7 @@ int DetectIcmpIdParseTest01 (void)
  * \test DetectIcmpIdParseTest02 is a test for setting a valid icmp_id value
  *       with spaces all around
  */
-int DetectIcmpIdParseTest02 (void)
-{
+int DetectIcmpIdParseTest02 (void) {
     DetectIcmpIdData *iid = NULL;
     iid = DetectIcmpIdParse("  300  ");
     if (iid != NULL && iid->id == htons(300)) {
@@ -304,8 +297,7 @@ int DetectIcmpIdParseTest02 (void)
  * \test DetectIcmpIdParseTest03 is a test for setting a valid icmp_id value
  *       with quotation marks
  */
-int DetectIcmpIdParseTest03 (void)
-{
+int DetectIcmpIdParseTest03 (void) {
     DetectIcmpIdData *iid = NULL;
     iid = DetectIcmpIdParse("\"300\"");
     if (iid != NULL && iid->id == htons(300)) {
@@ -319,8 +311,7 @@ int DetectIcmpIdParseTest03 (void)
  * \test DetectIcmpIdParseTest04 is a test for setting a valid icmp_id value
  *       with quotation marks and spaces all around
  */
-int DetectIcmpIdParseTest04 (void)
-{
+int DetectIcmpIdParseTest04 (void) {
     DetectIcmpIdData *iid = NULL;
     iid = DetectIcmpIdParse("   \"   300 \"");
     if (iid != NULL && iid->id == htons(300)) {
@@ -334,8 +325,7 @@ int DetectIcmpIdParseTest04 (void)
  * \test DetectIcmpIdParseTest05 is a test for setting an invalid icmp_id
  *       value with missing quotation marks
  */
-int DetectIcmpIdParseTest05 (void)
-{
+int DetectIcmpIdParseTest05 (void) {
     DetectIcmpIdData *iid = NULL;
     iid = DetectIcmpIdParse("\"300");
     if (iid == NULL) {
@@ -350,8 +340,7 @@ int DetectIcmpIdParseTest05 (void)
  *       icmp_id keyword by creating 2 rules and matching a crafted packet
  *       against them. Only the first one shall trigger.
  */
-int DetectIcmpIdMatchTest01 (void)
-{
+int DetectIcmpIdMatchTest01 (void) {
     int result = 0;
     Packet *p = NULL;
     Signature *s = NULL;
@@ -413,8 +402,7 @@ end:
  *       against them. The packet is an ICMP packet with no "id" field,
  *       therefore the rule should not trigger.
  */
-int DetectIcmpIdMatchTest02 (void)
-{
+int DetectIcmpIdMatchTest02 (void) {
     int result = 0;
 
     uint8_t raw_icmpv4[] = {
@@ -485,8 +473,7 @@ end:
 }
 #endif /* UNITTESTS */
 
-void DetectIcmpIdRegisterTests (void)
-{
+void DetectIcmpIdRegisterTests (void) {
 #ifdef UNITTESTS
     UtRegisterTest("DetectIcmpIdParseTest01", DetectIcmpIdParseTest01, 1);
     UtRegisterTest("DetectIcmpIdParseTest02", DetectIcmpIdParseTest02, 1);

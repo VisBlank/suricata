@@ -197,8 +197,7 @@ static int DetectWithinSetup(DetectEngineCtx *de_ctx, Signature *s, char *within
  * \test DetectWithinTestPacket01 is a test to check matches of
  * within, if the previous keyword is pcre (bug 145)
  */
-int DetectWithinTestPacket01 (void)
-{
+int DetectWithinTestPacket01 (void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"GET /AllWorkAndNoPlayMakesWillADullBoy HTTP/1.0"
                     "User-Agent: Wget/1.11.4"
@@ -225,8 +224,7 @@ end:
 }
 
 
-int DetectWithinTestPacket02 (void)
-{
+int DetectWithinTestPacket02 (void) {
     int result = 0;
     uint8_t *buf = (uint8_t *)"Zero Five Ten Fourteen";
     uint16_t buflen = strlen((char *)buf);
@@ -249,8 +247,7 @@ end:
 
 #endif /* UNITTESTS */
 
-void DetectWithinRegisterTests(void)
-{
+void DetectWithinRegisterTests(void) {
     #ifdef UNITTESTS
     UtRegisterTest("DetectWithinTestPacket01", DetectWithinTestPacket01, 1);
     UtRegisterTest("DetectWithinTestPacket02", DetectWithinTestPacket02, 1);

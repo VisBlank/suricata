@@ -64,8 +64,7 @@ static void DetectFlagsFree(void *);
  * \brief Registration function for flags: keyword
  */
 
-void DetectFlagsRegister (void)
-{
+void DetectFlagsRegister (void) {
     sigmatch_table[DETECT_FLAGS].name = "flags";
     sigmatch_table[DETECT_FLAGS].Match = DetectFlagsMatch;
     sigmatch_table[DETECT_FLAGS].Setup = DetectFlagsSetup;
@@ -516,8 +515,7 @@ error:
  *
  * \param de pointer to DetectFlagsData
  */
-static void DetectFlagsFree(void *de_ptr)
-{
+static void DetectFlagsFree(void *de_ptr) {
     DetectFlagsData *de = (DetectFlagsData *)de_ptr;
     if(de) SCFree(de);
 }
@@ -533,8 +531,7 @@ static void DetectFlagsFree(void *de_ptr)
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int FlagsTestParse01 (void)
-{
+static int FlagsTestParse01 (void) {
     DetectFlagsData *de = NULL;
     de = DetectFlagsParse("S");
     if (de && (de->flags == TH_SYN) ) {
@@ -551,8 +548,7 @@ static int FlagsTestParse01 (void)
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int FlagsTestParse02 (void)
-{
+static int FlagsTestParse02 (void) {
     DetectFlagsData *de = NULL;
     de = DetectFlagsParse("G");
     if (de) {
@@ -569,8 +565,7 @@ static int FlagsTestParse02 (void)
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse03 (void)
-{
+static int FlagsTestParse03 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -624,8 +619,7 @@ error:
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int FlagsTestParse04 (void)
-{
+static int FlagsTestParse04 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -679,8 +673,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse05 (void)
-{
+static int FlagsTestParse05 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -734,8 +727,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse06 (void)
-{
+static int FlagsTestParse06 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -789,8 +781,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse07 (void)
-{
+static int FlagsTestParse07 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -844,8 +835,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse08 (void)
-{
+static int FlagsTestParse08 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -899,8 +889,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse09 (void)
-{
+static int FlagsTestParse09 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -954,8 +943,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse10 (void)
-{
+static int FlagsTestParse10 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -1009,8 +997,7 @@ error:
  *  \retval 1 on success
  *  \retval 0 on failure
  */
-static int FlagsTestParse11 (void)
-{
+static int FlagsTestParse11 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -1064,8 +1051,7 @@ error:
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int FlagsTestParse12 (void)
-{
+static int FlagsTestParse12 (void) {
     Packet *p = SCMalloc(SIZE_OF_PACKET);
     if (unlikely(p == NULL))
         return 0;
@@ -1121,8 +1107,7 @@ error:
  *  \retval 1 on succces
  *  \retval 0 on failure
  */
-static int FlagsTestParse13 (void)
-{
+static int FlagsTestParse13 (void) {
     DetectFlagsData *de = NULL;
     de = DetectFlagsParse("+S*");
     if (de != NULL) {
@@ -1317,8 +1302,7 @@ error:
 /**
  * \brief this function registers unit tests for Flags
  */
-void FlagsRegisterTests(void)
-{
+void FlagsRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("FlagsTestParse01", FlagsTestParse01, 1);
     UtRegisterTest("FlagsTestParse02", FlagsTestParse02, 0);

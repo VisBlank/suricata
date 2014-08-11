@@ -194,16 +194,6 @@ int RunModeTileMpipeWorkers(DetectEngineCtx *de_ctx)
         }
     }
 
-    /* Get affinity for worker */
-    cpu_set_t cpus;
-    //int result = tmc_cpus_get_my_affinity(&cpus);
-    int result = tmc_cpus_get_dataplane_cpus(&cpus);
-    if (result < 0) {
-        SCLogError(SC_ERR_INVALID_ARGUMENT,
-                   "tmc_cpus_get_my_affinity() returned=%d", result);
-        SCReturnInt(TM_ECODE_FAILED);
-    }
-
     for (pipe = 0; pipe < tile_num_pipelines; pipe++) {
         char *mpipe_devc;
 
@@ -241,10 +231,8 @@ int RunModeTileMpipeWorkers(DetectEngineCtx *de_ctx)
         }
         TmSlotSetFuncAppend(tv_worker, tm_module, (void *)mpipe_devc);
 
-	/* Bind to a single cpu. */
-	int pipe_cpu = tmc_cpus_find_nth_cpu(&cpus, pipe);
-	tv_worker->rank = pipe;
-
+        /* set affinity for worker */
+        int pipe_cpu = pipe + 1;
         TmThreadSetCPUAffinity(tv_worker, pipe_cpu);
 
         tm_module = TmModuleGetByName("DecodeMpipe");

@@ -31,8 +31,7 @@
 #include "util-debug.h"
 #include "util-print.h"
 
-HostQueue *HostQueueInit (HostQueue *q)
-{
+HostQueue *HostQueueInit (HostQueue *q) {
     if (q != NULL) {
         memset(q, 0, sizeof(HostQueue));
         HQLOCK_INIT(q);
@@ -40,8 +39,7 @@ HostQueue *HostQueueInit (HostQueue *q)
     return q;
 }
 
-HostQueue *HostQueueNew()
-{
+HostQueue *HostQueueNew() {
     HostQueue *q = (HostQueue *)SCMalloc(sizeof(HostQueue));
     if (q == NULL) {
         SCLogError(SC_ERR_FATAL, "Fatal error encountered in HostQueueNew. Exiting...");
@@ -56,8 +54,7 @@ HostQueue *HostQueueNew()
  *
  *  \param q the host queue to destroy
  */
-void HostQueueDestroy (HostQueue *q)
-{
+void HostQueueDestroy (HostQueue *q) {
     HQLOCK_DESTROY(q);
 }
 
@@ -67,8 +64,7 @@ void HostQueueDestroy (HostQueue *q)
  *  \param q queue
  *  \param h host
  */
-void HostEnqueue (HostQueue *q, Host *h)
-{
+void HostEnqueue (HostQueue *q, Host *h) {
 #ifdef DEBUG
     BUG_ON(q == NULL || h == NULL);
 #endif
@@ -100,8 +96,7 @@ void HostEnqueue (HostQueue *q, Host *h)
  *
  *  \retval h host or NULL if empty list.
  */
-Host *HostDequeue (HostQueue *q)
-{
+Host *HostDequeue (HostQueue *q) {
     HQLOCK_LOCK(q);
 
     Host *h = q->bot;
@@ -133,8 +128,7 @@ Host *HostDequeue (HostQueue *q)
     return h;
 }
 
-uint32_t HostQueueLen(HostQueue *q)
-{
+uint32_t HostQueueLen(HostQueue *q) {
     uint32_t len;
     HQLOCK_LOCK(q);
     len = q->len;

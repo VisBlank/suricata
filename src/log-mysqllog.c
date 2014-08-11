@@ -1,177 +1,96 @@
-/**
- * \file
- * \auth
- * Implement mysql logging portion of the engin
+/*
+ * Current log format is too simple, we need json that easy to parse
+ *
+ * \author coanor <coanor@gmail.com>
  */
 
 #include "suricata-common.h"
 #include "debug.h"
+#include "detect.h"
+#include "flow.h"
 #include "conf.h"
-#include "util-print.h"
-#include "util-debug.h"
-#include "util-json.h"
 #include "output.h"
-#include "log-mysqllog.h"
-#include "app-layer.h"
-#include "app-layer-mysql-common.h"
-#include "util-logopenfile.h"
-#include "util-buffer.h"
-#include "decode.h"
 
-#define OUTPUT_MYSQL_MODULE_NAME "LogMysqlLog"
-#define OUTPUT_MYSQL_DEFAULT_LOG_FILENAME "mysql.json"
-#define OUTPUT_MYSQL_BUFFER_SIZE 65535
+#include "util-debug.h"
+#include "util-proto-name.h"
+#include "util-time.h"
+#include "util-logopenfile.h"
+#include "util-print.h"
+#include "util-error.h"
+
+#include "app-layer-mysql-common.h"
+
+#include <jansson.h>
+
+static char module_name[] = "LogMysql";
+static char log_node_name[] = "mysql-log";
+static char log_file_name[] = "mysql.log";
+
+typedef struct LogMysqlFileCtx_ {
+    LogFileCtx *ctx;
+    uint32_t flags;
+} LogMysqlFileCtx;
 
 typedef struct LogMysqlLogThread_ {
-    LogFileCtx *file_ctx;
-    uint32_t flags; /* store mode */
-    uint32_t log_cnt;
-    MemBuffer *buffer;
+    LogMysqlFileCtx *mysqllog_ctx;
+    uint32_t mysql_cnt;
 } LogMysqlLogThread;
 
-TmEcode LogMysqlLogThreadInit(ThreadVars *, void *, void **);
-TmEcode LogMysqlLogThreadDeinit(ThreadVars *, void *);
-OutputCtx *LogMysqlLogInitCtx(ConfNode *conf);
-TmEcode LogMysqlLog(ThreadVars *tv, Packet *p,
-        void *data, PacketQueue *pq, PacketQueue *postpq);
-void LogMysqlLogExitPrintStats(ThreadVars *tv, void *data);
-static void LogMysqlDeinitCtx(OutputCtx *ctx);
-TmEcode LogMysqlLogIPV4(ThreadVars *tv, Packet *p,
-        void *data, PacketQueue *pq, PacketQueue *postpq);
-TmEcode LogMysqlLogIPV6(ThreadVars *tv, Packet *p,
-        void *data, PacketQueue *pq, PacketQueue *postpq);
-
-void TmModuleLogMysqlRegister(void) {
-    tmm_modules[TMM_LOGMYSQLLOG].name = OUTPUT_MYSQL_MODULE_NAME;
-    tmm_modules[TMM_LOGMYSQLLOG].ThreadInit = LogMysqlLogThreadInit;
-    tmm_modules[TMM_LOGMYSQLLOG].Func = LogMysqlLog;
-    tmm_modules[TMM_LOGMYSQLLOG].ThreadExitPrintStats = LogMysqlLogExitPrintStats;
-    tmm_modules[TMM_LOGMYSQLLOG].ThreadDeinit = LogMysqlLogThreadDeinit;
-    tmm_modules[TMM_LOGMYSQLLOG].RegisterTests = NULL;
-    tmm_modules[TMM_LOGMYSQLLOG].cap_flags = 0;
-
-    OutputRegisterModule(OUTPUT_MYSQL_MODULE_NAME, "mysql-log", LogMysqlLogInitCtx);
-
-    SCLogDebug("registered %s", OUTPUT_MYSQL_MODULE_NAME);
-}
-
-TmEcode LogMysqlLogThreadInit(ThreadVars *t, void *initdata, void **data) {
-    /* TODO */
-    LogMysqlLogThread *mlt = SCMalloc(sizeof(LogMysqlLogThread));
-    if (unlikely(mlt == NULL))
-        return TM_ECODE_FAILED;
-    memset(mlt, 0, sizeof(LogMysqlLogThread));
-
-    if (initdata == NULL) {
-        SCLogDebug("Error getting context for MysqlLog.  \"initdata\" argument NULL");
-        SCFree(mlt);
-        return TM_ECODE_FAILED;
-    }
-
-    mlt->buffer = MemBufferCreateNew(OUTPUT_MYSQL_BUFFER_SIZE);
-    if (mlt->buffer == NULL) {
-        SCFree(mlt);
-        return TM_ECODE_FAILED;
-    }
-
-    mlt->file_ctx = ((OutputCtx *)initdata)->data;
-    *data = (void *)mlt;
-    return TM_ECODE_OK;
-}
-
-TmEcode LogMysqlLog(ThreadVars *tv, Packet *p, void *data, PacketQueue *pq, PacketQueue *postpq) {
+static TmEcode LogMysqlLogThreadInit(ThreadVars *t, void *initdata, void **data) {
     SCEnter();
+    (void) t;
 
-    /* no flow, no mysql state */
-    if (p->flow == NULL)
-        SCReturnInt(TM_ECODE_OK);
+    if (!initdata) {
+        SCLogDebug("Error getting context for MysqlLog, \"initdata\" argument NULL");
+        return TM_ECODE_FAILED;
+    }
 
-    if (!(PKT_IS_TCP(p))) /* only support TCP on mysql */
-        SCReturnInt(TM_ECODE_OK);
+    LogMysqlLogThread *lt = SCCalloc(sizeof(*lt), 1);
+    if (unlikely(lt == NULL))
+        return TM_ECODE_FAILED;
 
-    if (PKT_IS_IPV4(p))
-        SCReturnInt(LogMysqlLogIPV4(tv, p, data, pq, postpq));
-    else if (PKT_IS_IPV6(p))
-        SCReturnInt(LogMysqlLogIPV6(tv, p, data, pq, postpq));
-    
-    SCReturnInt(TM_ECODE_OK);
-}
+    lt->mysqllog_ctx = ((OutputCtx *)initdata)->data;
+    *data = lt;
 
-TmEcode LogMysqlLogThreadDeinit(ThreadVars *t, void *data) {
-    LogMysqlLogThread *mlt = (LogMysqlLogThread *)data;
-    if (mlt == NULL)
-        return TM_ECODE_OK;
-
-    MemBufferFree(mlt->buffer);
-    memset(mlt, 0, sizeof(LogMysqlLogThread));
-
-    SCFree(mlt);
     return TM_ECODE_OK;
 }
 
-void LogMysqlLogExitPrintStats(ThreadVars *tv, void *data) {
-    LogMysqlLogThread *mlt = (LogMysqlLogThread *)data;
-    if (mlt == NULL)
+static void LogMysqlLogExitPrintStats(ThreadVars *t, void *data) {
+    SCEnter();
+    LogMysqlLogThread *lt = data;
+    if (!lt)
         return;
-    SCLogInfo("MySQL logger logged %" PRIu32 " requests", mlt->log_cnt);
+    SCLogInfo("Mysql Logger logged %" PRIu32 " transections", lt->mysql_cnt);
 }
 
-OutputCtx *LogMysqlLogInitCtx(ConfNode *conf) {
-    LogFileCtx *file_ctx = LogFileNewCtx();
-    if (file_ctx == NULL) {
-        SCLogError(SC_ERR_MYSQL_LOG_GENERIC, "could not create new file_ctx");
-        return NULL;
-    }
-
-    if (SCConfLogOpenGeneric(conf, file_ctx, OUTPUT_MYSQL_DEFAULT_LOG_FILENAME) < 0) {
-        LogFileFreeCtx(file_ctx);
-        return NULL;
-    }
-
-    OutputCtx *output_ctx = SCCalloc(1, sizeof(OutputCtx));
-    if (unlikely(output_ctx == NULL)) {
-        return NULL;
-    }
-
-    output_ctx->data = file_ctx;
-    output_ctx->DeInit = LogMysqlDeinitCtx;
-  
-    SCLogDebug("Mysql log output initialized");
-
-    AppLayerParserRegisterLogger(IPPROTO_TCP, ALPROTO_MYSQL);
-    return output_ctx;
-}
-
-static void LogMysqlDeinitCtx(OutputCtx *ctx) {
-    LogFileFreeCtx(ctx->data);
-    SCFree(ctx);
-}
-
-TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
-        void *data, PacketQueue *pq, PacketQueue *postpq, int ipproto) {
+static TmEcode LogMysqlLogThreadDeinit(ThreadVars *t, void *data) {
     SCEnter();
-    MysqlState *s = NULL;
-    LogMysqlLogThread *mlt = (LogMysqlLogThread *)data;
+    LogMysqlLogThread *lt = data;
+    if (!lt)
+        return TM_ECODE_OK;
+    SCFree(lt);
+    return TM_ECODE_OK;
+}
+
+static int LogMysqlLogger(ThreadVars *tv,
+        void *data, const Packet *p, Flow *f,
+        void *state, void *tx, uint64_t tx_id) {
+
+    SCEnter();
+    MysqlState *s = state;
     char timebuf[64];
-
-    if (p->flow == NULL)
-        SCReturnInt(TM_ECODE_OK);
-
-    FLOWLOCK_WRLOCK(p->flow); /* write lock before update flow log id */
-    uint16_t proto = FlowGetAppProtocol(p->flow);
-    if (proto != ALPROTO_MYSQL)
-        goto end;
-
-    s = (MysqlState *)FlowGetAppState(p->flow);
-    if (s == NULL) {
-        SCLogDebug("no mysql state, so no request logging");
-        goto end;
-    }
-    
     CreateTimeString(&p->ts, timebuf, sizeof(timebuf));
+
+    int ipproto = 0;
+    if (PKT_IS_IPV4(p))
+        ipproto = AF_INET;
+    else if (PKT_IS_IPV6(p))
+        ipproto = AF_INET6;
+
     char srcip[46], dstip[46];
-    Port sp = 0, dp = 0;
-    if ((PKT_IS_TOSERVER(p))) {
+    Port sp, dp;
+
+    if ((PKT_IS_TOCLIENT(p))) {
         switch (ipproto) {
             case AF_INET:
                 PrintInet(AF_INET, (const void *)GET_IPV4_SRC_ADDR_PTR(p), srcip, sizeof(srcip));
@@ -187,63 +106,109 @@ TmEcode LogMysqlLogIPWrapper(ThreadVars *tv, Packet *p,
         sp = p->sp;
         dp = p->dp;
     } else {
-        goto end; /* do not log server resonse */
-#if 0
         switch (ipproto) {
             case AF_INET:
-                PrintInet(AF_INET, (const void *)GET_IPV4_DST_ADDR_PTR(p), dstip, sizeof(dstip));
-                PrintInet(AF_INET, (const void *)GET_IPV4_SRC_ADDR_PTR(p), srcip, sizeof(srcip));
+                PrintInet(AF_INET, (const void *)GET_IPV4_DST_ADDR_PTR(p), srcip, sizeof(srcip));
+                PrintInet(AF_INET, (const void *)GET_IPV4_SRC_ADDR_PTR(p), dstip, sizeof(dstip));
                 break;
             case AF_INET6:
-                PrintInet(AF_INET6, (const void *)GET_IPV6_DST_ADDR(p), dstip, sizeof(dstip));
-                PrintInet(AF_INET6, (const void *)GET_IPV6_SRC_ADDR(p), srcip, sizeof(srcip));
+                PrintInet(AF_INET6, (const void *)GET_IPV6_DST_ADDR(p), srcip, sizeof(srcip));
+                PrintInet(AF_INET6, (const void *)GET_IPV6_SRC_ADDR(p), dstip, sizeof(dstip));
                 break;
             default:
                 goto end;
         }
-#endif
+        sp = p->dp;
+        dp = p->sp;
     }
 
-    uint8_t *json_sql;
-    uint8_t *sql = (uint8_t *)s->cur_tx->cmd.sql;
-    if (sql == NULL)
-        json_sql = NULL;
-    else
-        json_sql = prepare_json_str(sql, s->cur_tx->cmd.sql_size);
+    json_t *root = json_object();
+    json_object_set_new(root, "time", json_string(timebuf));
+    json_object_set_new(root, "src_ip", json_string(srcip));
+    json_object_set_new(root, "src_port", json_integer(sp));
+    json_object_set_new(root, "dst_ip", json_string(dstip));
+    json_object_set_new(root, "dst_port", json_integer(dp));
+    json_object_set_new(root, "db_type", json_string((char *)s->protocol_name));
+    json_object_set_new(root, "user", json_string(s->cli.username));
+    json_object_set_new(root, "db_name", json_string(s->cli.db_name));
+    json_object_set_new(root, "action", json_string("PASS")); /* FIXME: this is only the default value */
 
-    MemBufferReset(mlt->buffer);
-    MemBufferWriteString(mlt->buffer,
-            "{time:%s,src_ip:'%s',src_port:%d,dst_ip:'%s',dst_port:%d,"
-            "db_type:'%s',user:'%s',db_name:'%s',operation:'%s', action:'%s',"
-            "meta_info:{cmd:'%s',sql:'%s',}},\n",
-            timebuf, srcip, sp, dstip, dp,
-            s->protocol_name, STATE_USER(s),
-            STATE_USE_DB(s) ? STATE_USE_DB(s) : "null",
-            "null", /* no operation info(login and query info deleted) */
-            "PASS", /* how do I konw it was passed (in detect module) */
-            CmdStr(STATE_USE_CMD(s)),
-            STATE_SQL_CMD(s) ? STATE_SQL_CMD(s) : "null");
-    SCMutexLock(&mlt->file_ctx->fp_mutex);
-    (void)MemBufferPrintToFPAsString(mlt->buffer, mlt->file_ctx->fp);
-    fflush(mlt->file_ctx->fp);
-    SCMutexUnlock(&mlt->file_ctx->fp_mutex);
+    json_t *meta_info = json_object();
+    json_object_set_new(meta_info, "cmd", json_string(CmdStr(s->cur_tx->cmd)));
+    json_object_set_new(meta_info, "sql", json_string(s->cur_tx->sql));
+    json_object_set_new(root, "meta_info", meta_info);
 
-    if (json_sql)
-        SCFree(json_sql);
+    LogMysqlLogThread *lt = data;
+    SCMutexLock(&lt->mysqllog_ctx->ctx->fp_mutex);
+    int ret = json_dumpf(root, lt->mysqllog_ctx->ctx->fp, JSON_COMPACT);
+    if (ret) {
+        SCLogError(SC_ERR_JSON_DUMP_FAILED, "dump json failed");
+    }
+    fflush(lt->mysqllog_ctx->ctx->fp);
+    SCMutexUnlock(&lt->mysqllog_ctx->ctx->fp_mutex);
 
-    /* TODO : add pending packages */
+    json_decref(root);
 
 end:
-    FLOWLOCK_UNLOCK(p->flow);
-    SCReturnInt(TM_ECODE_OK);
+    return 0;
 }
 
-TmEcode LogMysqlLogIPV4(ThreadVars *tv, Packet *p,
-        void *data, PacketQueue *pq, PacketQueue *postpq) {
-    return LogMysqlLogIPWrapper(tv, p, data, pq, postpq, AF_INET);
+static void LogMysqlLogDeinitCtx(OutputCtx *ctx) {
+    SCEnter();
+    LogMysqlFileCtx *mysqllog_ctx = (LogMysqlFileCtx *)ctx->data;
+    LogFileFreeCtx(mysqllog_ctx->ctx);
+    SCFree(mysqllog_ctx);
+    SCFree(ctx);
 }
 
-TmEcode LogMysqlLogIPV6(ThreadVars *tv, Packet *p,
-        void *data, PacketQueue *pq, PacketQueue *postpq) {
-    return LogMysqlLogIPWrapper(tv, p, data, pq, postpq, AF_INET6);
+static OutputCtx *LogMysqlInitCtx(ConfNode *cn) {
+    SCEnter();
+    LogFileCtx *file_ctx = LogFileNewCtx();
+    if (!file_ctx) {
+        SCLogError(SC_ERR_MYSQL_LOG_GENERIC, "couldn't create new file_ctx");
+        return NULL;
+    }
+
+    if (SCConfLogOpenGeneric(cn, file_ctx, log_file_name) < 0) {
+        LogFileFreeCtx(file_ctx);
+        return NULL;
+    }
+
+    LogMysqlFileCtx *mysqllog_ctx = SCMalloc(sizeof(*mysqllog_ctx));
+    if (!mysqllog_ctx) {
+        LogFileFreeCtx(file_ctx);
+        return NULL;
+    }
+
+    memset(mysqllog_ctx, 0, sizeof(*mysqllog_ctx));
+    mysqllog_ctx->ctx = file_ctx;
+
+    OutputCtx *octx = SCCalloc(1, sizeof(*octx));
+    if (!octx) {
+        LogFileFreeCtx(file_ctx);
+        SCFree(mysqllog_ctx);
+        return NULL;
+    }
+
+    octx->data = mysqllog_ctx;
+    octx->DeInit = LogMysqlLogDeinitCtx;
+
+    SCLogDebug("Mysql log output initialized");
+
+    AppLayerParserRegisterLogger(IPPROTO_TCP, ALPROTO_MYSQL);
+    return octx;
+}
+
+void TmModuleLogMysqlRegister(void) {
+    SCEnter();
+    tmm_modules[TMM_LOGMYSQLLOG].name = module_name;
+    tmm_modules[TMM_LOGMYSQLLOG].ThreadInit = LogMysqlLogThreadInit;
+    tmm_modules[TMM_LOGMYSQLLOG].ThreadExitPrintStats = LogMysqlLogExitPrintStats;
+    tmm_modules[TMM_LOGMYSQLLOG].ThreadDeinit = LogMysqlLogThreadDeinit;
+    tmm_modules[TMM_LOGMYSQLLOG].cap_flags = 0;
+    tmm_modules[TMM_LOGMYSQLLOG].RegisterTests = NULL;
+    tmm_modules[TMM_LOGMYSQLLOG].flags = TM_FLAG_LOGAPI_TM;
+
+    OutputRegisterTxModule(module_name, log_node_name, LogMysqlInitCtx,
+            ALPROTO_MYSQL, LogMysqlLogger);
 }

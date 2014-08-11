@@ -286,24 +286,15 @@ TmEcode UnixSocketPcapFilesCheck(void *data)
             SCFree(this->currentfile);
         }
         this->currentfile = NULL;
-
-        /* handle graceful shutdown of the flow engine, it's helper
-         * threads and the packet threads */
-        FlowKillFlowManagerThread();
+        TmThreadKillThreadsFamily(TVT_MGMT);
+        TmThreadClearThreadsFamily(TVT_MGMT);
         TmThreadDisableThreadsWithTMS(TM_FLAG_RECEIVE_TM | TM_FLAG_DECODE_TM);
         FlowForceReassembly();
         TmThreadKillThreadsFamily(TVT_PPT);
         TmThreadClearThreadsFamily(TVT_PPT);
-        FlowKillFlowRecyclerThread();
         RunModeShutDown();
-
-        /* kill remaining mgt threads */
-        TmThreadKillThreadsFamily(TVT_MGMT);
-        TmThreadClearThreadsFamily(TVT_MGMT);
         SCPerfReleaseResources();
-
-        /* mgt and ppt threads killed, we can run non thread-safe
-         * shutdown functions */
+        /* thread killed, we can run non thread-safe shutdown functions */
         FlowShutdown();
         HostCleanup();
         StreamTcpFreeConfig(STREAM_VERBOSE);
@@ -341,7 +332,6 @@ TmEcode UnixSocketPcapFilesCheck(void *data)
         RunModeInitializeOutputs();
         RunModeDispatch(RUNMODE_PCAP_FILE, NULL, this->de_ctx);
         FlowManagerThreadSpawn();
-        FlowRecyclerThreadSpawn();
         SCPerfSpawnThreads();
         /* Un-pause all the paused threads */
         TmThreadContinueThreads();
@@ -392,7 +382,6 @@ int RunModeUnixSocketSingle(DetectEngineCtx *de_ctx)
     }
     pcapcmd->de_ctx = de_ctx;
     TAILQ_INIT(&pcapcmd->files);
-    pcapcmd->running = 0;
     pcapcmd->currentfile = NULL;
 
     UnixManagerThreadSpawn(de_ctx, 1);

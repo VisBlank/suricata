@@ -1,0 +1,35 @@
+file ./src/suricata
+
+b main
+#b RunModeSetIPSAutoFp
+
+#b RegisterMysqlParsers
+#b DecodeIPV4
+#b AppLayerParserParse
+#b AppLayerHandleTCPData
+#b StreamTcpReassembleInlineAppLayer
+b MysqlParseClientRecord
+b MysqlParseServerRecord
+
+#b LogMysqlLogThreadInit
+#b LogMysqlLogExitPrintStats
+#b LogMysqlLogThreadDeinit
+#b LogMysqlInitCtx
+#b LogMysqlLogger
+#b OutputTxLog if p->flow->alproto == 15
+#b RunModeInitializeOutputs
+
+#b MysqlGetTx
+
+#b MysqlJsonLogThreadInit
+#b MysqlJsonLogThreadDeinit
+#b JsonMysqlLogger
+#b JsonMysqlLogInitCtx
+
+# keywords debug
+b DetectMysqlUserALMatch
+b DetectMysqlUserParseArg
+b DetectMysqlUserSetup
+b DetectMysqlKeywordsRegister
+r -c yaml/mysql.yaml -q 0
+set print pretty

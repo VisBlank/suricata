@@ -84,8 +84,7 @@ int OutputRegisterFileLogger(const char *name, FileLogger LogFunc, OutputCtx *ou
     return 0;
 }
 
-static TmEcode OutputFileLog(ThreadVars *tv, Packet *p, void *thread_data, PacketQueue *pq, PacketQueue *postpq)
-{
+static TmEcode OutputFileLog(ThreadVars *tv, Packet *p, void *thread_data, PacketQueue *pq, PacketQueue *postpq) {
     BUG_ON(thread_data == NULL);
     BUG_ON(list == NULL);
 
@@ -177,8 +176,7 @@ static TmEcode OutputFileLog(ThreadVars *tv, Packet *p, void *thread_data, Packe
 /** \brief thread init for the tx logger
  *  This will run the thread init functions for the individual registered
  *  loggers */
-static TmEcode OutputFileLogThreadInit(ThreadVars *tv, void *initdata, void **data)
-{
+static TmEcode OutputFileLogThreadInit(ThreadVars *tv, void *initdata, void **data) {
     OutputLoggerThreadData *td = SCMalloc(sizeof(*td));
     if (td == NULL)
         return TM_ECODE_FAILED;
@@ -226,8 +224,7 @@ static TmEcode OutputFileLogThreadInit(ThreadVars *tv, void *initdata, void **da
     return TM_ECODE_OK;
 }
 
-static TmEcode OutputFileLogThreadDeinit(ThreadVars *tv, void *thread_data)
-{
+static TmEcode OutputFileLogThreadDeinit(ThreadVars *tv, void *thread_data) {
     OutputLoggerThreadData *op_thread_data = (OutputLoggerThreadData *)thread_data;
     OutputLoggerThreadStore *store = op_thread_data->store;
     OutputFileLogger *logger = list;
@@ -244,16 +241,13 @@ static TmEcode OutputFileLogThreadDeinit(ThreadVars *tv, void *thread_data)
             tm_module->ThreadDeinit(tv, store->thread_data);
         }
 
-        OutputLoggerThreadStore *next_store = store->next;
-        SCFree(store);
-        store = next_store;
         logger = logger->next;
+        store = store->next;
     }
     return TM_ECODE_OK;
 }
 
-static void OutputFileLogExitPrintStats(ThreadVars *tv, void *thread_data)
-{
+static void OutputFileLogExitPrintStats(ThreadVars *tv, void *thread_data) {
     OutputLoggerThreadData *op_thread_data = (OutputLoggerThreadData *)thread_data;
     OutputLoggerThreadStore *store = op_thread_data->store;
     OutputFileLogger *logger = list;
@@ -275,24 +269,11 @@ static void OutputFileLogExitPrintStats(ThreadVars *tv, void *thread_data)
     }
 }
 
-void TmModuleFileLoggerRegister (void)
-{
+void TmModuleFileLoggerRegister (void) {
     tmm_modules[TMM_FILELOGGER].name = "__file_logger__";
     tmm_modules[TMM_FILELOGGER].ThreadInit = OutputFileLogThreadInit;
     tmm_modules[TMM_FILELOGGER].Func = OutputFileLog;
     tmm_modules[TMM_FILELOGGER].ThreadExitPrintStats = OutputFileLogExitPrintStats;
     tmm_modules[TMM_FILELOGGER].ThreadDeinit = OutputFileLogThreadDeinit;
     tmm_modules[TMM_FILELOGGER].cap_flags = 0;
-}
-
-void OutputFileShutdown(void)
-{
-    OutputFileLogger *logger = list;
-    while (logger) {
-        OutputFileLogger *next_logger = logger->next;
-        SCFree(logger);
-        logger = next_logger;
-    }
-
-    list = NULL;
 }

@@ -180,8 +180,7 @@ static int FTPGetLine(FtpState *state)
  * \retval 1 when the command is parsed, 0 otherwise
  */
 static int FTPParseRequestCommand(void *ftp_state, uint8_t *input,
-                                  uint32_t input_len)
-{
+                                  uint32_t input_len) {
     SCEnter();
     FtpState *fstate = (FtpState *)ftp_state;
     fstate->command = FTP_COMMAND_UNKNOWN;
@@ -271,8 +270,7 @@ static uint64_t ftp_state_memuse = 0;
 static uint64_t ftp_state_memcnt = 0;
 #endif
 
-static void *FTPStateAlloc(void)
-{
+static void *FTPStateAlloc(void) {
     void *s = SCMalloc(sizeof(FtpState));
     if (unlikely(s == NULL))
         return NULL;
@@ -288,8 +286,7 @@ static void *FTPStateAlloc(void)
     return s;
 }
 
-static void FTPStateFree(void *s)
-{
+static void FTPStateFree(void *s) {
     FtpState *fstate = (FtpState *) s;
     if (fstate->port_line != NULL)
         SCFree(fstate->port_line);
@@ -327,8 +324,7 @@ static int FTPRegisterPatternsForProtocolDetection(void)
     return 0;
 }
 
-void RegisterFTPParsers(void)
-{
+void RegisterFTPParsers(void) {
     char *proto_name = "ftp";
 
     /** FTP */
@@ -354,8 +350,7 @@ void RegisterFTPParsers(void)
 #endif
 }
 
-void FTPAtExitPrintStats(void)
-{
+void FTPAtExitPrintStats(void) {
 #ifdef DEBUG
     SCMutexLock(&ftp_state_mem_lock);
     SCLogDebug("ftp_state_memcnt %"PRIu64", ftp_state_memuse %"PRIu64"",
@@ -368,8 +363,7 @@ void FTPAtExitPrintStats(void)
 #ifdef UNITTESTS
 
 /** \test Send a get request in one chunk. */
-int FTPParserTest01(void)
-{
+int FTPParserTest01(void) {
     int result = 1;
     Flow f;
     uint8_t ftpbuf[] = "PORT 192,168,1,1,0,80\r\n";
@@ -418,8 +412,7 @@ end:
 }
 
 /** \test Send a splitted get request. */
-int FTPParserTest03(void)
-{
+int FTPParserTest03(void) {
     int result = 1;
     Flow f;
     uint8_t ftpbuf1[] = "POR";
@@ -489,8 +482,7 @@ end:
 }
 
 /** \test See how it deals with an incomplete request. */
-int FTPParserTest06(void)
-{
+int FTPParserTest06(void) {
     int result = 1;
     Flow f;
     uint8_t ftpbuf1[] = "PORT";
@@ -539,8 +531,7 @@ end:
 }
 
 /** \test See how it deals with an incomplete request in multiple chunks. */
-int FTPParserTest07(void)
-{
+int FTPParserTest07(void) {
     int result = 1;
     Flow f;
     uint8_t ftpbuf1[] = "PO";
@@ -603,8 +594,7 @@ end:
 
 /** \test Test case where chunks are smaller than the delim length and the
   *       last chunk is supposed to match the delim. */
-int FTPParserTest10(void)
-{
+int FTPParserTest10(void) {
     int result = 1;
     Flow f;
     uint8_t ftpbuf1[] = "PORT 1,2,3,4,5,6\r\n";
@@ -662,8 +652,7 @@ end:
 }
 #endif /* UNITTESTS */
 
-void FTPParserRegisterTests(void)
-{
+void FTPParserRegisterTests(void) {
 #ifdef UNITTESTS
     UtRegisterTest("FTPParserTest01", FTPParserTest01, 1);
     UtRegisterTest("FTPParserTest03", FTPParserTest03, 1);

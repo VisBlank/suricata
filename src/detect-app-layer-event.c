@@ -91,6 +91,8 @@ static int DetectAppLayerEventAppMatch(ThreadVars *t, DetectEngineThreadCtx *det
     int r = 0;
     DetectAppLayerEventData *aled = (DetectAppLayerEventData *)m->ctx;
 
+    FLOWLOCK_RDLOCK(f);
+
     if (r == 0) {
         decoder_events = AppLayerParserGetDecoderEvents(f->alparser);
         if (decoder_events != NULL &&
@@ -99,6 +101,7 @@ static int DetectAppLayerEventAppMatch(ThreadVars *t, DetectEngineThreadCtx *det
         }
     }
 
+    FLOWLOCK_UNLOCK(f);
     SCReturnInt(r);
 }
 
