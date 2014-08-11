@@ -7,6 +7,7 @@
 ./autogen.sh
 ./configure --enable-debug \
 	--enable-nfqueue \
+	--enable-lua \
 	--enable-non-bundled-htp \
 	--with-libhtp-includes=/usr/local/include/htp \
 	--with-libhtp-libraries=/usr/local/lib \
@@ -16,9 +17,11 @@
 	--with-libinjection-includes=/usr/local/include \
 	--with-libndpi-libraries=/usr/local/lib \
 	--with-libndpi-includes=/usr/local/include/libndpi-1.4.99/libndpi \
+	--with-liblua-includes=/usr/include/lua5.1 \
+	--with-liblua-libraries=/usr/lib/i386-linux-gnu \
 	CFLAGS="-O0 -g -g3" \
 
-make
+#make
 
 	#--enable-unittests 
 

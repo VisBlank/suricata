@@ -2043,6 +2043,11 @@ static void test_3rd_party_lib(void) {
 #include <ndpi_main.h>
     const char *ndpi_rev = ndpi_revision();
     printf("libndpi revison %s\n", ndpi_rev);
+
+#include <lua.h>
+    printf("lua version: %s\n", LUA_VERSION);
+    lua_State *L = lua_newstate(NULL, NULL);
+    lua_close(L);
 }
 
 int main(int argc, char **argv)
