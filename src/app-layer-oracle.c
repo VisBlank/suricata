@@ -1,6 +1,6 @@
 /**
  * app layer for TNS protocol used in Oracle
- * author: coanor <coanor@gmail.com>
+ * author: tanb <tanb@titansec.com.cn>
  * date: Fri Apr  4 10:48:31 CST 2014
  */
 

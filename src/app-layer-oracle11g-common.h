@@ -18,9 +18,9 @@ typedef struct Oracle11gHeader_ {
     uint8_t pkt_type;
 } Oracle11gHeader;
 
-typedef struct Oracle11gState_ Oracle11gState;
+struct Oracle11gState_;
 typedef struct Oracle11gTransaction_ {
-    Oracle11gState *s;
+    struct Oracle11gState_ *s;
     uint16_t tx_id;
 
     /* transaction types */
@@ -38,15 +38,12 @@ typedef struct Oracle11gTransaction_ {
     TAILQ_ENTRY(Oracle11gTransaction_) next;
 } Oracle11gTransaction;
 
-struct oracle11g_conn_data {
-    char *sid, *client_program, *client_host, *user, *protocol, *server_host, *server_port;
-};
-
 struct oracle11g_conn_data;
+struct Oracle11gTransaction_;
 typedef struct Oracle11gState_ {
     Oracle11gHeader hdr;
     TAILQ_HEAD(, Oracle11gTransaction_) tx_list;
-    Oracle11gTransaction *cur_tx;
+    struct Oracle11gTransaction_ *cur_tx;
 
     struct oracle11g_conn_data *conn_data;
 
@@ -59,6 +56,10 @@ typedef struct Oracle11gState_ {
     uint8_t last_seq;
     uint64_t tx_num;
 } Oracle11gState;
+
+struct oracle11g_conn_data {
+    char *sid, *client_program, *client_host, *user, *protocol, *server_host, *server_port;
+};
 
 int Oracle11gParseClientRecord(Flow *f, void *alstate, AppLayerParserState *alps,
         uint8_t *in, uint32_t in_len, void *local_data);

@@ -1,6 +1,6 @@
 /*
  * Oracle 11g implementation
- * author: coanor <coanor@gmail.com>
+ * author: tanb <tanb@titansec.com.com>
  * date: Fri Mar 28 14:34:15 CST 2014
  */
 

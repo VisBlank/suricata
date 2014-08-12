@@ -1,7 +1,7 @@
 /**
  * App-layer parser for Mysql protocol
  *
- * author: coanor <coanor@gmail.com>
+ * author: tanb <tanb@titansec.com.cn>
  * date: Fri Apr  4 14:28:19 CST 2014
  */
 

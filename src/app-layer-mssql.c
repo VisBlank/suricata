@@ -1,6 +1,6 @@
 /*
  * parser for MSSQL(TDS) protocol
- * author: coanor <coanor@gmail.com>
+ * author: tanb <tanb@titansec.com.cn>
  * daate: Tue Jun 10 09:37:17 CST 2014
  */
 

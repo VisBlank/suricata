@@ -1,6 +1,6 @@
 /*
  * Oracle 11g TNS implementation
- * author: coanor <coanor@gmail.com>
+ * author: tanb <tanb@titansec.com.cn>
  * date: Fri Mar 28 14:34:15 CST 2014
  */
 

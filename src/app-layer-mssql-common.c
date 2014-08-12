@@ -1,5 +1,5 @@
 /**
- * author: coanor <coanor@gmail.com>
+ * author: tanb <tanb@titansec.com.cn>
  * date: Tue Jun 10 10:10:29 CST 2014
  */
 #include "app-layer-mssql-common.h"

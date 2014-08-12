@@ -835,9 +835,11 @@ void RegisterAllModules()
 
     TmModuleJsonAlertLogRegister();
 
+#ifdef HAVE_LIBJANSSON
     TmModuleJsonMysqlLogRegister();
     TmModuleJsonOracle11gLogRegister();
     TmModuleJsonMSSqlLogRegister();
+#endif
 
     /* log api */
     TmModulePacketLoggerRegister();
@@ -2034,6 +2036,7 @@ static int PostConfLoadedSetup(SCInstance *suri)
     SCReturnInt(TM_ECODE_OK);
 }
 
+#if 0
 static void test_3rd_party_lib(void) {
 #include <libinjection.h>
     /* test to import libinjection into suricata */
@@ -2049,10 +2052,11 @@ static void test_3rd_party_lib(void) {
     lua_State *L = lua_newstate(NULL, NULL);
     lua_close(L);
 }
+#endif
 
 int main(int argc, char **argv)
 {
-    test_3rd_party_lib();
+    //test_3rd_party_lib();
     SCInstance suri;
 
     SCInstanceInit(&suri);

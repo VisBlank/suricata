@@ -98,9 +98,9 @@ typedef struct PendingPkt_ {
 /**
  * \brief MySQL transaction, request/reply with same TX id
  */
-typedef struct MysqlState_ MysqlState;
+struct MysqlState_;
 typedef struct MysqlTransaction_ {
-    MysqlState *s;
+    struct MysqlState_ *s;
     uint16_t tx_id;
 
     uint8_t replied; /* bool indicating request is replied to. */
@@ -123,7 +123,7 @@ typedef struct MysqlTransaction_ {
 
 typedef struct MysqlState_ {
     TAILQ_HEAD(, MysqlTransaction_) tx_list;
-    MysqlTransaction *cur_tx;
+    struct MysqlTransaction_ *cur_tx;
     MysqlPktHeader hdr;
 
     MysqlClient cli; /* transaction must map to a client */
