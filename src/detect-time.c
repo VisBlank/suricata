@@ -1,6 +1,6 @@
 /**
  * \file
- * \auth
+ * \auth: tanb
  * various time detect according to iptables rules
  *
  * time detect stolen from iptables($ man iptables):
@@ -483,5 +483,5 @@ static int DetectMonthdaysParse(char *str, DetectMonthdays *md) {
         }
     }
 
-    return 0;    
+    return 0;
 }
