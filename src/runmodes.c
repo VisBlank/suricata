@@ -360,7 +360,7 @@ void RunModeRegisterNewRunMode(int runmode, const char *name,
                                int (*RunModeFunc)(DetectEngineCtx *))
 {
     void *ptmp;
-    if (RunModeGetCustomMode(runmode, name) != NULL) { /* 查找是否已经有同名的模式 */
+    if (RunModeGetCustomMode(runmode, name) != NULL) { /* find if there exists a same-name runmode */
         SCLogError(SC_ERR_RUNMODE, "A runmode by this custom name has already "
                    "been registered.  Please use an unique name");
         return;
@@ -369,7 +369,7 @@ void RunModeRegisterNewRunMode(int runmode, const char *name,
     ptmp = SCRealloc(runmodes[runmode].runmodes,
                      (runmodes[runmode].no_of_runmodes + 1) * sizeof(RunMode));
     if (ptmp == NULL) {
-        SCFree(runmodes[runmode].runmodes); /* 居然会释放其它已经存在的 runmode */
+        SCFree(runmodes[runmode].runmodes); /* release the existed runmode */
         runmodes[runmode].runmodes = NULL;
         exit(EXIT_FAILURE);
     }

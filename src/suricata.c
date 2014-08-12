@@ -1455,7 +1455,7 @@ static TmEcode ParseCommandLine(int argc, char** argv, SCInstance *suri)
                 return TM_ECODE_FAILED;
             }
             break;
-        case 'q': /* 该参数用来设置 NFQ 运行模式 */
+        case 'q': /* used to set NFQ mode*/
 #ifdef NFQ
             if (suri->run_mode == RUNMODE_UNKNOWN) {
                 suri->run_mode = RUNMODE_NFQ;
@@ -2068,9 +2068,8 @@ int main(int argc, char **argv)
         SCLogWarning(SC_ERR_THREAD_INIT, "Unable to set thread name");
     }
 
-    ParseSizeInit(); /* 初始化几个正则表达式 */
+    ParseSizeInit();
 
-    /* 注册各种运行模式，比如中的 IPS(NFQ) 模式 */
     RunModeRegisterRunModes();
 
     /* By default use IDS mode, but if nfq or ipfw
@@ -2088,7 +2087,6 @@ int main(int argc, char **argv)
     /* Initialize the configuration module. */
     ConfInit();
 
-    /* 解析命令行参数，会设置很多变量 */
     if (ParseCommandLine(argc, argv, &suri) != TM_ECODE_OK) {
         exit(EXIT_FAILURE);
     }
@@ -2113,7 +2111,6 @@ int main(int argc, char **argv)
     CudaBufferInit();
 #endif
 
-    /* 检查 daemon 运行的可行性 */
     if (!CheckValidDaemonModes(suri.daemon, suri.run_mode)) {
         exit(EXIT_FAILURE);
     }
@@ -2145,7 +2142,6 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
     }
 
-    /* 关键点，此处初始化了很多变量 */
     if (PostConfLoadedSetup(&suri) != TM_ECODE_OK) {
         exit(EXIT_FAILURE);
     }
