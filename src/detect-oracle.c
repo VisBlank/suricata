@@ -69,11 +69,12 @@ static int UserMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx, Flow *f,
 
 static int UserSetup(DetectEngineCtx *de_ctx, Signature *s, char *str) {
     SigMatch *sm = SigMatchAlloc();
+    DetectOracle11gKeywords *kw = NULL;
     if (!sm)
         goto error;
 
     sm->type = DETECT_AL_ORACLE11G_USER;
-    DetectOracle11gKeywords *kw = SCCalloc(sizeof(*kw), 1);
+    kw = SCCalloc(sizeof(*kw), 1);
     if (!kw)
         goto error;
     if (UserParseArg(str, kw) == -1)
@@ -145,11 +146,12 @@ static int SidMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx, Flow *f,
 
 static int SidSetup(DetectEngineCtx *de_ctx, Signature *s, char *str) {
     SigMatch *sm = SigMatchAlloc();
+    DetectOracle11gKeywords *kw = NULL;
     if (!sm)
         goto error;
 
     sm->type = DETECT_AL_ORACLE11G_SID;
-    DetectOracle11gKeywords *kw = SCCalloc(sizeof(*kw), 1);
+    kw = SCCalloc(sizeof(*kw), 1);
     if (!kw)
         goto error;
     if (SidParseArg(str, kw) == -1)

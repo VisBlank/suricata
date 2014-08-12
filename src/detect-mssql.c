@@ -63,11 +63,12 @@ static int MSSqlUserMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx,
 
 static int MSSqlUserSetup(DetectEngineCtx *de_ctx, Signature *s, char *str) {
     SigMatch *sm = SigMatchAlloc();
+    DetectMSSqlKeywords *kw = NULL;
     if (!sm)
         goto error;
 
     sm->type = DETECT_AL_MSSQL_USER;
-    DetectMSSqlKeywords *kw = SCCalloc(sizeof(*kw), 1);
+    kw = SCCalloc(sizeof(*kw), 1);
     if (!kw)
         goto error;
     if (MSSqlUserParseArg(str, kw) == -1)
@@ -82,6 +83,7 @@ error:
         SigMatchFree(sm);
     if (kw)
         MSSqlKeywordsFree(kw);
+    return -1;
 }
 
 static int MSSqlUserParseArg(const char *key, DetectMSSqlKeywords *kw) {
@@ -139,11 +141,12 @@ static int MSSqlDbMatch(ThreadVars *t, DetectEngineThreadCtx *det_ctx, Flow *f,
 
 static int MSSqlDbSetup(DetectEngineCtx *de_ctx, Signature *s, char *str) {
     SigMatch *sm = SigMatchAlloc();
+    DetectMSSqlKeywords *kw = NULL;
     if (!sm)
         goto error;
 
     sm->type = DETECT_AL_MSSQL_DB;
-    DetectMSSqlKeywords *kw = SCCalloc(sizeof(*kw), 1);
+    kw = SCCalloc(sizeof(*kw), 1);
     if (!kw)
         goto error;
     if (MSSqlDbParseArg(str, kw) == -1)
@@ -171,7 +174,7 @@ static int MSSqlDbParseArg(const char *key, DetectMSSqlKeywords *kw) {
             return -1;
         str[len - 2] = '\0';
     } else {
-        str = strdup(key);
+        str = (uint8_t *)strdup(key);
         if (!str)
             return -1;
     }

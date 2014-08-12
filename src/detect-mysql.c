@@ -59,14 +59,14 @@ void DetectMysqlKeywordsRegister(void) {
 
 static int DetectMysqlUserSetup(DetectEngineCtx *de_ctx, Signature *s, char *str) {
     SCEnter();
-
+    DetectMysqlUser *mu = NULL;
     SigMatch *sm = NULL;
     sm = SigMatchAlloc();
     if (sm == NULL)
         goto error;
 
     sm->type = DETECT_AL_MYSQL_USER;
-    DetectMysqlUser *mu = SCMalloc(sizeof(DetectMysqlUser));
+    mu = SCMalloc(sizeof(DetectMysqlUser));
     if (mu == NULL)
         goto error;
     memset(mu, 0, sizeof(*mu));
@@ -176,12 +176,13 @@ static int DetectMysqlDbSetup(DetectEngineCtx *de_ctx, Signature *s, char *str) 
     SCEnter();
 
     SigMatch *sm = NULL;
+    DetectMysqlDb *md = NULL;
     sm = SigMatchAlloc();
     if (sm == NULL)
         goto error;
 
     sm->type = DETECT_AL_MYSQL_DB;
-    DetectMysqlDb *md = SCMalloc(sizeof(DetectMysqlDb));
+    md = SCMalloc(sizeof(DetectMysqlDb));
     if (md == NULL)
         goto error;
     memset(md, 0, sizeof(*md));

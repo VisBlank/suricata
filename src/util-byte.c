@@ -86,7 +86,7 @@ char *BytesToString2(const uint8_t *bytes, size_t nbytes, int32_t limit) {
     }
 #endif
 
-    if (limit > 0 && limit < nbytes) {
+    if (limit > 0 && (size_t)limit < nbytes) {
         nbytes = limit;
     }
 

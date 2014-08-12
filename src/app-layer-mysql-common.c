@@ -215,6 +215,7 @@ static int CheckPkt(MysqlState *s, uint8_t *input, uint32_t input_len) {
     return PKT_INVALID;
 }
 
+#if 0
 static int InitPendingPkt(PendingPkt *ppkt, uint8_t *input, uint32_t input_len) {
     MysqlPktHeader hdr;
     if (!ppkt)
@@ -235,6 +236,7 @@ static int InitPendingPkt(PendingPkt *ppkt, uint8_t *input, uint32_t input_len) 
     ppkt->flags = PPKT_APPENDING;
     return 0;
 }
+#endif
 
 static int ParseServerCmdResp(MysqlState *state, uint8_t *input, uint32_t input_len) {
     /* TODO */

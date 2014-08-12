@@ -1790,7 +1790,7 @@ AC_SUBST(e_magic_file)
 
 AC_OUTPUT(Makefile src/Makefile qa/Makefile qa/coccinelle/Makefile rules/Makefile doc/Makefile contrib/Makefile contrib/file_processor/Makefile contrib/file_processor/Action/Makefile contrib/file_processor/Processor/Makefile contrib/tile_pcie_logd/Makefile suricata.yaml scripts/Makefile scripts/suricatasc/Makefile scripts/suricatasc/suricatasc)
 
--# we put the newest added support top to easy see its configure results
+# we put the newest added support top to easy see its configure results
 SURICATA_BUILD_CONF="Suricata Configuration:
   libinjection support:                    ${enable_libinjection}
   libndpi support:                         ${enable_libndpi}

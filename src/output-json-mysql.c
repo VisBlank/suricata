@@ -138,7 +138,7 @@ static int JsonMysqlLogger(ThreadVars *t, void *thread_data,
     json_object_set_new(meta_info, "cmd", json_string(CmdStr(tx->cmd)));
 
     json_object_set_new(meta_info, "sql",
-            tx->sql ? json_string(tx->sql):json_null());
+            tx->sql ? json_string((const char *)tx->sql):json_null());
 
     OutputJSONBuffer(js, td->mysqllog_ctx->file_ctx, buffer);
 

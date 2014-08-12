@@ -169,7 +169,7 @@ static int JsonOracle11gLogger(ThreadVars *t, void *thread_data,
 
     json_object_set_new(djs, "meta_info", meta_info);
 
-    json_object_set_new(meta_info, "sql", tx->sql ? json_string(tx->sql) : json_null());
+    json_object_set_new(meta_info, "sql", tx->sql ? json_string((const char *)tx->sql) : json_null());
     switch (tx->tx_type) {
     case oracle11g_tx_type_try_login:  
         json_object_set_new(meta_info, "cmd", json_string("login"));

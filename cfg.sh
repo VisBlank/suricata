@@ -19,7 +19,8 @@
 	--with-libndpi-includes=/usr/local/include/libndpi-1.4.99/libndpi \
 	--with-liblua-includes=/usr/include/lua5.1 \
 	--with-liblua-libraries=/usr/lib/i386-linux-gnu \
-	CFLAGS="-O0 -g -g3" \
+
+	#CFLAGS="-O0 -g -g3 -Werror" \
 
 #make
 
